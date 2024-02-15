@@ -50,7 +50,7 @@ void scatter(const T1& val_simd, const SimdIndex& index, T2* val_ptr) ;
 // ------------------------------------------------------
 // Individual Scalar manipulation
 // ------------------------------------------------------
-template <typename T> T select(const T mask, const T a, const T b);
+template <typename T> T select(const T& mask, const T& a, const T& b);
 
 template <typename T1, typename T2>
 void insert(T1& val_simd, int index, T2 val);
@@ -59,7 +59,7 @@ template <typename T1, typename T2> T2 extract(const T1& val_simd, int index);
 
 template <typename T> void cutoff(T& val_simd, int index);
 
-template <typename T> void print(std::ostream& stream, T& val_simd);
+template <typename T> void print(std::ostream& stream, T class_simd);
 
 // ------------------------------------------------------
 // Basic Arithmetic
@@ -76,15 +76,15 @@ template <typename T> T min(const T& a, const T& b);
 
 template <typename T> T max(const T& a, const T& b);
 
-template <typename T> T sqrt(const T& a);
+template <typename T1, typename T2> T1 sqrt(T2& class_simd);
 /* Reciprocal( inverse) Square Root */
-template <typename T> T rsqrt(const T& a);
+template <typename T1, typename T2> T1 rsqrt(T2& class_simd);
 
 template <typename T> T abs(const T& a);
 
-template <typename T> T pow(const T& a, int exp);
+template <typename T1, typename T2> T1 pow(T2& class_simd, int exp);
 
-template <typename T> T log(const T& a);
+template <typename T1, typename T2> T1 log(T2& class_simd);
 
 /* Logical */
 template <typename T> T opANDbitwise(const T& a, const T& b);

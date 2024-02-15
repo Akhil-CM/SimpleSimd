@@ -71,23 +71,17 @@ public:
     // ------------------------------------------------------
     // Data member accessors
     // ------------------------------------------------------
-    void setMask()
+    __m128i maski() const
     {
-        mask_ = _mm_load_si128(reinterpret_cast<const __m128i*>(bools_)) ;
+        return _mm_load_si128(reinterpret_cast<const __m128i*>(bools_)) ;
     }
 
-    __m128i maski()
-    {
-        setMask() ;
-        return mask_ ;
-    }
-
-    __m128i maskf()
+    __m128 maskf() const
     {
         return _mm_castsi128_ps(maski()) ;
     }
 
-    __m128d maskd()
+    __m128d maskd() const
     {
         return _mm_castsi128_pd(_mm_setr_epi32(bools_[0], bools_[0], bools_[1], bools_[1]));
     }
@@ -116,9 +110,9 @@ public:
     }
 
 protected:
+    // __m128i mask_ ;
     int __attribute__((aligned(16)))
     bools_[SimdLen]{0, 0, 0, 0}; // Indices array
-    __m128i mask_ ;
     // alignas(16) int indices_[SimdLen]{0, 1, 2, 3} ; // Indices array
 };
 

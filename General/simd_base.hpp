@@ -23,6 +23,7 @@ class SimdBaseClass;
 
 template <typename ValueType, typename SimdType, ABI ABIVal> class SimdBaseClass
 {
+    static_assert(validABI(ABIVal), "[Error]: KFP::SIMD given invalid ABI tag.") ;
     static_assert(
         std::is_fundamental<ValueType>::value &&
             std::is_arithmetic<ValueType>::value,
@@ -39,7 +40,8 @@ public:
     typedef SimdType simd_type;
     static constexpr int SimdLen{ sizeof(SimdType) / sizeof(ValueType) };
     static constexpr int SimdSize{ SimdLen * sizeof(ValueType) };
-    static constexpr ABI SimdABI{ ABIVal };
+    static constexpr ABI SimdABI()
+    { return ABIVal ; }
 
     // ------------------------------------------------------
     // Constructors
@@ -221,7 +223,7 @@ public:
     friend std::ostream& operator<<(std::ostream& stream,
                                     const SimdBaseClass& s)
     {
-        Detail::print<SimdType>(stream, s.dataSimd_);
+        Detail::print<SimdBaseClass>(stream, s);
         return stream;
     }
 
@@ -260,13 +262,13 @@ public:
 
     friend SimdBaseClass sqrt(const SimdBaseClass& a)
     {
-        return Detail::sqrt<SimdType>(a.dataSimd_);
+        return Detail::sqrt<SimdType, SimdBaseClass>(a);
     }
 
     /* Reciprocal( inverse) Square Root */
     friend SimdBaseClass rsqrt(const SimdBaseClass& a)
     {
-        return Detail::rsqrt<SimdType>(a.dataSimd_);
+        return Detail::rsqrt<SimdType, SimdBaseClass>(a);
     }
 
     friend SimdBaseClass abs(const SimdBaseClass& a)

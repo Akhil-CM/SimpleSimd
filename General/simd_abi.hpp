@@ -8,10 +8,8 @@ Emails: mithran@fias.uni-frankfurt.de
 
 #pragma once
 
-namespace KFP
-{
-namespace SIMD
-{
+namespace KFP {
+namespace SIMD {
 
 enum class ABI
 {
@@ -34,6 +32,32 @@ enum class ABI
     /// x86 AVX + AVX2
     AVX2,
 };
+
+constexpr inline bool validABI(ABI abi)
+{
+    switch (abi) {
+    case ABI::Scalar:
+        return true;
+    case ABI::SSE:
+        return true;
+    case ABI::SSE2:
+        return true;
+    case ABI::SSE3:
+        return true;
+    case ABI::SSSE3:
+        return true;
+    case ABI::SSE41:
+        return true;
+    case ABI::SSE42:
+        return true;
+    case ABI::AVX:
+        return true;
+    case ABI::AVX2:
+        return true;
+    default:
+        return false;
+    };
+}
 
 } // namespace SIMD
 } // namespace KFP
