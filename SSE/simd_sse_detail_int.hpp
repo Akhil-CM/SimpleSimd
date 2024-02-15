@@ -276,14 +276,14 @@ inline SimdTypeI max<SimdTypeI>(const SimdTypeI& a, const SimdTypeI& b)
 }
 
 template<>
-inline SimdTypeI sqrt<SimdTypeI, SimdI_t>(SimdI_t& class_simd)
+inline SimdTypeI sqrt<SimdTypeI, SimdI_t>(SimdI_t class_simd)
 {
     ValueTypeI* data = class_simd.storeScalar();
     return _mm_setr_epi32(std::sqrt(data[0]), std::sqrt(data[1]), std::sqrt(data[2]), std::sqrt(data[3])) ;
 }
 
 template<>
-inline SimdTypeI rsqrt<SimdTypeI, SimdI_t>(SimdI_t& class_simd)
+inline SimdTypeI rsqrt<SimdTypeI, SimdI_t>(SimdI_t class_simd)
 {
     return _mm_cvtps_epi32( _mm_rsqrt_ps(_mm_cvtepi32_ps(class_simd.simd())) ) ;
 }
@@ -300,14 +300,14 @@ inline SimdTypeI abs<SimdTypeI>(const SimdTypeI& a)
 }
 
 template<>
-inline SimdTypeI log<SimdTypeI, SimdI_t>(SimdI_t& class_simd)
+inline SimdTypeI log<SimdTypeI, SimdI_t>(SimdI_t class_simd)
 {
     ValueTypeI* data = class_simd.storeScalar();
     return _mm_setr_epi32(std::log(data[0]), std::log(data[1]), std::log(data[2]), std::log(data[3])) ;
 }
 
 template<>
-inline SimdTypeI pow<SimdTypeI, SimdI_t>(SimdI_t& class_simd, int exp)
+inline SimdTypeI pow<SimdTypeI, SimdI_t>(SimdI_t class_simd, int exp)
 {
 #if 0
     std::cerr << "[Error]: SimdI_t pow not implemented\n" ;

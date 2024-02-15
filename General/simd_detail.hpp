@@ -76,15 +76,15 @@ template <typename T> T min(const T& a, const T& b);
 
 template <typename T> T max(const T& a, const T& b);
 
-template <typename T1, typename T2> T1 sqrt(T2& class_simd);
+template <typename T1, typename T2> T1 sqrt(T2 class_simd);
 /* Reciprocal( inverse) Square Root */
-template <typename T1, typename T2> T1 rsqrt(T2& class_simd);
+template <typename T1, typename T2> T1 rsqrt(T2 class_simd);
 
 template <typename T> T abs(const T& a);
 
-template <typename T1, typename T2> T1 pow(T2& class_simd, int exp);
+template <typename T1, typename T2> T1 pow(T2 class_simd, int exp);
 
-template <typename T1, typename T2> T1 log(T2& class_simd);
+template <typename T1, typename T2> T1 log(T2 class_simd);
 
 /* Logical */
 template <typename T> T opANDbitwise(const T& a, const T& b);

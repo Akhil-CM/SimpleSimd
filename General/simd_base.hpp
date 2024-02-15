@@ -276,6 +276,11 @@ public:
         return Detail::abs<SimdType>(a.dataSimd_);
     }
 
+    friend SimdBaseClass log(const SimdBaseClass& a)
+    {
+        return Detail::log<SimdType, SimdBaseClass>(a);
+    }
+
     /* Logical */
     friend SimdBaseClass operator&(const SimdBaseClass& a,
                                    const SimdBaseClass& b)

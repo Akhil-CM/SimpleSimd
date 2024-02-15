@@ -28,4 +28,10 @@ int main()
     std::cout << simd_float << '\n';
     std::cout << simd_float + 5 << '\n';
     std::cout << (simd_float + SimdF_t{ 5 }) << '\n';
+    std::cout << sqrt(simd_float + SimdF_t{ 5 }) << '\n';
+    std::cout << sqrt(simd_int + SimdI_t{ 5 }) << '\n';
+    std::cout << rsqrt(simd_float + SimdF_t{ 5 }) << '\n';
+    std::cout << rsqrt(simd_int + SimdI_t{ 5 }) << '\n';
+    std::cout << log(simd_float + SimdF_t{ 5 }) << '\n';
+    std::cout << log(simd_int + SimdI_t{ 5 }) << '\n';
 }

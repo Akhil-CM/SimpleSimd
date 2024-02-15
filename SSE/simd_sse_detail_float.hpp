@@ -272,13 +272,13 @@ inline SimdTypeF max<SimdTypeF>(const SimdTypeF& a, const SimdTypeF& b)
 }
 
 template<>
-inline SimdTypeF sqrt<SimdTypeF, SimdF_t>(SimdF_t& class_simd)
+inline SimdTypeF sqrt<SimdTypeF, SimdF_t>(SimdF_t class_simd)
 {
     return _mm_sqrt_ps(class_simd.simd()) ;
 }
 
 template<>
-inline SimdTypeF rsqrt<SimdTypeF, SimdF_t>(SimdF_t& class_simd)
+inline SimdTypeF rsqrt<SimdTypeF, SimdF_t>(SimdF_t class_simd)
 {
     return _mm_rsqrt_ps(class_simd.simd());
 }
@@ -291,14 +291,14 @@ inline SimdTypeF abs<SimdTypeF>(const SimdTypeF& a)
 }
 
 template<>
-inline SimdTypeF log<SimdTypeF, SimdF_t>(SimdF_t& class_simd)
+inline SimdTypeF log<SimdTypeF, SimdF_t>(SimdF_t class_simd)
 {
     ValueTypeF* data = class_simd.storeScalar();
     return _mm_setr_ps(std::log(data[0]), std::log(data[1]), std::log(data[2]), std::log(data[3])) ;
 }
 
 template<>
-inline SimdTypeF pow<SimdTypeF, SimdF_t>(SimdF_t& class_simd, int exp)
+inline SimdTypeF pow<SimdTypeF, SimdF_t>(SimdF_t class_simd, int exp)
 {
 #if 0
     std::cerr << "[Error]: SimdF_t pow not implemented\n" ;
