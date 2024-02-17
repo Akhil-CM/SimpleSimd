@@ -42,10 +42,10 @@ void store_partial(T1& class_simd, int index, T2* val_ptr);
 // Gather and Scatter
 // ------------------------------------------------------
 template <typename T1, typename T2>
-void gather(T1& val_simd, const SimdIndex& index, const T2* val_ptr) ;
+void gather(T1& class_simd, const SimdIndex& index, const T2* val_ptr);
 
 template <typename T1, typename T2>
-void scatter(const T1& val_simd, const SimdIndex& index, T2* val_ptr) ;
+void scatter(T1& class_simd, const SimdIndex& index, T2* val_ptr);
 
 // ------------------------------------------------------
 // Individual Scalar manipulation
@@ -64,6 +64,7 @@ template <typename T> void print(std::ostream& stream, T class_simd);
 // ------------------------------------------------------
 // Basic Arithmetic
 // ------------------------------------------------------
+template <typename T> T minus(const T& a);
 template <typename T> T add(const T& a, const T& b);
 
 template <typename T> T substract(const T& a, const T& b);

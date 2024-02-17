@@ -8,6 +8,7 @@ Emails: mithran@fias.uni-frankfurt.de
 
 #pragma once
 
+#include "simd_macros.hpp"
 #include "simd_abi.hpp"
 #include "simd_detail.hpp"
 #include "simd_mask.hpp"
@@ -134,14 +135,13 @@ public:
     // ------------------------------------------------------
     SimdBaseClass& gather(const SimdIndex& indices, const ValueType* p)
     {
-        Detail::gather<SimdType, ValueType>(dataSimd_, indices, p);
+        Detail::gather<SimdBaseClass, ValueType>(*this, indices, p);
         return *this;
     }
 
-    template<typename T>
-    SimdBaseClass& scatter(SimdBaseClass<int, T, ABIVal> indices, ValueType* p)
+    SimdBaseClass& scatter(const SimdIndex& indices, ValueType* p)
     {
-        Detail::scatter<SimdType, SimdBaseClass<int, T, ABIVal>, ValueType>(dataSimd_, indices, p);
+        Detail::scatter<SimdBaseClass, ValueType>(*this, indices, p);
         return *this;
     }
 
@@ -230,6 +230,10 @@ public:
     // ------------------------------------------------------
     // Basic Arithmetic
     // ------------------------------------------------------
+    friend SimdBaseClass operator-(const SimdBaseClass& a)
+    {
+        return Detail::minus<SimdType>(a.dataSimd_);
+    }
     friend SimdBaseClass operator+(const SimdBaseClass& a,
                                    const SimdBaseClass& b)
     {
@@ -334,6 +338,13 @@ public:
     { // mask returned
         const SimdType mask = Detail::opEqual<SimdType>(a.dataSimd_, b.dataSimd_);
         return SimdMask(mask) ;
+    }
+
+    friend SimdMask operator!=(const SimdBaseClass& a,
+                                    const SimdBaseClass& b)
+    { // mask returned
+        const SimdType mask = Detail::opEqual<SimdType>(a.dataSimd_, b.dataSimd_);
+        return !SimdMask(mask) ;
     }
 
 protected:

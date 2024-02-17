@@ -25,8 +25,3 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifdef SSE41
 #define Floor(x) _mm_floor_ps(x)
 #endif
-#ifndef SSE41
-#define BlendV(x,y,z) Or(AndNot(z,x), And(z,y))   //if we don't have sse4
-#else
-#define BlendV(x,y,z) _mm_blendv_ps(x,y,z)
-#endif

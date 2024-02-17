@@ -8,6 +8,8 @@ Emails: mithran@fias.uni-frankfurt.de
 
 #pragma once
 
+#include "simd_macros.hpp"
+
 namespace KFP {
 namespace SIMD {
 
@@ -57,6 +59,31 @@ constexpr inline bool validABI(ABI abi)
     default:
         return false;
     };
+}
+
+constexpr inline const char* getABI()
+{
+#if defined(__KFP_SIMD__AVX2)
+    return "AVX2";
+#elif defined(__KFP_SIMD__AVX)
+    return "AVX";
+#elif defined(__KFP_SIMD__SSE)
+    #if defined(__KFP_SIMD__SSE4_2)
+        return "SSE4.2";
+    #elif defined(__KFP_SIMD__SSE4_1)
+        return "SSE4.1";
+    #elif defined(__KFP_SIMD__SSSE3)
+        return "SSSE3";
+    #elif defined(__KFP_SIMD__SSE3)
+        return "SSE3";
+    #elif defined(__KFP_SIMD__SSE2)
+        return "SSE2";
+    #endif
+#elif defined(__KFP_SIMD__Scalar)
+        return "Scalar";
+#else
+    return nullptr;
+#endif
 }
 
 } // namespace SIMD

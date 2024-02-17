@@ -20,15 +20,16 @@ namespace KFP {
 namespace SIMD {
 
 using SimdF_t = SimdBaseClass<float, __m128, ABI::SSE>;
+
+inline SimdF_t SimdF(SimdF_t::value_type val1, SimdF_t::value_type val2, SimdF_t::value_type val3, SimdF_t::value_type val4)
+{
+    return SimdF_t(_mm_setr_ps(val1, val2, val3, val4)) ;
+}
+
 namespace Detail {
 
 typedef __m128 SimdTypeF;
 typedef float ValueTypeF;
-
-inline SimdF_t SimdF(ValueTypeF val1, ValueTypeF val2, ValueTypeF val3, ValueTypeF val4)
-{
-    return SimdF_t(_mm_setr_ps(val1, val2, val3, val4)) ;
-}
 
 template <>
 inline void constant<SimdTypeF, ValueTypeF>(SimdTypeF& val_simd, ValueTypeF val)
@@ -111,15 +112,21 @@ inline void store_partial<SimdF_t, ValueTypeF>(SimdF_t& class_simd, int index,
 // Gather and Scatter
 // ------------------------------------------------------
 template <>
-inline void gather<SimdTypeF, ValueTypeF>(SimdTypeF& val_simd, const SimdIndex& index, const ValueTypeF* val_ptr)
+inline void gather<SimdF_t, ValueTypeF>(SimdF_t& class_simd, const SimdIndex& index, const ValueTypeF* val_ptr)
 {
-
+    const int* indices = index.scalar() ;
+    class_simd.simd() = _mm_setr_ps( val_ptr[indices[0]], val_ptr[indices[1]], val_ptr[indices[2]], val_ptr[indices[3]]) ;
 }
 
 template <>
-inline void scatter<SimdTypeF, ValueTypeF>(const SimdTypeF& val_simd, const SimdIndex& index, ValueTypeF* val_ptr)
+inline void scatter<SimdF_t, ValueTypeF>(SimdF_t& class_simd, const SimdIndex& index, ValueTypeF* val_ptr)
 {
-
+    const ValueTypeF* data = class_simd.storeScalar() ;
+    const int* indices = index.scalar() ;
+    val_ptr[indices[0]] = data[0] ;
+    val_ptr[indices[1]] = data[1] ;
+    val_ptr[indices[2]] = data[2] ;
+    val_ptr[indices[3]] = data[3] ;
 }
 
 template <>
@@ -160,10 +167,10 @@ template <int N>
 inline ValueTypeF get(const SimdTypeF& val_simd)
 {
     if (N >= SimdF_t::SimdLen) {
-        throw "[Error] (extract): invalid index given to extract from __m128 type." ;
+        throw "[Error] (get): invalid index given to extract from __m128 type." ;
     }
     if (N < 0) {
-        throw "[Error] (extract): invalid index given to extract from __m128 type." ;
+        throw "[Error] (get): invalid index given to extract from __m128 type." ;
     }
     const SimdTypeF result = _mm_shuffle_ps(val_simd, val_simd, _MM_SHUFFLE(0,0,0,N)) ;
     return _mm_cvtss_f32(result);
@@ -178,7 +185,8 @@ inline ValueTypeF extract<SimdF_t, ValueTypeF>(const SimdF_t& class_simd, const 
         index = SimdI_t::SimdLen - 1;
     }
     return data[index];
-#elif defined(__KFP_SIMD__SSE4_1)
+// #elif defined(__KFP_SIMD__SSE4_1)
+#elif 0
     const SimdTypeF val_simd = class_simd.simd() ;
     float result ;
     switch (index) {
@@ -233,6 +241,12 @@ inline void print<SimdF_t>(std::ostream& stream, SimdF_t class_simd)
     const ValueTypeF* val_scalar = class_simd.storeScalar() ;
     stream << "[" << val_scalar[0] << ", " << val_scalar[1] << ", " << val_scalar[2] << ", " << val_scalar[3]
            << "]";
+}
+
+template<>
+inline SimdTypeF minus<SimdTypeF>(const SimdTypeF& a)
+{
+    return _mm_xor_ps(a, _mm_castsi128_ps(_mm_set1_epi32(0x80000000)));
 }
 
 template<>

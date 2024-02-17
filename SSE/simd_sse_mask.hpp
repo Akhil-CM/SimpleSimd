@@ -53,6 +53,13 @@ public:
         bools_[2] = -int(val) ;
         bools_[3] = -int(val) ;
     }
+    SimdMask(bool* val_ptr)
+    {
+        bools_[0] = -int(val_ptr[0]) ;
+        bools_[1] = -int(val_ptr[1]) ;
+        bools_[2] = -int(val_ptr[2]) ;
+        bools_[3] = -int(val_ptr[3]) ;
+    }
     // Assignment operator
     SimdMask& operator=(bool val)
     {
@@ -69,8 +76,37 @@ public:
     }
 
     // ------------------------------------------------------
+    // Status accessors
+    // ------------------------------------------------------
+    int count() const
+    {
+        const int result = bools_[0] + bools_[1] + bools_[2] + bools_[3] ;
+        return -(result) ;
+    }
+
+    bool statusAND() const
+    {
+        return (count() == 4) ;
+    }
+
+    bool statusOR() const
+    {
+        return !(count() == 0) ;
+    }
+
+    // ------------------------------------------------------
     // Data member accessors
     // ------------------------------------------------------
+    int& operator[](int index)
+    {
+        return bools_[index];
+    }
+
+    const int& operator[](int index) const
+    {
+        return bools_[index];
+    }
+
     __m128i maski() const
     {
         return _mm_load_si128(reinterpret_cast<const __m128i*>(bools_)) ;
@@ -107,6 +143,27 @@ public:
                << "]";
         stream.unsetf(std::ios::boolalpha) ;
         return stream;
+    }
+
+    /* Comparison */
+    friend SimdMask operator!(const SimdMask& a)
+    {
+        const int* data = a.scalar() ;
+        return SimdMask(data[0]+1, data[1]+1, data[2]+1, data[3]+1) ;
+    }
+
+    friend bool operator==(const SimdMask& a,
+                                    const SimdMask& b)
+    { // mask returned
+        const int* data1 = a.scalar() ;
+        const int* data2 = b.scalar() ;
+        return ((data1[0] == data2[0]) && (data1[1] == data2[1]) && (data1[2] == data2[2]) && (data1[3] == data2[3])) ;
+    }
+
+    friend bool operator!=(const SimdMask& a,
+                                    const SimdMask& b)
+    { // mask returned
+        return !(a == b) ;
     }
 
 protected:

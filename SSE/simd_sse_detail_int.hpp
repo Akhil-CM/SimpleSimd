@@ -20,15 +20,16 @@ namespace KFP {
 namespace SIMD {
 
 using SimdI_t = SimdBaseClass<int, __m128i, ABI::SSE>;
+
+inline SimdI_t SimdI(SimdI_t::value_type val1, SimdI_t::value_type val2, SimdI_t::value_type val3, SimdI_t::value_type val4)
+{
+    return SimdI_t(_mm_setr_epi32(val1, val2, val3, val4)) ;
+}
+
 namespace Detail {
 
 typedef __m128i SimdTypeI;
 typedef int ValueTypeI;
-
-inline SimdI_t SimdI(ValueTypeI val1, ValueTypeI val2, ValueTypeI val3, ValueTypeI val4)
-{
-    return SimdI_t(_mm_setr_epi32(val1, val2, val3, val4)) ;
-}
 
 template <>
 inline void constant<SimdTypeI, ValueTypeI>(SimdTypeI& val_simd, ValueTypeI val)
@@ -81,10 +82,10 @@ inline void load_partial<SimdTypeI, ValueTypeI>(SimdTypeI& val_simd, int index,
         val_simd = _mm_loadu_si32(val_ptr);
         break;
     case 2:
-        val_simd = _mm_setr_epi32(val_ptr[0], val_ptr[1], 0.f, 0.f);
+        val_simd = _mm_setr_epi32(val_ptr[0], val_ptr[1], 0, 0);
         break;
     case 3:
-        val_simd = _mm_setr_epi32(val_ptr[0], val_ptr[1], val_ptr[2], 0.f);
+        val_simd = _mm_setr_epi32(val_ptr[0], val_ptr[1], val_ptr[2], 0);
         break;
     case 4:
         load(val_simd, val_ptr);
@@ -111,15 +112,22 @@ inline void store_partial<SimdI_t, ValueTypeI>(SimdI_t& class_simd, int index,
 // Gather and Scatter
 // ------------------------------------------------------
 template <>
-inline void gather<SimdTypeI, ValueTypeI>(SimdTypeI& val_simd, const SimdIndex& index, const ValueTypeI* val_ptr)
+inline void gather<SimdI_t, ValueTypeI>(SimdI_t& class_simd, const SimdIndex& index, const ValueTypeI* val_ptr)
 {
 
+    const int* indices = index.scalar() ;
+    class_simd.simd() = _mm_setr_epi32( val_ptr[indices[0]], val_ptr[indices[1]], val_ptr[indices[2]], val_ptr[indices[3]]) ;
 }
 
 template <>
-inline void scatter<SimdTypeI, ValueTypeI>(const SimdTypeI& val_simd, const SimdIndex& index, ValueTypeI* val_ptr)
+inline void scatter<SimdI_t, ValueTypeI>(SimdI_t& class_simd, const SimdIndex& index, ValueTypeI* val_ptr)
 {
-
+    const ValueTypeI* data = class_simd.storeScalar() ;
+    const int* indices = index.scalar() ;
+    val_ptr[indices[0]] = data[0] ;
+    val_ptr[indices[1]] = data[1] ;
+    val_ptr[indices[2]] = data[2] ;
+    val_ptr[indices[3]] = data[3] ;
 }
 
 template <>
@@ -213,6 +221,12 @@ inline void print<SimdI_t>(std::ostream& stream, SimdI_t class_simd)
     const ValueTypeI* val_scalar = class_simd.storeScalar() ;
     stream << "[" << val_scalar[0] << ", " << val_scalar[1] << ", " << val_scalar[2] << ", " << val_scalar[3]
            << "]";
+}
+
+template<>
+inline SimdTypeI minus<SimdTypeI>(const SimdTypeI& a)
+{
+    return _mm_xor_si128(a, _mm_set1_epi32(0x80000000));
 }
 
 template<>
