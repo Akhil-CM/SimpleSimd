@@ -9,10 +9,10 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_SSE_DETAIL_INDEX_H
 #define SIMD_SSE_DETAIL_INDEX_H
 
-#include "../Base/simd_macros.hpp"
-#include "../Base/simd_detail.hpp"
-#include "simd_sse_type.hpp"
-#include "simd_sse_detail_int.hpp"
+#include "../Base/simd_macros.h"
+#include "../Base/simd_detail.h"
+#include "simd_sse_type.h"
+#include "simd_sse_detail_int.h"
 
 namespace KFP {
 namespace SIMD {

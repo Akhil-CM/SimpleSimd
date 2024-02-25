@@ -9,9 +9,9 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_SSE_IMPL_MASK_H
 #define SIMD_SSE_IMPL_MASK_H
 
-#include "../Base/simd_mask.hpp"
-#include "simd_sse_detail_mask.hpp"
-#include "simd_sse_type.hpp"
+#include "../Base/simd_mask.h"
+#include "simd_sse_detail_mask.h"
+#include "simd_sse_type.h"
 
 #include <x86intrin.h>
 

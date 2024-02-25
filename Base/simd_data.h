@@ -9,8 +9,8 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_DATA_H
 #define SIMD_DATA_H
 
-#include "simd_macros.hpp"
-#include "simd_tag.hpp"
+#include "simd_macros.h"
+#include "simd_tag.h"
 
 #include <x86intrin.h>
 

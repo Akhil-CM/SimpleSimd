@@ -9,8 +9,8 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_SCALAR_DETAIL_INT_H
 #define SIMD_SCALAR_DETAIL_INT_H
 
-#include "../Base/simd_detail.hpp"
-#include "simd_scalar_type.hpp"
+#include "../Base/simd_detail.h"
+#include "simd_scalar_type.h"
 
 #include <iostream>
 #include <cmath>

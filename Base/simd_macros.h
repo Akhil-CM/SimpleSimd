@@ -9,7 +9,7 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_MACROS_H
 #define SIMD_MACROS_H
 
-#include "simd_detect.hpp"
+#include "simd_detect.h"
 
 #define __KFP_SIMD__ATTR_INLINE inline __attribute__((always_inline))
 #define __KFP_SIMD__ATTR_ALIGN(x) __attribute__((aligned(x)))

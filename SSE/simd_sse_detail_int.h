@@ -9,9 +9,9 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_SSE_DETAIL_INT_H
 #define SIMD_SSE_DETAIL_INT_H
 
-#include "../Base/simd_macros.hpp"
-#include "../Base/simd_detail.hpp"
-#include "simd_sse_type.hpp"
+#include "../Base/simd_macros.h"
+#include "../Base/simd_detail.h"
+#include "simd_sse_type.h"
 
 #include <x86intrin.h>
 #include <iostream>

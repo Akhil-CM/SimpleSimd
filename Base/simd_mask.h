@@ -9,9 +9,9 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_MASK_H
 #define SIMD_MASK_H
 
-#include "simd_tag.hpp"
-#include "simd_data.hpp"
-#include "simd_detail.hpp"
+#include "simd_tag.h"
+#include "simd_data.h"
+#include "simd_detail.h"
 
 #include <iosfwd>
 

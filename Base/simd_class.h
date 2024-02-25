@@ -9,12 +9,12 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_BASE_H
 #define SIMD_BASE_H
 
-#include "simd_macros.hpp"
-#include "simd_tag.hpp"
-#include "simd_data.hpp"
-#include "simd_mask.hpp"
-#include "simd_index.hpp"
-#include "simd_detail.hpp"
+#include "simd_macros.h"
+#include "simd_tag.h"
+#include "simd_data.h"
+#include "simd_mask.h"
+#include "simd_index.h"
+#include "simd_detail.h"
 
 #include <iosfwd>
 #include <type_traits>

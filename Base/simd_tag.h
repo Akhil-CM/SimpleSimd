@@ -9,7 +9,7 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_TAG_H
 #define SIMD_TAG_H
 
-#include "simd_macros.hpp"
+#include "simd_macros.h"
 
 namespace KFP {
 namespace SIMD {

@@ -9,10 +9,10 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_SCALAR_DETAIL_MASK_H
 #define SIMD_SCALAR_DETAIL_MASK_H
 
-#include "../Base/simd_detail.hpp"
-#include "../Base/simd_mask.hpp"
-#include "simd_scalar_detail.hpp"
-#include "simd_scalar_type.hpp"
+#include "../Base/simd_detail.h"
+#include "../Base/simd_mask.h"
+#include "simd_scalar_detail.h"
+#include "simd_scalar_type.h"
 
 #include <iostream>
 
