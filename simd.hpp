@@ -9,7 +9,7 @@ Emails: mithran@fias.uni-frankfurt.de
 #pragma once
 
 // Determine instruction set, and define platform-dependent functions
-#include "General/simd_detect.hpp"
+#include "Base/simd_macros.hpp"
 
 // Select appropriate header files depending on instruction set
 #if defined(__KFP_SIMD__AVX)
@@ -18,10 +18,4 @@ Emails: mithran@fias.uni-frankfurt.de
 #include "SSE/simd_sse.hpp"
 #else
 #include "Scalar/simd_scalar.hpp"
-#endif
-
-#define ConvertToFloat(x) _mm_cvtepi32_ps(x)
-#define NotEqual(x,y) _mm_cmpneq_ps(x,y)
-#ifdef SSE41
-#define Floor(x) _mm_floor_ps(x)
 #endif

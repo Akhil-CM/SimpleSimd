@@ -6,13 +6,11 @@ Emails: mithran@fias.uni-frankfurt.de
 ==================================================
 */
 
-#pragma once
+#ifndef SIMD_SCALAR_DETAIL_INDEX_H
+#define SIMD_SCALAR_DETAIL_INDEX_H
 
-#include "simd_detect.hpp"
+#include "../Base/simd_detail.hpp"
+#include "simd_scalar_type.hpp"
+#include "simd_scalar_detail.hpp"
 
-#if defined(__KFP_SIMD__SSE)
-#include "../SSE/simd_sse_index.hpp"
-#elif defined(__KFP_SIMD__AVX)
-#include "../AVX/simd_avx_index.hpp"
-#else
 #endif

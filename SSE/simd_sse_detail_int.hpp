@@ -6,376 +6,295 @@ Emails: mithran@fias.uni-frankfurt.de
 ==================================================
 */
 
-#pragma once
+#ifndef SIMD_SSE_DETAIL_INT_H
+#define SIMD_SSE_DETAIL_INT_H
 
-#include "../General/simd_detect.hpp"
-#include "../General/simd_base.hpp"
-#include "../General/simd_abi.hpp"
-#include "../General/simd_detail.hpp"
+#include "../Base/simd_macros.hpp"
+#include "../Base/simd_detail.hpp"
+#include "simd_sse_type.hpp"
+
 #include <x86intrin.h>
-#include <algorithm>
+#include <iostream>
 #include <cmath>
 
 namespace KFP {
 namespace SIMD {
 
-using SimdI_t = SimdBaseClass<int, __m128i, ABI::SSE>;
-
-inline SimdI_t SimdI(SimdI_t::value_type val1, SimdI_t::value_type val2, SimdI_t::value_type val3, SimdI_t::value_type val4)
-{
-    return SimdI_t(_mm_setr_epi32(val1, val2, val3, val4)) ;
-}
+const SimdDataI TRUE_MASK_I{ _mm_set1_epi32(-1) } ;
+const SimdDataI ABS_MASK_I{ _mm_set1_epi32(0x7FFFFFFF) } ;
+const SimdDataI MINUS_MASK_I{ _mm_set1_epi32(0x80000000) } ;
 
 namespace Detail {
 
-typedef __m128i SimdTypeI;
-typedef int ValueTypeI;
-
 template <>
-inline void constant<SimdTypeI, ValueTypeI>(SimdTypeI& val_simd, ValueTypeI val)
+inline SimdDataI constant<SimdDataI, ValueDataI>(ValueDataI val)
 {
-    val_simd = _mm_set1_epi32(val);
+    return _mm_set1_epi32(val);
 }
 
 template <>
-inline void load<SimdTypeI, ValueTypeI>(SimdTypeI& val_simd,
-                                      const ValueTypeI* val_ptr)
+inline SimdDataI load<SimdDataI, ValueDataI>(const ValueDataI* val_ptr)
 {
-    val_simd = _mm_loadu_si128(reinterpret_cast<const SimdTypeI*>(val_ptr));
+    return _mm_loadu_si128(reinterpret_cast<const SimdDataI*>(val_ptr));
 }
-
 template <>
-inline void load_a<SimdTypeI, ValueTypeI>(SimdTypeI& val_simd,
-                                        const ValueTypeI* val_ptr)
+inline SimdDataI load_a<SimdDataI, ValueDataI>(const ValueDataI* val_ptr)
 {
-    val_simd = _mm_load_si128(reinterpret_cast<const SimdTypeI*>(val_ptr));
+    return _mm_load_si128(reinterpret_cast<const SimdDataI*>(val_ptr));
 }
-
 template <>
-inline void store<SimdTypeI, ValueTypeI>(const SimdTypeI& val_simd, ValueTypeI* val_ptr)
+inline void store<SimdDataI, ValueDataI>(const SimdDataI& val_simd,
+                                         ValueDataI* val_ptr)
 {
-    _mm_storeu_si128(reinterpret_cast<SimdTypeI*>(val_ptr), val_simd);
+    _mm_storeu_si128(reinterpret_cast<SimdDataI*>(val_ptr), val_simd);
 }
-
 template <>
-inline void store_a<SimdTypeI, ValueTypeI>(const SimdTypeI& val_simd, ValueTypeI* val_ptr)
+inline void store_a<SimdDataI, ValueDataI>(const SimdDataI& val_simd,
+                                         ValueDataI* val_ptr)
 {
-    _mm_store_si128(reinterpret_cast<SimdTypeI*>(val_ptr), val_simd);
+    _mm_store_si128(reinterpret_cast<SimdDataI*>(val_ptr), val_simd);
 }
-
-template <>
-inline void store_stream<SimdTypeI, ValueTypeI>(const SimdTypeI& val_simd,
-                                          ValueTypeI* val_ptr)
+template <int N> inline ValueDataI get(const SimdDataI& a)
 {
-    _mm_stream_si128(reinterpret_cast<SimdTypeI*>(val_ptr), val_simd);
-}
-
-template <>
-inline void load_partial<SimdTypeI, ValueTypeI>(SimdTypeI& val_simd, int index,
-                                              const ValueTypeI* val_ptr)
-{
-    switch (index) {
-    case 0:
-        val_simd = _mm_setzero_si128();
-        break;
-    case 1:
-        val_simd = _mm_loadu_si32(val_ptr);
-        break;
-    case 2:
-        val_simd = _mm_setr_epi32(val_ptr[0], val_ptr[1], 0, 0);
-        break;
-    case 3:
-        val_simd = _mm_setr_epi32(val_ptr[0], val_ptr[1], val_ptr[2], 0);
-        break;
-    case 4:
-        load(val_simd, val_ptr);
-        break;
-    default:
-        break;
-    }
-}
-
-template <>
-inline void store_partial<SimdI_t, ValueTypeI>(SimdI_t& class_simd, int index,
-                                              ValueTypeI* val_ptr)
-{
-    if (index < 1)
-        return;
-    const ValueTypeI* data = class_simd.storeScalar();
-    if (index > SimdI_t::SimdLen) {
-        index = SimdI_t::SimdLen;
-    }
-    std::copy(data, data + index, val_ptr);
-}
-
-// ------------------------------------------------------
-// Gather and Scatter
-// ------------------------------------------------------
-template <>
-inline void gather<SimdI_t, ValueTypeI>(SimdI_t& class_simd, const SimdIndex& index, const ValueTypeI* val_ptr)
-{
-
-    const int* indices = index.scalar() ;
-    class_simd.simd() = _mm_setr_epi32( val_ptr[indices[0]], val_ptr[indices[1]], val_ptr[indices[2]], val_ptr[indices[3]]) ;
-}
-
-template <>
-inline void scatter<SimdI_t, ValueTypeI>(SimdI_t& class_simd, const SimdIndex& index, ValueTypeI* val_ptr)
-{
-    const ValueTypeI* data = class_simd.storeScalar() ;
-    const int* indices = index.scalar() ;
-    val_ptr[indices[0]] = data[0] ;
-    val_ptr[indices[1]] = data[1] ;
-    val_ptr[indices[2]] = data[2] ;
-    val_ptr[indices[3]] = data[3] ;
-}
-
-template <>
-inline SimdTypeI select(const SimdTypeI& mask, const SimdTypeI& a, const SimdTypeI& b) {
-#if defined(__KFP_SIMD__SSE4_1)   // SSE4.1
-    return _mm_blendv_epi8(b, a, mask);
-#else
-    return _mm_or_si128(
-        _mm_and_si128(mask, a),
-        _mm_andnot_si128(mask, b));
-#endif
-}
-
-template<>
-inline void insert<SimdTypeI, ValueTypeI>(SimdTypeI& val_simd, int index, ValueTypeI val)
-{
-    int32_t indices[4] = {0,0,0,0} ;
-    indices[index] = -1 ;
-    const SimdTypeI mask = _mm_loadu_si128(reinterpret_cast<const SimdTypeI*>(indices)) ;
-    val_simd = select(mask, _mm_set1_epi32(val), val_simd) ;
-}
-
-template <int N>
-inline ValueTypeI get(const SimdTypeI& val_simd)
-{
-    if (N >= SimdI_t::SimdLen) {
-        throw "[Error] (extract): invalid index given to extract from __m128 type." ;
-    }
-    if (N < 0) {
-        throw "[Error] (extract): invalid index given to extract from __m128 type." ;
-    }
-    const SimdTypeI result = _mm_shuffle_epi32(val_simd, _MM_SHUFFLE(0,0,0,N)) ;
+    const SimdDataI result = _mm_shuffle_epi32(a, (N&3)) ;
     return _mm_cvtsi128_si32(result);
 }
-
 template <>
-inline ValueTypeI extract<SimdI_t, ValueTypeI>(const SimdI_t& class_simd, const int index)
+inline ValueDataI extract<ValueDataI, SimdDataI>(int index, const SimdDataI& a)
 {
 #if 0
-    const ValueTypeI* data = class_simd.storeScalar();
-    if (index >= SimdI_t::SimdLen) {
-        index = SimdI_t::SimdLen - 1;
-    }
+    ValueDataI __KFP_SIMD__ALIGN_V1(__KFP_SIMD__Size_Int)
+    data[__KFP_SIMD__Len_Int]{}; // Helper array
+    store_a(data);
     return data[index];
 #elif defined(__KFP_SIMD__SSE4_1)
-    const SimdTypeI val_simd = class_simd.simd() ;
     switch (index) {
     case 0:
-        return _mm_extract_epi32(val_simd, 0x00) ;
+        return _mm_extract_epi32(a, 0x00) ;
     case 1:
-        return _mm_extract_epi32(val_simd, 0x01) ;
+        return _mm_extract_epi32(a, 0x01) ;
     case 2:
-        return _mm_extract_epi32(val_simd, 0x02) ;
+        return _mm_extract_epi32(a, 0x02) ;
     case 3:
     default:
-        return _mm_extract_epi32(val_simd, 0x03) ;
+        return _mm_extract_epi32(a, 0x03) ;
     }
 #else
-    const SimdTypeI val_simd = class_simd.simd() ;
-    SimdTypeI result = _mm_setzero_si128() ;
     switch (index) {
     case 0:
-        result = _mm_shuffle_epi32(val_simd, _MM_SHUFFLE(0,0,0,0)) ;
-        break;
-    case 1:
-        result = _mm_shuffle_epi32(val_simd, _MM_SHUFFLE(0,0,0,1)) ;
-        break;
+        return get<0>(a);
+        case 1:
+        return get<1>(a);
     case 2:
-        result = _mm_shuffle_epi32(val_simd, _MM_SHUFFLE(0,0,0,2)) ;
-        break;
+        return get<2>(a);
     case 3:
     default:
-        result = _mm_shuffle_epi32(val_simd, _MM_SHUFFLE(0,0,0,3)) ;
-        break;
+        return get<3>(a);
     }
-    return _mm_cvtsi128_si32(result);
 #endif
 }
 
-template<>
-inline void cutoff<SimdI_t>(SimdI_t& class_simd, int index)
+template <>
+inline SimdDataI select<SimdDataI>(const SimdDataI& mask, const SimdDataI& a,
+                        const SimdDataI& b)
 {
-    SimdTypeI& val_simd = class_simd.simd() ;
-    const ValueTypeI* scalar = class_simd.storeScalar() ;
-    load_partial<SimdTypeI, ValueTypeI>(val_simd, index, scalar) ;
-}
-
-template<>
-inline void print<SimdI_t>(std::ostream& stream, SimdI_t class_simd)
-{
-    const ValueTypeI* val_scalar = class_simd.storeScalar() ;
-    stream << "[" << val_scalar[0] << ", " << val_scalar[1] << ", " << val_scalar[2] << ", " << val_scalar[3]
-           << "]";
-}
-
-template<>
-inline SimdTypeI minus<SimdTypeI>(const SimdTypeI& a)
-{
-    return _mm_xor_si128(a, _mm_set1_epi32(0x80000000));
-}
-
-template<>
-inline SimdTypeI add<SimdTypeI>(const SimdTypeI& a, const SimdTypeI& b)
-{
-    return _mm_add_epi32(a,b) ;
-}
-
-template<>
-inline SimdTypeI substract<SimdTypeI>(const SimdTypeI& a, const SimdTypeI& b)
-{
-    return _mm_sub_epi32(a,b) ;
-}
-
-template<>
-inline SimdTypeI multiply<SimdTypeI, SimdI_t>(SimdI_t& a, SimdI_t& b)
-{
-#if defined(__KFP_SIMD__SSE4_1)   // SSE4.1
-    return _mm_mullo_epi32(a.simd(), b.simd()) ;
+#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
+    return _mm_blendv_epi8(b, a, mask);
 #else
-    const ValueTypeI* data1 = a.storeScalar() ;
-    const ValueTypeI* data2 = b.storeScalar() ;
-    const ValueTypeI data[SimdI_t::SimdLen]{ data1[0]*data2[0], data1[1]*data2[1], data1[2]*data2[2], data1[3]*data2[3] } ;
-    SimdTypeI result ;
-    load<SimdTypeI, ValueTypeI>(result, data) ;
-    return result ;
+    return _mm_or_si128(_mm_and_si128(mask, a), _mm_andnot_si128(mask, b));
 #endif
 }
-
-template<>
-inline SimdTypeI divide<SimdTypeI, SimdI_t>(SimdI_t& a, SimdI_t& b)
+template <>
+inline void print<SimdDataI>(std::ostream& stream, const SimdDataI& val_simd)
 {
-    const ValueTypeI* data1 = a.storeScalar() ;
-    const ValueTypeI* data2 = b.storeScalar() ;
-    const ValueTypeI data[SimdI_t::SimdLen]{ data1[0]/data2[0], data1[1]/data2[1], data1[2]/data2[2], data1[3]/data2[3] } ;
-    SimdTypeI result ;
-    load<SimdTypeI, ValueTypeI>(result, data) ;
-    return result ;
+    ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+        data[__KFP_SIMD__Len_Int]{}; // Helper array
+    store_a<SimdDataI, ValueDataI>(val_simd, data);
+    stream << "[" << data[0] << ", " << data[1] << ", " << data[2] << ", "
+           << data[3] << "]";
 }
 
-template<>
-inline SimdTypeI min<SimdTypeI>(const SimdTypeI& a, const SimdTypeI& b)
+template <>
+inline int sign<int, SimdDataI>(const SimdDataI& a)
 {
-#if defined(__KFP_SIMD__SSE4_1)   // SSE4.1
-    return _mm_min_epi32(a, b) ;
+    return _mm_movemask_ps(_mm_castsi128_ps(a));
+}
+
+template <> inline SimdDataI minus<SimdDataI>(const SimdDataI& a)
+{
+    return _mm_xor_si128(a, MINUS_MASK_I);
+}
+
+template <>
+inline SimdDataI add<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
+{
+    return _mm_add_epi32(a, b);
+}
+
+template <>
+inline SimdDataI substract<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
+{
+    return _mm_sub_epi32(a, b);
+}
+
+template <>
+inline SimdDataI multiply<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
+{
+#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
+    return _mm_mullo_epi32(a, b);
 #else
-    const SimdTypeI mask = _mm_cmpgt_epi32(a, b) ;
-    return select(mask, b, a) ;
+    ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+        data1[__KFP_SIMD__Len_Int]{}; // Helper array
+    ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+        data2[__KFP_SIMD__Len_Int]{}; // Helper array
+    store_a<SimdDataI, ValueDataI>(a, data1);
+    store_a<SimdDataI, ValueDataI>(b, data2);
+    const ValueDataI  __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+    data[SimdI::SimdLen]{ data1[0] * data2[0],
+                                             data1[1] * data2[1],
+                                             data1[2] * data2[2],
+                                             data1[3] * data2[3] };
+    return load_a<SimdDataI, ValueDataI>(data);
 #endif
 }
 
-template<>
-inline SimdTypeI max<SimdTypeI>(const SimdTypeI& a, const SimdTypeI& b)
+template <>
+inline SimdDataI divide<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
 {
-#if defined(__KFP_SIMD__SSE4_1)   // SSE4.1
-    return _mm_max_epi32(a, b) ;
+    ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+        data1[__KFP_SIMD__Len_Int]{}; // Helper array
+    ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+        data2[__KFP_SIMD__Len_Int]{}; // Helper array
+    store_a<SimdDataI, ValueDataI>(a, data1);
+    store_a<SimdDataI, ValueDataI>(b, data2);
+    const ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+    data[SimdI::SimdLen]{ data1[0] / data2[0],
+                                             data1[1] / data2[1],
+                                             data1[2] / data2[2],
+                                             data1[3] / data2[3] };
+    return load_a<SimdDataI, ValueDataI>(data);
+}
+
+template <>
+inline SimdDataI min<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
+{
+#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
+    return _mm_min_epi32(a, b);
 #else
-    const SimdTypeI mask = _mm_cmpgt_epi32(a, b) ;
-    return select(mask, a, b) ;
+    const SimdDataI mask = _mm_cmpgt_epi32(a, b);
+    return select<SimdDataI>(mask, b, a);
 #endif
 }
 
-template<>
-inline SimdTypeI sqrt<SimdTypeI, SimdI_t>(SimdI_t class_simd)
+template <>
+inline SimdDataI max<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
 {
-    ValueTypeI* data = class_simd.storeScalar();
-    return _mm_setr_epi32(std::sqrt(data[0]), std::sqrt(data[1]), std::sqrt(data[2]), std::sqrt(data[3])) ;
-}
-
-template<>
-inline SimdTypeI rsqrt<SimdTypeI, SimdI_t>(SimdI_t class_simd)
-{
-    return _mm_cvtps_epi32( _mm_rsqrt_ps(_mm_cvtepi32_ps(class_simd.simd())) ) ;
-}
-
-template<>
-inline SimdTypeI abs<SimdTypeI>(const SimdTypeI& a)
-{
-#if defined(__KFP_SIMD__SSSE3)   // SSSE3
-    return _mm_abs_epi32(a) ;
+#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
+    return _mm_max_epi32(a, b);
 #else
-    const SimdTypeI mask = _mm_set1_epi32(0x7FFFFFFF);
-    return _mm_and_si128(a, mask);
+    const SimdDataI mask = _mm_cmpgt_epi32(a, b);
+    return select<SimdDataI>(mask, a, b);
 #endif
 }
 
-template<>
-inline SimdTypeI log<SimdTypeI, SimdI_t>(SimdI_t class_simd)
-{
-    ValueTypeI* data = class_simd.storeScalar();
-    return _mm_setr_epi32(std::log(data[0]), std::log(data[1]), std::log(data[2]), std::log(data[3])) ;
-}
-
-template<>
-inline SimdTypeI pow<SimdTypeI, SimdI_t>(SimdI_t class_simd, int exp)
+template <> inline SimdDataI sqrt<SimdDataI>(const SimdDataI& a)
 {
 #if 0
-    std::cerr << "[Error]: SimdI_t pow not implemented\n" ;
-    exit(1) ;
+    ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+        data[__KFP_SIMD__Len_Int]{}; // Helper array
+    store_a<SimdDataI, ValueDataI>(a, data);
+    return _mm_setr_epi32(std::sqrt(data[0]), std::sqrt(data[1]),
+                          std::sqrt(data[2]), std::sqrt(data[3]));
+#endif
+    return _mm_cvtps_epi32(_mm_sqrt_ps(_mm_cvtepi32_ps(a)));
+}
+
+template <> inline SimdDataI rsqrt<SimdDataI>(const SimdDataI& a)
+{
+    return _mm_cvtps_epi32(_mm_rsqrt_ps(_mm_cvtepi32_ps(a)));
+}
+
+template <> inline SimdDataI abs<SimdDataI>(const SimdDataI& a)
+{
+#if defined(__KFP_SIMD__SSSE3) // SSSE3
+    return _mm_abs_epi32(a);
 #else
-    ValueTypeI* data = class_simd.storeScalar();
-    return _mm_setr_epi32(std::pow(data[0], exp), std::pow(data[1], exp), std::pow(data[2], exp), std::pow(data[3], exp)) ;
+    return _mm_and_si128(a, ABS_MASK_I);
 #endif
 }
 
-template<>
-inline SimdTypeI opLessThan<SimdTypeI>(const SimdTypeI& a, const SimdTypeI& b)
+template <> inline SimdDataI log<SimdDataI>(const SimdDataI& a)
 {
-    return _mm_cmplt_epi32(a, b) ;
+    ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+        data[__KFP_SIMD__Len_Int]{}; // Helper array
+    store_a<SimdDataI, ValueDataI>(a, data);
+    return _mm_setr_epi32(std::log(data[0]), std::log(data[1]),
+                          std::log(data[2]), std::log(data[3]));
 }
 
-template<>
-inline SimdTypeI opLessThanEqual<SimdTypeI>(const SimdTypeI& a, const SimdTypeI& b)
+template <> inline SimdDataI pow<SimdDataI>(const SimdDataI& a, int exp)
 {
-#if defined(__KFP_SIMD__SSE4_1)   // SSE4.1
-    return _mm_cmpeq_epi32(_mm_min_epi32(a, b), a) ;
+    ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+        data[__KFP_SIMD__Len_Int]{}; // Helper array
+    store_a<SimdDataI, ValueDataI>(a, data);
+    return _mm_setr_epi32(std::pow(data[0], exp), std::pow(data[1], exp),
+                          std::pow(data[2], exp), std::pow(data[3], exp));
+}
+
+template <>
+inline SimdDataI opNOT<SimdDataI>(const SimdDataI& a)
+{
+    return _mm_xor_si128(TRUE_MASK_I, a);
+}
+
+template <>
+inline SimdDataI opLessThan<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
+{
+    return _mm_cmplt_epi32(a, b);
+}
+
+template <>
+inline SimdDataI opLessThanEqual<SimdDataI>(const SimdDataI& a,
+                                            const SimdDataI& b)
+{
+#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
+    return _mm_cmpeq_epi32(_mm_min_epi32(a, b), a);
 #else
-    return _mm_xor_si128(_mm_cmpgt_epi32(a, b), _mm_set1_epi32(-1)) ;
+    return _mm_xor_si128(_mm_cmpgt_epi32(a, b), TRUE_MASK_I);
 #endif
 }
 
-template<>
-inline SimdTypeI opGreaterThan<SimdTypeI>(const SimdTypeI& a, const SimdTypeI& b)
+template <>
+inline SimdDataI opGreaterThan<SimdDataI>(const SimdDataI& a,
+                                          const SimdDataI& b)
 {
     return _mm_cmpgt_epi32(a, b);
 }
 
-template<>
-inline SimdTypeI opGreaterThanEqual<SimdTypeI>(const SimdTypeI& a, const SimdTypeI& b)
+template <>
+inline SimdDataI opGreaterThanEqual<SimdDataI>(const SimdDataI& a,
+                                               const SimdDataI& b)
 {
-#if defined(__KFP_SIMD__SSE4_1)   // SSE4.1
-    return _mm_cmpeq_epi32(_mm_min_epi32(b, a), b) ;
+#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
+    return _mm_cmpeq_epi32(_mm_min_epi32(b, a), b);
 #else
-    return _mm_xor_si128(_mm_cmplt_epi32(a, b), _mm_set1_epi32(-1)) ;
+    return _mm_xor_si128(_mm_cmplt_epi32(a, b), TRUE_MASK_I);
 #endif
 }
 
-template<>
-inline SimdTypeI opEqual<SimdTypeI>(const SimdTypeI& a, const SimdTypeI& b)
+template <>
+inline SimdDataI opEqual<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
 {
     return _mm_cmpeq_epi32(a, b);
 }
-
-} // namespace Detail
-
-inline SimdI_t select(const SimdMask& mask, const SimdI_t& a, const SimdI_t& b)
+template <>
+inline SimdDataI opNotEqual<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
 {
-    return SimdI_t(Detail::select<SimdI_t::simd_type>(mask.maski(), a.simd(), b.simd())) ;
+    return _mm_xor_si128(_mm_cmpeq_epi32(a, b), TRUE_MASK_I);
 }
+} // namespace Detail
 
 } // namespace SIMD
 } // namespace KFP
+
+#endif

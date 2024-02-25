@@ -6,13 +6,12 @@ Emails: mithran@fias.uni-frankfurt.de
 ==================================================
 */
 
-#pragma once
+#ifndef SIMD_SSE_DETAIL_H
+#define SIMD_SSE_DETAIL_H
 
-#include "simd_detect.hpp"
+#include "simd_sse_detail_int.hpp"
+#include "simd_sse_detail_float.hpp"
+#include "simd_sse_detail_mask.hpp"
+#include "simd_sse_detail_index.hpp"
 
-#if defined(__KFP_SIMD__SSE)
-#include "../SSE/simd_sse_mask.hpp"
-#elif defined(__KFP_SIMD__AVX)
-#include "../AVX/simd_avx_mask.hpp"
-#else
 #endif

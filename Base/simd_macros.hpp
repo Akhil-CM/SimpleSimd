@@ -6,13 +6,14 @@ Emails: mithran@fias.uni-frankfurt.de
 ==================================================
 */
 
-#pragma once
+#ifndef SIMD_MACROS_H
+#define SIMD_MACROS_H
 
 #include "simd_detect.hpp"
 
-#define __KFP_SIMD__INLINE inline __attribute__((always_inline))
-#define __KFP_SIMD__ALIGN_V1(x) __attribute__((aligned(x)))
-#define __KFP_SIMD__ALIGN_V2(x) alignas(x)
+#define __KFP_SIMD__ATTR_INLINE inline __attribute__((always_inline))
+#define __KFP_SIMD__ATTR_ALIGN(x) __attribute__((aligned(x)))
+#define __KFP_SIMD__SPEC_ALIGN(x) alignas(x)
 
 #define __KFP_SIMD__AVX_Size_Int 32
 #define __KFP_SIMD__AVX_Len_Int 8
@@ -47,4 +48,6 @@ Emails: mithran@fias.uni-frankfurt.de
 #else
 #error \
     "[Error] (simd_macros.hpp): Invalid KFParticle SIMD implementation value was selected."
+#endif
+
 #endif

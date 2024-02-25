@@ -6,8 +6,11 @@ Emails: mithran@fias.uni-frankfurt.de
 ==================================================
 */
 
+#ifndef SIMD_DATA_H
+#define SIMD_DATA_H
+
 #include "simd_macros.hpp"
-#include "simd_abi.hpp"
+#include "simd_tag.hpp"
 
 #include <x86intrin.h>
 
@@ -16,43 +19,45 @@ namespace KFP
 namespace SIMD
 {
 
-template<typename T, ABI ABIVal>
-class SimdType
+template<typename T, Tag tag>
+struct SimdData
 {
+    static_assert((tag == Tag::Scalar), "[Error] (SimdData): Invalid use of primary template of SimdData meant for Scalar tag.") ;
     typedef T simd_type;
-    static_assert((ABIVal == ABI::Scalar), "[Error] (SimdType): Invalid use of primary template of SimdType meant for Scalar abi.") ;
-    T data_ ;
+    T simd_ ;
 };
 
 #if defined(__KFP_SIMD__AVX)
 template<>
-class SimdType<int, ABI::AVX>
+struct SimdData<int, Tag::AVX>
 {
     typedef __m256i simd_type;
-    __m256i data_ ;
+    __m256i simd_ ;
 };
 
 template<>
-class SimdType<float, ABI::AVX>
+struct SimdData<float, Tag::AVX>
 {
     typedef __m256 simd_type;
     __m256 data_ ;
 };
 #elif defined(__KFP_SIMD__SSE)
 template<>
-class SimdType<int, ABI::SSE>
+struct SimdData<int, Tag::SSE>
 {
     typedef __m128i simd_type;
-    __m128i data_ ;
+    __m128i simd_ ;
 };
 
 template<>
-class SimdType<float, ABI::SSE>
+struct SimdData<float, Tag::SSE>
 {
     typedef __m128 simd_type;
-    __m128 data_ ;
+    __m128 simd_ ;
 };
 #endif
 
-}
-}
+} // namespace SIMD
+} // namespace KFP
+
+#endif // !SIMD_DATA_H

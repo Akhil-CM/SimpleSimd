@@ -1,56 +1,58 @@
 // -*- C++ -*-
-#define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "doctest.h"
-
 #include "../simd.hpp"
 #include <iostream>
 
 using KFP::SIMD::SimdMask;
 using KFP::SIMD::SimdIndex;
-using KFP::SIMD::SimdF_t;
+using KFP::SIMD::SimdF;
+using KFP::SIMD::SimdI;
 
-TEST_CASE("Testing SimdMask") {
-    SimdMask mask;
-    SUBCASE("Testing default state") {
-        CHECK(mask == SimdMask{false});
-        CHECK(mask.statusAND() == false);
-        CHECK(mask.statusOR() == false);
-        CHECK(mask.count() == 0);
-    }
+int main()
+{
+    SimdMask simd_mask;
+    SimdIndex simd_index;
+    SimdF simd_float{ 0.0f };
+    SimdI simd_int{ 0 };
 
-    SimdMask mask_true{true};
-    SUBCASE("Testing constant constructor") {
-        CHECK(mask_true.statusAND() == true);
-        CHECK(mask_true.statusOR() == true);
-        CHECK(mask_true.count() == 4);
-    }
+    std::cout << "Print Simd Mask\n" ;
+    std::cout << simd_mask << "\n\n";
+    std::cout << "Print Simd Mask(SimdIndex < 5)\n" ;
+    std::cout << SimdMask{simd_index < 5} << "\n\n";
 
-    SimdMask mask_1true3false{true, false, false, false};
-    SUBCASE("Testing variable constructor") {
-        CHECK(mask_1true3false.statusAND() == false);
-        CHECK(mask_1true3false.statusOR() == true);
-        CHECK(mask_1true3false.count() == 1);
-    }
-}
-TEST_CASE("Testing methods") {
-    const SimdF_t val_const = KFP::SIMD::SimdF(1.0f, 1.0f, 1.0f, 1.0f) ;
-    const SimdF_t val_1234 = KFP::SIMD::SimdF(1.0f, 2.0f, 3.0f, 4.0f) ;
-    SUBCASE("Testing the single value constructor") {
-        CHECK((val_const == SimdF_t(1.0f)).statusAND() );
-    }
-    SUBCASE("Testing insert") {
-        const SimdF_t val_zero = SimdF_t{0.0f} ;
-        const SimdF_t val_1000 =  KFP::SIMD::SimdF(1.0f, 0.0f, 0.0f, 0.0f);
-        const SimdF_t val_0200 =  KFP::SIMD::SimdF(0.0f, 2.0f, 0.0f, 0.0f);
-        const SimdF_t val_0030 =  KFP::SIMD::SimdF(0.0f, 0.0f, 3.0f, 0.0f);
-        const SimdF_t val_0004 =  KFP::SIMD::SimdF(0.0f, 0.0f, 0.0f, 4.0f);
-        CHECK((SimdF_t{0.0f}.insert(0, 1.0f) == val_1000).statusAND()) ;
-        CHECK((SimdF_t{0.0f}.insert(1, 2.0f) == val_0200).statusAND());
-        CHECK((SimdF_t{0.0f}.insert(2, 3.0f) == val_0030).statusAND());
-        CHECK((SimdF_t{0.0f}.insert(3, 4.0f) == val_0004).statusAND());
-        SUBCASE("Testing addition version 1") {
-            CHECK((val_1234 == (val_1000 + val_0200 + val_0030 + val_1000)).count() == 2);
-            CHECK((val_1234 == (val_1000 + val_0200 + val_0030 + val_0004)).statusAND());
-        }
-    }
+    std::cout << "Print Simd Mask(SimdIndex < 5)\n" ;
+    std::cout << simd_index << "\n\n";
+    std::cout << "Print SimdIndex + 5\n" ;
+    std::cout << simd_index + 5 << "\n\n";
+    std::cout << "Print SimdIndex + SimdIndex{5}\n" ;
+    std::cout << (simd_index + SimdIndex{ 5 }) << "\n\n";
+
+    std::cout << "Print SimdI{0}\n" ;
+    std::cout << simd_int << "\n\n";
+    std::cout << "Print SimdI{0} + 5\n" ;
+    std::cout << simd_int + 5 << "\n\n";
+    std::cout << "Print SimdI{0} + SimdI{5}\n" ;
+    std::cout << (simd_int + SimdI{ 5 }) << "\n\n";
+
+    std::cout << "Print SimdF{0.0f}\n" ;
+    std::cout << simd_float << "\n\n";
+    std::cout << "Print SimdF{0.0f} + 5\n" ;
+    std::cout << simd_float + 5 << "\n\n";
+    std::cout << "Print SimdF{0.0f} + SimdF{5}\n" ;
+    std::cout << (simd_float + SimdF{ 5 }) << "\n\n";
+    std::cout << "Print sqrt of SimdF{0.0f} + SimdF{5}\n" ;
+    std::cout << sqrt(simd_float + SimdF{ 5 }) << "\n\n";
+    std::cout << "Print sqrt of SimdI{0} + SimdI{5}\n" ;
+    std::cout << sqrt(simd_int + SimdI{ 5 }) << "\n\n";
+    std::cout << "Print rsqrt of SimdF{0.0f} + SimdF{5}\n" ;
+    std::cout << rsqrt(simd_float + SimdF{ 5 }) << "\n\n";
+    std::cout << "Print rsqrt of SimdI{0} + SimdI{5}\n" ;
+    std::cout << rsqrt(simd_int + SimdI{ 5 }) << "\n\n";
+    std::cout << "Print log of SimdF{0.0f} + SimdF{5}\n" ;
+    std::cout << log(simd_float + SimdF{ 5 }) << "\n\n";
+    std::cout << "Print log of SimdI{0} + SimdI{5}\n" ;
+    std::cout << log(simd_int + SimdI{ 5 }) << "\n\n";
+    std::cout << "Print power 3 of SimdF{0.0f} + SimdF{5}\n" ;
+    std::cout << pow(simd_float + SimdF{ 5 }, 3) << "\n\n";
+    std::cout << "Print power 3 of SimdI{0} + SimdI{5}\n" ;
+    std::cout << pow(simd_int + SimdI{ 5 }, 3) << "\n\n";
 }

@@ -6,7 +6,8 @@ Emails: mithran@fias.uni-frankfurt.de
 ==================================================
 */
 
-#pragma once
+#ifndef SIMD_TAG_H
+#define SIMD_TAG_H
 
 #include "simd_macros.hpp"
 
@@ -35,33 +36,58 @@ enum class ABI
     AVX2,
 };
 
-constexpr inline bool validABI(ABI abi)
+typedef ABI Tag ;
+
+// constexpr inline bool validateTag(Tag tag)
+// {
+//     switch (tag) {
+//     case Tag::Scalar:
+//         return true;
+//     case Tag::SSE:
+//         return true;
+//     case Tag::SSE2:
+//         return true;
+//     case Tag::SSE3:
+//         return true;
+//     case Tag::SSSE3:
+//         return true;
+//     case Tag::SSE41:
+//         return true;
+//     case Tag::SSE42:
+//         return true;
+//     case Tag::AVX:
+//         return true;
+//     case Tag::AVX2:
+//         return true;
+//     default:
+//         return false;
+//     };
+// }
+
+constexpr inline Tag getTag()
 {
-    switch (abi) {
-    case ABI::Scalar:
-        return true;
-    case ABI::SSE:
-        return true;
-    case ABI::SSE2:
-        return true;
-    case ABI::SSE3:
-        return true;
-    case ABI::SSSE3:
-        return true;
-    case ABI::SSE41:
-        return true;
-    case ABI::SSE42:
-        return true;
-    case ABI::AVX:
-        return true;
-    case ABI::AVX2:
-        return true;
-    default:
-        return false;
-    };
+#if defined(__KFP_SIMD__AVX2)
+    return Tag::AVX;
+#elif defined(__KFP_SIMD__AVX)
+    return Tag::AVX;
+#elif defined(__KFP_SIMD__SSE)
+    #if defined(__KFP_SIMD__SSE4_2)
+        return Tag::SSE;
+    #elif defined(__KFP_SIMD__SSE4_1)
+        return Tag::SSE;
+    #elif defined(__KFP_SIMD__SSSE3)
+        return Tag::SSE;
+    #elif defined(__KFP_SIMD__SSE3)
+        return Tag::SSE;
+    #elif defined(__KFP_SIMD__SSE2)
+        return Tag::SSE;
+    #endif
+#else
+    return Tag::Scalar;
+#endif
 }
 
-constexpr inline const char* getABI()
+constexpr inline const char* getTagStr()
 {
 #if defined(__KFP_SIMD__AVX2)
     return "AVX2";
@@ -88,3 +114,6 @@ constexpr inline const char* getABI()
 
 } // namespace SIMD
 } // namespace KFP
+
+#endif // !SIMD_TAG_H
+
