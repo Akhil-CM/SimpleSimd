@@ -1,5 +1,5 @@
 // -*- C++ -*-
-#include "../simd.hpp"
+#include "../simd.h"
 #include <iostream>
 
 using KFP::SIMD::SimdIndex;

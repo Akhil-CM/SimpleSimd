@@ -2,7 +2,7 @@
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
 #include "doctest.h"
 
-#include "../simd.hpp"
+#include "../simd.h"
 #include <iostream>
 
 using KFP::SIMD::SimdMask;
