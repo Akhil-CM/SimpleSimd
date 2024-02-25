@@ -9,8 +9,8 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_SSE_DETAIL_FLOAT_H
 #define SIMD_SSE_DETAIL_FLOAT_H
 
-#include "../Base/simd_macros.h"
-#include "../Base/simd_detail.h"
+#include "simd_macros.h"
+#include "simd_detail.h"
 #include "simd_sse_type.h"
 
 #include <x86intrin.h>

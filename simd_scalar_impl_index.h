@@ -9,7 +9,7 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_SCALAR_IMPL_INDEX_H
 #define SIMD_SCALAR_IMPL_INDEX_H
 
-#include "../Base/simd_index.h"
+#include "simd_index.h"
 #include "simd_scalar_type.h"
 #include "simd_scalar_detail_index.h"
 

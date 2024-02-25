@@ -9,10 +9,10 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_SCALAR_TYPE_H
 #define SIMD_SCALAR_TYPE_H
 
-#include "../Base/simd_data.h"
-#include "../Base/simd_mask.h"
-#include "../Base/simd_index.h"
-#include "../Base/simd_class.h"
+#include "simd_data.h"
+#include "simd_mask.h"
+#include "simd_index.h"
+#include "simd_class.h"
 
 #include <type_traits>
 

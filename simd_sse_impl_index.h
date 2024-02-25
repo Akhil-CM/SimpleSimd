@@ -9,7 +9,7 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_SSE_IMPL_INDEX_H
 #define SIMD_SSE_IMPL_INDEX_H
 
-#include "../Base/simd_index.h"
+#include "simd_index.h"
 #include "simd_sse_type.h"
 #include "simd_sse_detail.h"
 
