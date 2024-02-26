@@ -20,9 +20,9 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-const SimdDataI TRUE_MASK_I{ _mm_set1_epi32(-1) } ;
-const SimdDataI ABS_MASK_I{ _mm_set1_epi32(0x7FFFFFFF) } ;
-const SimdDataI MINUS_MASK_I{ _mm_set1_epi32(0x80000000) } ;
+const SimdDataI TRUE_MASK_I = _mm_set1_epi32(-1)  ;
+const SimdDataI ABS_MASK_I = _mm_set1_epi32(0x7FFFFFFF)  ;
+const SimdDataI MINUS_MASK_I = _mm_set1_epi32(0x80000000)  ;
 
 namespace Detail {
 
