@@ -6,7 +6,8 @@ Emails: mithran@fias.uni-frankfurt.de
 ==================================================
 */
 
-#pragma once
+#ifndef SIMD_SIMD_H
+#define SIMD_SIMD_H
 
 // Determine instruction set, and define platform-dependent functions
 #include "simd_macros.h"
@@ -18,4 +19,6 @@ Emails: mithran@fias.uni-frankfurt.de
 #include "simd_sse.h"
 #else
 #include "simd_scalar.h"
+#endif
+
 #endif

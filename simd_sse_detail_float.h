@@ -20,10 +20,6 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-const SimdDataF TRUE_MASK_F = _mm_castsi128_ps(_mm_set1_epi32(-1))  ;
-const SimdDataF ABS_MASK_F = _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF))  ;
-const SimdDataF MINUS_MASK_F = _mm_castsi128_ps(_mm_set1_epi32(0x80000000))  ;
-
 namespace Detail {
 
 template <>
@@ -125,7 +121,8 @@ inline void print<SimdDataF>(std::ostream& stream, const SimdDataF& val_simd)
 
 template <> inline SimdDataF minus<SimdDataF>(const SimdDataF& a)
 {
-    return _mm_xor_ps(a, MINUS_MASK_F);
+    const SimdDataF mask_minus{ _mm_castsi128_ps(_mm_set1_epi32(0x80000000)) } ;
+    return _mm_xor_ps(a, mask_minus);
 }
 
 template <>
@@ -176,7 +173,8 @@ template <> inline SimdDataF rsqrt<SimdDataF>(const SimdDataF& a)
 
 template <> inline SimdDataF abs<SimdDataF>(const SimdDataF& a)
 {
-    return _mm_and_ps(a, ABS_MASK_F);
+    const SimdDataF mask_abs{ _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF)) } ;
+    return _mm_and_ps(a, mask_abs);
 }
 
 template <> inline SimdDataF log<SimdDataF>(const SimdDataF& a)
@@ -205,7 +203,8 @@ template <> inline SimdDataF pow<SimdDataF>(const SimdDataF& a, int exp)
 template <>
 inline SimdDataF opNOT<SimdDataF>(const SimdDataF& a)
 {
-    return _mm_xor_ps(TRUE_MASK_F, a);
+    const SimdDataF mask_true{ _mm_castsi128_ps(_mm_set1_epi32(-1)) } ;
+    return _mm_xor_ps(mask_true, a);
 }
 
 template <>

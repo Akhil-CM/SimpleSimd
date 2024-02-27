@@ -21,7 +21,7 @@ namespace KFP {
 namespace SIMD {
 
 template <typename ValueType, Tag tag>
-class SimdBaseClass;
+class SimdClassBase;
 template <Tag tag> class SimdIndexBase
 {
 public:
@@ -39,8 +39,8 @@ public:
     template<typename T=void, typename std::enable_if<!(std::is_same<int, simd_typei>::value), T>::type* = nullptr>
     SimdIndexBase(const simd_typei& val_simd);
     SimdIndexBase(const simd_typef& val_simd);
-    SimdIndexBase(const SimdBaseClass<int, tag>& class_simd);
-    SimdIndexBase(const SimdBaseClass<float, tag>& class_simd);
+    SimdIndexBase(const SimdClassBase<int, tag>& class_simd);
+    SimdIndexBase(const SimdClassBase<float, tag>& class_simd);
     // SimdIndexBase(const int* val_ptr)
     // {
     //     _mm_store_si128(reinterpret_cast<simd_type*>(data_), _mm_set1_epi32(val)) ;

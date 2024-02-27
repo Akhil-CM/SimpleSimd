@@ -20,10 +20,6 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-const SimdDataI TRUE_MASK_I = _mm_set1_epi32(-1)  ;
-const SimdDataI ABS_MASK_I = _mm_set1_epi32(0x7FFFFFFF)  ;
-const SimdDataI MINUS_MASK_I = _mm_set1_epi32(0x80000000)  ;
-
 namespace Detail {
 
 template <>
@@ -122,7 +118,8 @@ inline int sign<int, SimdDataI>(const SimdDataI& a)
 
 template <> inline SimdDataI minus<SimdDataI>(const SimdDataI& a)
 {
-    return _mm_xor_si128(a, MINUS_MASK_I);
+    const SimdDataI mask_minus{ _mm_set1_epi32(0x80000000) } ;
+    return _mm_xor_si128(a, mask_minus);
 }
 
 template <>
@@ -219,7 +216,8 @@ template <> inline SimdDataI abs<SimdDataI>(const SimdDataI& a)
 #if defined(__KFP_SIMD__SSSE3) // SSSE3
     return _mm_abs_epi32(a);
 #else
-    return _mm_and_si128(a, ABS_MASK_I);
+    const SimdDataI mask_abs{ _mm_set1_epi32(0x7FFFFFFF) } ;
+    return _mm_and_si128(a, mask_abs);
 #endif
 }
 
@@ -244,7 +242,8 @@ template <> inline SimdDataI pow<SimdDataI>(const SimdDataI& a, int exp)
 template <>
 inline SimdDataI opNOT<SimdDataI>(const SimdDataI& a)
 {
-    return _mm_xor_si128(TRUE_MASK_I, a);
+    const SimdDataI mask_true{ _mm_set1_epi32(-1) } ;
+    return _mm_xor_si128(mask_true, a);
 }
 
 template <>
@@ -260,7 +259,8 @@ inline SimdDataI opLessThanEqual<SimdDataI>(const SimdDataI& a,
 #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
     return _mm_cmpeq_epi32(_mm_min_epi32(a, b), a);
 #else
-    return _mm_xor_si128(_mm_cmpgt_epi32(a, b), TRUE_MASK_I);
+    const SimdDataI mask_true{ _mm_set1_epi32(-1) } ;
+    return _mm_xor_si128(_mm_cmpgt_epi32(a, b), mask_true);
 #endif
 }
 
@@ -278,7 +278,8 @@ inline SimdDataI opGreaterThanEqual<SimdDataI>(const SimdDataI& a,
 #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
     return _mm_cmpeq_epi32(_mm_min_epi32(b, a), b);
 #else
-    return _mm_xor_si128(_mm_cmplt_epi32(a, b), TRUE_MASK_I);
+    const SimdDataI mask_true{ _mm_set1_epi32(-1) } ;
+    return _mm_xor_si128(_mm_cmplt_epi32(a, b), mask_true);
 #endif
 }
 
@@ -290,7 +291,8 @@ inline SimdDataI opEqual<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
 template <>
 inline SimdDataI opNotEqual<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
 {
-    return _mm_xor_si128(_mm_cmpeq_epi32(a, b), TRUE_MASK_I);
+    const SimdDataI mask_true{ _mm_set1_epi32(-1) } ;
+    return _mm_xor_si128(_mm_cmpeq_epi32(a, b), mask_true);
 }
 } // namespace Detail
 

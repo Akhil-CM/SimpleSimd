@@ -28,13 +28,13 @@ using ValueDataF = float;
 using SimdMask = SimdMaskBase<Tag::SSE>;
 using SimdIndex = SimdIndexBase<Tag::SSE>;
 
-using SimdF = SimdBaseClass<float, Tag::SSE>;
+using SimdF = SimdClassBase<float, Tag::SSE>;
 static_assert(std::is_same<SimdDataF, __m128>::value,
               "[Error]: Invalid simd type for SSE float SimdClass.");
 static_assert(std::is_same<ValueDataF, float>::value,
               "[Error]: Invalid value type for SSE float SimdClass.");
 
-using SimdI = SimdBaseClass<int, Tag::SSE>;
+using SimdI = SimdClassBase<int, Tag::SSE>;
 static_assert(std::is_same<SimdDataI, __m128i>::value,
               "[Error]: Invalid simd type for SSE int SimdClass.");
 static_assert(std::is_same<ValueDataI, int>::value,
