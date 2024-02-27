@@ -20,26 +20,26 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-template <> inline SimdF::SimdBaseClass()
+template <> inline SimdF::SimdClassBase()
 {
     data_.simd_ = Detail::constant<SimdDataF, ValueDataF>(0.0f);
 }
-template <> inline SimdF::SimdBaseClass(const SimdF& class_simd)
+template <> inline SimdF::SimdClassBase(const SimdF& class_simd)
 {
     data_.simd_ = class_simd.data_.simd_;
 }
 // Constructor to broadcast the same value into all elements:
-template <> inline SimdF::SimdBaseClass(ValueDataF val)
+template <> inline SimdF::SimdClassBase(ValueDataF val)
 {
     data_.simd_ = Detail::constant<SimdDataF, ValueDataF>(val);
 }
-template <> inline SimdF::SimdBaseClass(ValueDataF* val)
+template <> inline SimdF::SimdClassBase(ValueDataF* val)
 {
     data_.simd_ = _mm_setr_ps(val[0], val[1], val[2], val[3]);
 }
 template <>
 template <typename T, typename std::enable_if<true, T>::type*>
-inline SimdF::SimdBaseClass(SimdDataF val_simd)
+inline SimdF::SimdClassBase(SimdDataF val_simd)
 {
     data_.simd_ = val_simd;
 }

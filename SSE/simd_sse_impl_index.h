@@ -33,7 +33,7 @@ template<> inline SimdIndex::SimdIndexBase(const SimdIndex& class_indices)
     index_ = class_indices.index_;
 }
 template<>
-template<typename T, typename std::enable_if<!(std::is_same<int, SimdDataI>::value), T>::type*>
+template<typename T, typename std::enable_if<true, T>::type*>
 inline SimdIndex::SimdIndexBase(const SimdDataI& val_simd)
 {
     index_ = val_simd;
@@ -41,6 +41,15 @@ inline SimdIndex::SimdIndexBase(const SimdDataI& val_simd)
 template<> inline SimdIndex::SimdIndexBase(const SimdDataF& val_simd)
 {
     index_ = _mm_cvtps_epi32(val_simd);
+}
+template<>
+inline SimdIndex::SimdIndexBase(const SimdI& class_simd)
+{
+    index_ = class_simd.simd();
+}
+template<> inline SimdIndex::SimdIndexBase(const SimdF& class_simd)
+{
+    index_ = _mm_cvtps_epi32(class_simd.simd());
 }
 
 template<> inline SimdIndex& SimdIndex::operator=(int val)

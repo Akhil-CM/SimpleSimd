@@ -21,26 +21,26 @@ namespace KFP {
 namespace SIMD {
 
 template <>
-inline SimdI::SimdBaseClass()
+inline SimdI::SimdClassBase()
 {
     data_.simd_ = Detail::constant<SimdDataI, ValueDataI>(0);
 }
-template <> inline SimdI::SimdBaseClass(const SimdI& class_simd)
+template <> inline SimdI::SimdClassBase(const SimdI& class_simd)
 {
     data_.simd_ = class_simd.data_.simd_;
 }
 // Constructor to broadcast the same value into all elements:
-template <> inline SimdI::SimdBaseClass(ValueDataI val)
+template <> inline SimdI::SimdClassBase(ValueDataI val)
 {
     data_.simd_ = Detail::constant<SimdDataI, ValueDataI>(val);
 }
-template <> inline SimdI::SimdBaseClass(ValueDataI* val)
+template <> inline SimdI::SimdClassBase(ValueDataI* val)
 {
     data_.simd_ = _mm_setr_epi32(val[0], val[1], val[2], val[3]);
 }
 template<>
 template<typename T, typename std::enable_if<true, T>::type*>
-inline SimdI::SimdBaseClass(SimdDataI val_simd)
+inline SimdI::SimdClassBase(SimdDataI val_simd)
 {
     data_.simd_ = val_simd;
 }

@@ -35,6 +35,15 @@ template<> inline SimdIndex::SimdIndexBase(const SimdDataF& val_simd)
 {
     index_ = int(val_simd);
 }
+template<>
+inline SimdIndex::SimdIndexBase(const SimdI& class_simd)
+{
+    index_ = class_simd.simd();
+}
+template<> inline SimdIndex::SimdIndexBase(const SimdF& class_simd)
+{
+    index_ = static_cast<int>(class_simd.simd());
+}
 
 template<> inline SimdIndex& SimdIndex::operator=(int val)
 {
