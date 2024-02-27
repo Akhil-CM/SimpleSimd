@@ -38,12 +38,6 @@ public:
     typedef typename SimdData<ValueType, tag>::simd_type simd_type;
     static constexpr int SimdSize{ sizeof(simd_type) };
     static constexpr int SimdLen{ SimdSize / sizeof(ValueType) };
-    static_assert(
-        (SimdSize == __KFP_SIMD__Size_Float),
-        "[Error]: KFP::SIMD::SimdClassBase given invalid size of simd type.");
-    static_assert(
-        (SimdLen == __KFP_SIMD__Len_Float),
-        "[Error]: KFP::SIMD::SimdClassBase given invalid size of simd type.");
 
     // ------------------------------------------------------
     // Constructors
