@@ -21,4 +21,18 @@ Emails: mithran@fias.uni-frankfurt.de
 #include "simd_scalar.h"
 #endif
 
+static_assert(
+    (KFP::SIMD::SimdF::SimdSize == __KFP_SIMD__Size_Float),
+    "[Error]: KFP::SIMD::SimdF given invalid size of simd type.");
+static_assert(
+    (KFP::SIMD::SimdF::SimdLen == __KFP_SIMD__Len_Float),
+    "[Error]: KFP::SIMD::SimdF given invalid length of simd type.");
+
+static_assert(
+    (KFP::SIMD::SimdI::SimdSize == __KFP_SIMD__Size_Int),
+    "[Error]: KFP::SIMD::SimdI given invalid size of simd type.");
+static_assert(
+    (KFP::SIMD::SimdI::SimdLen == __KFP_SIMD__Len_Int),
+    "[Error]: KFP::SIMD::SimdI given invalid length of simd type.");
+
 #endif

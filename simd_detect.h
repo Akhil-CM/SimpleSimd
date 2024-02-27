@@ -97,7 +97,8 @@ Emails: mithran@fias.uni-frankfurt.de
 #if !defined(__KFP_SIMD__Scalar) && !defined(__KFP_SIMD__SSE) && !defined(__KFP_SIMD__AVX)
 #error \
     "[Error] (simd_detect.hpp): Invalid KFParticle SIMD implementation value was selected."
-#elif defined(__KFP_SIMD__SSE) && !defined(__KFP_SIMD__SSE2)
+#endif
+#if defined(__KFP_SIMD__SSE) && !defined(__KFP_SIMD__SSE2)
 #error "[Error] (simd_detect.hpp): KFParticle SIMD implementation value SSE selected without SSE2."
 #endif
 
