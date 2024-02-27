@@ -118,7 +118,7 @@ inline int sign<int, SimdDataI>(const SimdDataI& a)
 
 template <> inline SimdDataI minus<SimdDataI>(const SimdDataI& a)
 {
-    const SimdDataI mask_minus{ _mm_set1_epi32(0x80000000) } ;
+    const SimdDataI mask_minus = _mm_set1_epi32(0x80000000)  ;
     return _mm_xor_si128(a, mask_minus);
 }
 
@@ -242,7 +242,7 @@ template <> inline SimdDataI pow<SimdDataI>(const SimdDataI& a, int exp)
 template <>
 inline SimdDataI opNOT<SimdDataI>(const SimdDataI& a)
 {
-    const SimdDataI mask_true{ _mm_set1_epi32(-1) } ;
+    const SimdDataI mask_true = _mm_set1_epi32(-1)  ;
     return _mm_xor_si128(mask_true, a);
 }
 
@@ -291,7 +291,7 @@ inline SimdDataI opEqual<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
 template <>
 inline SimdDataI opNotEqual<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
 {
-    const SimdDataI mask_true{ _mm_set1_epi32(-1) } ;
+    const SimdDataI mask_true = _mm_set1_epi32(-1)  ;
     return _mm_xor_si128(_mm_cmpeq_epi32(a, b), mask_true);
 }
 } // namespace Detail

@@ -121,7 +121,7 @@ inline void print<SimdDataF>(std::ostream& stream, const SimdDataF& val_simd)
 
 template <> inline SimdDataF minus<SimdDataF>(const SimdDataF& a)
 {
-    const SimdDataF mask_minus{ _mm_castsi128_ps(_mm_set1_epi32(0x80000000)) } ;
+    const SimdDataF mask_minus = _mm_castsi128_ps(_mm_set1_epi32(0x80000000))  ;
     return _mm_xor_ps(a, mask_minus);
 }
 
@@ -173,7 +173,7 @@ template <> inline SimdDataF rsqrt<SimdDataF>(const SimdDataF& a)
 
 template <> inline SimdDataF abs<SimdDataF>(const SimdDataF& a)
 {
-    const SimdDataF mask_abs{ _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF)) } ;
+    const SimdDataF mask_abs = _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF))  ;
     return _mm_and_ps(a, mask_abs);
 }
 
@@ -203,7 +203,7 @@ template <> inline SimdDataF pow<SimdDataF>(const SimdDataF& a, int exp)
 template <>
 inline SimdDataF opNOT<SimdDataF>(const SimdDataF& a)
 {
-    const SimdDataF mask_true{ _mm_castsi128_ps(_mm_set1_epi32(-1)) } ;
+    const SimdDataF mask_true = _mm_castsi128_ps(_mm_set1_epi32(-1))  ;
     return _mm_xor_ps(mask_true, a);
 }
 
