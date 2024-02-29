@@ -174,6 +174,15 @@ inline SimdI select(const SimdMask& mask, const SimdI& a, const SimdI& b)
         Detail::select<SimdI::simd_type>(mask.maski(), a.simd(), b.simd()));
 }
 
+template <typename F> inline SimdI apply(const SimdI& a, F& func)
+{
+    ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+        data[__KFP_SIMD__Len_Int]{}; // Helper array
+    a.store_a(data);
+    return SimdI{ _mm_setr_epi32(func(data[0]), func(data[1]), func(data[2]),
+                              func(data[3])) };
+}
+
 } // namespace SIMD
 } // namespace KFP
 

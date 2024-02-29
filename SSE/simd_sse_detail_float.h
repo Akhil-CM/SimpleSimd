@@ -16,6 +16,7 @@ Emails: mithran@fias.uni-frankfurt.de
 #include <x86intrin.h>
 #include <iostream>
 #include <cmath>
+#include <xmmintrin.h>
 
 namespace KFP {
 namespace SIMD {

@@ -198,6 +198,48 @@ inline SimdF select(const SimdMask& mask, const SimdF& a, const SimdF& b)
         Detail::select<SimdF::simd_type>(mask.maskf(), a.simd(), b.simd()));
 }
 
+template <typename F> inline SimdF apply(const SimdF& a, F& func)
+{
+    ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
+        data[__KFP_SIMD__Len_Float]{}; // Helper array
+    a.store_a(data);
+    return SimdF{ _mm_setr_ps(func(data[0]), func(data[1]), func(data[2]),
+                              func(data[3])) };
+}
+
+inline SimdF round(const SimdF& a)
+{
+#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
+    return SimdF{ _mm_round_ps(a.simd(), _MM_FROUND_NINT) };
+#elif 0
+    ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
+        data[__KFP_SIMD__Len_Float]{}; // Helper array
+    a.store_a(data);
+    return SimdF{ _mm_setr_ps(std::round(data[0]), std::round(data[1]),
+                              std::round(data[2]), std::round(data[3])) };
+#else
+    SimdDataI tmp = _mm_cvtps_epi32(a.simd()); // convert to integer
+    return SimdF{ _mm_cvtepi32_ps(tmp) }; // convert back to float
+#endif
+}
+
+inline SimdMask isInf(const SimdF& a)
+{
+    const SimdDataF mask_inf{ _mm_castsi128_ps(_mm_set1_epi32(0x7F800000)) };
+    return SimdMask{ _mm_cmpeq_ps(a.simd(), mask_inf) };
+}
+
+inline SimdMask isFinite(const SimdF& a)
+{
+    const SimdDataF mask_inf{ _mm_castsi128_ps(_mm_set1_epi32(0x7F800000)) };
+    return SimdMask{ _mm_cmpneq_ps(_mm_and_ps(a.simd(), mask_inf), mask_inf) };
+}
+
+inline SimdMask isNaN(const SimdF& a)
+{
+    return _mm_cmpunord_ps(a.simd(), a.simd());
+}
+
 } // namespace SIMD
 } // namespace KFP
 
