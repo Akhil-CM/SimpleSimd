@@ -3,33 +3,32 @@
 #include <iostream>
 #include <Vc/Vc>
 
-using KFP::SIMD::SimdMask;
-using KFP::SIMD::SimdIndex;
-using KFP::SIMD::SimdF;
-using KFP::SIMD::SimdI;
+using KFP::SIMD::simd_mask;
+using KFP::SIMD::simd_index;
+using KFP::SIMD::simd_float;
 
-__KFP_SIMD__INLINE SimdF Sin(const SimdF& phi)
+__KFP_SIMD__INLINE simd_float Sin(const simd_float& phi)
 {
-    const SimdF pi{3.1415926535897932f};
-    const SimdF nTurnsF = (phi + pi) / (SimdF{2.f}*pi);
-    SimdIndex nTurns = SimdIndex{nTurnsF};
+    const simd_float pi{3.1415926535897932f};
+    const simd_float nTurnsF = (phi + pi) / (simd_float{2.f}*pi);
+    simd_index nTurns = simd_index{nTurnsF};
     nTurns = select((nTurns <= 0) && (phi < -pi), nTurns-1, nTurns);
 
-    const SimdF& x{ phi - SimdF(nTurns)*(SimdF(2.f)*pi) };
+    const simd_float& x{ phi - simd_float(nTurns)*(simd_float(2.f)*pi) };
 
-    const SimdF& B = SimdF{4.f}/pi;
-    const SimdF& C = -B/pi;
+    const simd_float& B = simd_float{4.f}/pi;
+    const simd_float& C = -B/pi;
 
-    SimdF y = (B + C * abs(x)) * x;
+    simd_float y = (B + C * abs(x)) * x;
 
-    const SimdF& P{ 0.218f };
+    const simd_float& P{ 0.218f };
     y = P * (y * abs(y) - y) + y;
 
     return y;
 }
-__KFP_SIMD__INLINE SimdF Cos(const SimdF& phi)
+__KFP_SIMD__INLINE simd_float Cos(const simd_float& phi)
 {
-    return Sin(phi + SimdF{1.570796326795f}); //x + pi/2
+    return Sin(phi + simd_float{1.570796326795f}); //x + pi/2
 }
 
 Vc::float_v SinVc( const Vc::float_v& phi )
@@ -63,20 +62,20 @@ struct ApplySin
 
 int main()
 {
-    SimdMask simd_mask;
-    SimdIndex simd_index;
-    SimdF simd_float{ 0.0f };
+    simd_mask mask;
+    simd_index index;
+    simd_float simd_f{ 0.0f };
 
-    std::cout << "Print SimdF{0.0f}\n" ;
-    std::cout << simd_float << "\n\n";
-    std::cout << "Print SimdF{0.0f} + 5\n" ;
-    std::cout << simd_float + 5 << "\n\n";
-    std::cout << "Print SimdF{} + SimdF{5}\n" ;
-    std::cout << (SimdF{} + SimdF{ 5 }) << "\n\n";
+    std::cout << "Print simd_float{0.0f}\n" ;
+    std::cout << simd_f << "\n\n";
+    std::cout << "Print simd_float{0.0f} + 5\n" ;
+    std::cout << simd_f + 5 << "\n\n";
+    std::cout << "Print simd_float{} + simd_float{5}\n" ;
+    std::cout << (simd_float{} + simd_float{ 5 }) << "\n\n";
 
-    SimdF::value_type f1234[SimdF::SimdLen]{1.0f, 2.0f, 3.0f, 4.0f};
+    simd_float::value_type f1234[simd_float::SimdLen]{1.0f, 2.0f, 3.0f, 4.0f};
     std::cout << "Print load_partial of {1.0f, 2.0f, 3.0f, 4.0f}\n" ;
-    std::cout << SimdF{}.load_partial(5, f1234) << "\n\n";
+    std::cout << simd_float{}.load_partial(5, f1234) << "\n\n";
 
     std::cout << "sin(1.0f), sin(2.0f), sin(3.0f), sin(4.0f):\n" ;
     std::cout << std::sin(1.0f) << ", " ;
@@ -85,10 +84,10 @@ int main()
     std::cout << std::sin(4.0f) << "\n" ;
 
     std::cout << "apply sin to Print load_partial of {1.0f, 2.0f, 3.0f, 4.0f}\n" ;
-    std::cout << apply(SimdF{}.load_partial(5, f1234), ApplySin<float>{}) << "\n\n";
+    std::cout << apply(simd_float{}.load_partial(5, f1234), ApplySin<float>{}) << "\n\n";
 
     std::cout << "Sin to Print load_partial of {1.0f, 2.0f, 3.0f, 4.0f}\n" ;
-    std::cout << Sin(SimdF{}.load_partial(5, f1234)) << "\n\n";
+    std::cout << Sin(simd_float{}.load_partial(5, f1234)) << "\n\n";
 
     Vc::float_v float_vc;
     float_vc.load(f1234);

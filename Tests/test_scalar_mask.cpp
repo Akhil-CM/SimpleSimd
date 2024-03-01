@@ -2,38 +2,38 @@
 #include "../simd.h"
 #include <iostream>
 
-using KFP::SIMD::SimdMask;
+using KFP::SIMD::simd_mask;
 
 int main()
 {
     {
-        SimdMask simd_mask;
+        simd_mask mask;
         std::cout << "Print Simd Mask\n" ;
-        std::cout << simd_mask << "\n\n";
+        std::cout << mask << "\n\n";
         std::cout << "Print Simd Mask count\n" ;
-        std::cout << simd_mask.count() << "\n\n";
+        std::cout << mask.count() << "\n\n";
         std::cout << "Print Simd Mask AND\n" ;
-        std::cout << simd_mask.AND() << "\n\n";
+        std::cout << mask.AND() << "\n\n";
         std::cout << "Print Simd Mask OR\n" ;
-        std::cout << simd_mask.OR() << "\n\n";
+        std::cout << mask.OR() << "\n\n";
         std::cout << "Print Simd Mask == Simd Mask{false}\n" ;
-        std::cout << (simd_mask == SimdMask{false}) << "\n\n";
+        std::cout << (mask == simd_mask{false}) << "\n\n";
         std::cout << "Print !Simd Mask == Simd Mask{true}\n" ;
-        std::cout << ((!simd_mask) == SimdMask{true}) << "\n\n";
+        std::cout << ((!mask) == simd_mask{true}) << "\n\n";
         std::cout << "Print !Simd Mask == Simd Mask{false}\n" ;
-        std::cout << ((!simd_mask) == SimdMask{}) << "\n\n";
+        std::cout << ((!mask) == simd_mask{}) << "\n\n";
     }
 
     {
-        SimdMask simd_mask{true};
+        simd_mask mask{true};
         std::cout << "Print Simd Mask\n" ;
-        std::cout << simd_mask << "\n\n";
+        std::cout << mask << "\n\n";
         std::cout << "Print Simd Mask count\n" ;
-        std::cout << simd_mask.count() << "\n\n";
+        std::cout << mask.count() << "\n\n";
         std::cout << "Print Simd Mask AND\n" ;
-        std::cout << simd_mask.AND() << "\n\n";
+        std::cout << mask.AND() << "\n\n";
         std::cout << "Print Simd Mask OR\n" ;
-        std::cout << simd_mask.OR() << "\n\n";
+        std::cout << mask.OR() << "\n\n";
     }
 
 }

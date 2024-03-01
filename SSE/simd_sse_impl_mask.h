@@ -18,84 +18,84 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-template <> inline SimdMask::SimdMaskBase()
+template <> inline simd_mask::SimdMaskBase()
 {
-    mask_ = Detail::constant<SimdDataI, ValueDataI>(0) ;
+    mask_ = Detail::constant<simd_int::simd_type, simd_int::value_type>(0) ;
 }
-template <> inline SimdMask::SimdMaskBase(bool val)
+template <> inline simd_mask::SimdMaskBase(bool val)
 {
-    mask_ = Detail::constant<SimdDataI, ValueDataI>(-int(val)) ;
+    mask_ = Detail::constant<simd_int::simd_type, simd_int::value_type>(-int(val)) ;
 }
-template <> inline SimdMask::SimdMaskBase(const bool* val_ptr)
+template <> inline simd_mask::SimdMaskBase(const bool* val_ptr)
 {
-    ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+    simd_int::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         data[__KFP_SIMD__Len_Int]{}; // Helper array
     data[0] = -int(val_ptr[0]);
     data[1] = -int(val_ptr[1]);
     data[2] = -int(val_ptr[2]);
     data[3] = -int(val_ptr[3]);
-    mask_ = Detail::load_a<SimdDataI, ValueDataI>(data) ;
+    mask_ = Detail::load_a<simd_int::simd_type, simd_int::value_type>(data) ;
 }
-template <> inline SimdMask::SimdMaskBase(const simd_typei& mask)
+template <> inline simd_mask::SimdMaskBase(const simd_typei& mask)
 {
-    mask_ = Detail::opNOT<SimdDataI>( _mm_cmpeq_epi32(mask, _mm_setzero_si128()) );
+    mask_ = Detail::opNOT<simd_int::simd_type>( _mm_cmpeq_epi32(mask, _mm_setzero_si128()) );
 }
-template <> inline SimdMask::SimdMaskBase(const simd_typef& mask)
+template <> inline simd_mask::SimdMaskBase(const simd_typef& mask)
 {
-    mask_ = Detail::opNOT<SimdDataI>( _mm_castps_si128(_mm_cmpeq_ps(mask, _mm_setzero_ps())) );
+    mask_ = Detail::opNOT<simd_int::simd_type>( _mm_castps_si128(_mm_cmpeq_ps(mask, _mm_setzero_ps())) );
 }
-template <> inline SimdMask::SimdMaskBase(const SimdMaskBase& class_mask)
+template <> inline simd_mask::SimdMaskBase(const simd_mask& class_mask)
 {
     mask_ = class_mask.mask_ ;
 }
 
-template <> inline SimdMask& SimdMask::operator=(bool val)
+template <> inline simd_mask& simd_mask::operator=(bool val)
 {
-    mask_ = Detail::constant<SimdDataI, ValueDataI>(-int(val)) ;
+    mask_ = Detail::constant<simd_int::simd_type, simd_int::value_type>(-int(val)) ;
     return *this ;
 }
-template <> inline SimdMask& SimdMask::operator=(const simd_typei& mask)
+template <> inline simd_mask& simd_mask::operator=(const simd_typei& mask)
 {
-    mask_ = Detail::opNOT<SimdDataI>( _mm_cmpeq_epi32(mask, _mm_setzero_si128()) );
+    mask_ = Detail::opNOT<simd_int::simd_type>( _mm_cmpeq_epi32(mask, _mm_setzero_si128()) );
     return *this ;
 }
-template <> inline SimdMask& SimdMask::operator=(const simd_typef& mask)
+template <> inline simd_mask& simd_mask::operator=(const simd_typef& mask)
 {
-    mask_ = Detail::opNOT<SimdDataI>( _mm_castps_si128(_mm_cmpeq_ps(mask, _mm_setzero_ps())) );
+    mask_ = Detail::opNOT<simd_int::simd_type>( _mm_castps_si128(_mm_cmpeq_ps(mask, _mm_setzero_ps())) );
     return *this ;
 }
-template <> inline SimdMask& SimdMask::operator=(const SimdMaskBase& class_mask)
+template <> inline simd_mask& simd_mask::operator=(const simd_mask& class_mask)
 {
     mask_ = class_mask.mask_ ;
     return *this ;
 }
 
-template <> inline int SimdMask::count() const
+template <> inline int simd_mask::count() const
 {
 #if 1
-    const int tmp{ Detail::sign<ValueDataI, SimdDataI>(mask_) };
+    const int tmp{ Detail::sign<simd_int::value_type, simd_int::simd_type>(mask_) };
     return (tmp & 0x01) + (1 >> (tmp & 0x02)) + (2 >> (tmp & 0x04)) + (3 >> (tmp & 0x08));
 #else
-    ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+    simd_int::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         data[__KFP_SIMD__Len_Int]{}; // Helper array
     Detail::store_a(mask_, data);
     return -(data[0] + data[1] + data[2] + data[3]) ;
 #endif
 }
-template <> inline bool SimdMask::AND() const
+template <> inline bool simd_mask::AND() const
 {
     return static_cast<bool>(count() == 4) ;
 }
-template <> inline bool SimdMask::OR() const
+template <> inline bool simd_mask::OR() const
 {
     return static_cast<bool>(count() != 0) ;
 }
 
-template <> inline bool SimdMask::operator[](int index) const
+template <> inline bool simd_mask::operator[](int index) const
 {
-    return static_cast<bool>(Detail::extract<ValueDataI, SimdDataI>(index, mask_));
+    return static_cast<bool>(Detail::extract<simd_int::value_type, simd_int::simd_type>(index, mask_));
 }
-template <> inline SimdDataF SimdMask::maskf() const
+template <> inline simd_float::simd_type simd_mask::maskf() const
 {
     return _mm_castsi128_ps(mask_);
 }

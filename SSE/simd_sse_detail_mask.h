@@ -24,16 +24,16 @@ namespace SIMD {
 namespace Detail {
 
 template <>
-inline void print<SimdMask>(std::ostream& stream, const SimdMask& class_simd)
+inline void print<simd_mask>(std::ostream& stream, const simd_mask& class_simd)
 {
     ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         data[__KFP_SIMD__Len_Int]{}; // Helper array
     store_a<SimdDataI, ValueDataI>(class_simd.maski(), data);
     stream << "[" << std::boolalpha;
-    for(int idx{0} ; idx < (SimdMask::SimdLen-1) ; ++idx){
+    for(int idx{0} ; idx < (simd_mask::SimdLen-1) ; ++idx){
         stream << static_cast<bool>(data[idx]) << ", ";
     }
-    stream << static_cast<bool>(data[(SimdMask::SimdLen-1)]) << std::noboolalpha << "]";
+    stream << static_cast<bool>(data[(simd_mask::SimdLen-1)]) << std::noboolalpha << "]";
 }
 
 template <>

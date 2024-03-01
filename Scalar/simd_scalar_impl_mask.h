@@ -18,72 +18,72 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-template <> inline SimdMask::SimdMaskBase()
+template <> inline simd_mask::SimdMaskBase()
 {
     mask_ = 0 ;
 }
-template <> inline SimdMask::SimdMaskBase(bool val)
+template <> inline simd_mask::SimdMaskBase(bool val)
 {
     mask_ = -int(val) ;
 }
-template <> inline SimdMask::SimdMaskBase(const bool* val_ptr)
+template <> inline simd_mask::SimdMaskBase(const bool* val_ptr)
 {
     mask_ = -int(val_ptr[0]) ;
 }
-template <> inline SimdMask::SimdMaskBase(const simd_typei& mask)
+template <> inline simd_mask::SimdMaskBase(const simd_typei& mask)
 {
     mask_ = -int(static_cast<bool>(mask)) ;
 }
-template <> inline SimdMask::SimdMaskBase(const simd_typef& mask)
+template <> inline simd_mask::SimdMaskBase(const simd_typef& mask)
 {
     mask_ = -int(static_cast<bool>(mask)) ;
 }
-template <> inline SimdMask::SimdMaskBase(const SimdMaskBase& class_mask)
+template <> inline simd_mask::SimdMaskBase(const simd_mask& class_mask)
 {
     mask_ = class_mask.mask_ ;
 }
 
-template <> inline SimdMask& SimdMask::operator=(bool val)
+template <> inline simd_mask& simd_mask::operator=(bool val)
 {
     mask_ = -int(val) ;
     return *this ;
 }
-template <> inline SimdMask& SimdMask::operator=(const simd_typei& mask)
+template <> inline simd_mask& simd_mask::operator=(const simd_typei& mask)
 {
     mask_ = -int(static_cast<bool>(mask)) ;
     return *this ;
 }
-template <> inline SimdMask& SimdMask::operator=(const simd_typef& mask)
+template <> inline simd_mask& simd_mask::operator=(const simd_typef& mask)
 {
     mask_ = -int(static_cast<bool>(mask)) ;
     return *this ;
 }
-template <> inline SimdMask& SimdMask::operator=(const SimdMaskBase& class_mask)
+template <> inline simd_mask& simd_mask::operator=(const simd_mask& class_mask)
 {
     mask_ = class_mask.mask_ ;
     return *this ;
 }
 
-template <> inline int SimdMask::count() const
+template <> inline int simd_mask::count() const
 {
     return -(mask_) ;
 }
-template <> inline bool SimdMask::AND() const
+template <> inline bool simd_mask::AND() const
 {
     return static_cast<bool>(mask_) ;
 }
-template <> inline bool SimdMask::OR() const
+template <> inline bool simd_mask::OR() const
 {
     return static_cast<bool>(mask_) ;
 }
 
-template <> inline bool SimdMask::operator[](int) const
+template <> inline bool simd_mask::operator[](int) const
 {
     return mask_;
 }
-template <> inline SimdDataF SimdMask::maskf() const
+template <> inline simd_float::simd_type simd_mask::maskf() const
 {
-    return static_cast<SimdDataF>(mask_);
+    return static_cast<simd_float::simd_type>(mask_);
 }
 
 } // namespace SIMD

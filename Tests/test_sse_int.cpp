@@ -2,53 +2,53 @@
 #include "../simd.h"
 #include <iostream>
 
-using KFP::SIMD::SimdMask;
-using KFP::SIMD::SimdIndex;
-using KFP::SIMD::SimdI;
-using KFP::SIMD::SimdF;
+using KFP::SIMD::simd_mask;
+using KFP::SIMD::simd_index;
+using KFP::SIMD::simd_int;
+using KFP::SIMD::simd_float;
 
 int main()
 {
-    SimdMask simd_mask;
-    SimdIndex simd_index;
-    SimdI simd_int{ 0 };
+    simd_mask mask;
+    simd_index index;
+    simd_int simd_i{ 0 };
 
     std::cout << "Print Simd Mask\n" ;
-    std::cout << simd_mask << "\n\n";
-    std::cout << "Print Simd Mask(SimdIndex < 5)\n" ;
-    std::cout << SimdMask{simd_index < 5} << "\n\n";
+    std::cout << mask << "\n\n";
+    std::cout << "Print Simd Mask(simd_index < 5)\n" ;
+    std::cout << simd_mask{index < 5} << "\n\n";
 
-    std::cout << "Print Simd Mask(SimdIndex < 5)\n" ;
-    std::cout << simd_index << "\n\n";
-    std::cout << "Print SimdIndex + 5\n" ;
-    std::cout << simd_index + 5 << "\n\n";
-    std::cout << "Print SimdIndex + SimdIndex{5}\n" ;
-    std::cout << (simd_index + SimdIndex{ 5 }) << "\n\n";
+    std::cout << "Print Simd Mask(simd_index < 5)\n" ;
+    std::cout << index << "\n\n";
+    std::cout << "Print simd_index + 5\n" ;
+    std::cout << index + 5 << "\n\n";
+    std::cout << "Print simd_index + simd_index{5}\n" ;
+    std::cout << (index + simd_index{ 5 }) << "\n\n";
 
-    std::cout << "Print SimdI{0}\n" ;
-    std::cout << simd_int << "\n\n";
-    std::cout << "Print SimdI{0} + 5\n" ;
-    std::cout << simd_int + 5 << "\n\n";
-    std::cout << "Print SimdI{0} + SimdI{5}\n" ;
-    std::cout << (simd_int + SimdI{ 5 }) << "\n\n";
+    std::cout << "Print simd_int{0}\n" ;
+    std::cout << simd_i << "\n\n";
+    std::cout << "Print simd_int{0} + 5\n" ;
+    std::cout << simd_i + 5 << "\n\n";
+    std::cout << "Print simd_int{0} + simd_int{5}\n" ;
+    std::cout << (simd_i + simd_int{ 5 }) << "\n\n";
 
-    std::cout << "Print sqrt of SimdI{0} + SimdI{5}\n" ;
-    std::cout << sqrt(simd_int + SimdI{ 5 }) << "\n\n";
-    std::cout << "Print rsqrt of SimdI{0} + SimdI{5}\n" ;
-    std::cout << rsqrt(simd_int + SimdI{ 5 }) << "\n\n";
-    std::cout << "Print log of SimdI{0} + SimdI{5}\n" ;
-    std::cout << log(simd_int + SimdI{ 5 }) << "\n\n";
-    std::cout << "Print power 3 of SimdI{0} + SimdI{5}\n" ;
-    std::cout << pow(simd_int + SimdI{ 5 }, 3) << "\n\n";
+    std::cout << "Print sqrt of simd_int{0} + simd_int{5}\n" ;
+    std::cout << sqrt(simd_i + simd_int{ 5 }) << "\n\n";
+    std::cout << "Print rsqrt of simd_int{0} + simd_int{5}\n" ;
+    std::cout << rsqrt(simd_i + simd_int{ 5 }) << "\n\n";
+    std::cout << "Print log of simd_int{0} + simd_int{5}\n" ;
+    std::cout << log(simd_i + simd_int{ 5 }) << "\n\n";
+    std::cout << "Print power 3 of simd_int{0} + simd_int{5}\n" ;
+    std::cout << pow(simd_i + simd_int{ 5 }, 3) << "\n\n";
 
-    SimdI::value_type i1234[SimdI::SimdLen]{1, 2, 3, 4};
+    simd_int::value_type i1234[simd_int::SimdLen]{1, 2, 3, 4};
     std::cout << "Print load_partial of {1, 2, 3, 4}\n" ;
-    std::cout << SimdI{}.load_partial(5, i1234) << "\n\n";
+    std::cout << simd_int{}.load_partial(5, i1234) << "\n\n";
 
-    std::cout << "Print load_partial of {1, 2, 3, 4} + SimdI{5}\n" ;
-    std::cout << SimdI{}.load_partial(5, i1234) + SimdI{5} << "\n\n";
+    std::cout << "Print load_partial of {1, 2, 3, 4} + simd_int{5}\n" ;
+    std::cout << simd_int{}.load_partial(5, i1234) + simd_int{5} << "\n\n";
 
-    std::cout << "Print SimdI to SimdF cast\n" ;
-    std::cout << SimdI{}.load_partial(5, i1234) << "\n\n";
-    std::cout << SimdF{SimdI{}.load_partial(5, i1234)} + SimdF{0.5f} << "\n\n";
+    std::cout << "Print simd_int to simd_float cast\n" ;
+    std::cout << simd_int{}.load_partial(5, i1234) << "\n\n";
+    std::cout << simd_float{simd_int{}.load_partial(5, i1234)} + simd_float{0.5f} << "\n\n";
 }

@@ -2,28 +2,28 @@
 #include "../simd.h"
 #include <iostream>
 
-using KFP::SIMD::SimdIndex;
+using KFP::SIMD::simd_index;
 
 int main()
 {
     {
-        SimdIndex simd_index;
+        simd_index index;
         std::cout << "Print Simd Index\n" ;
-        std::cout << simd_index << "\n\n";
+        std::cout << index << "\n\n";
         std::cout << "Print Simd Index op+ 5\n" ;
-        std::cout << simd_index + 5 << "\n\n";
+        std::cout << index + 5 << "\n\n";
         std::cout << "Print Simd Index seq\n" ;
-        std::cout << SimdIndex(3) << "\n\n";
+        std::cout << simd_index(3) << "\n\n";
     }
 
     {
-        SimdIndex simd_index{5};
+        simd_index index{5};
         std::cout << "Print Simd Index\n" ;
-        std::cout << simd_index << "\n\n";
+        std::cout << index << "\n\n";
         std::cout << "Print Simd Index op/ 5\n" ;
-        std::cout << simd_index / 5 << "\n\n";
+        std::cout << index / 5 << "\n\n";
         std::cout << "Print Simd Index seq\n" ;
-        std::cout << SimdIndex(5) << "\n\n";
+        std::cout << simd_index(5) << "\n\n";
     }
 
 }

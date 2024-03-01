@@ -20,48 +20,48 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-template <> inline SimdF::SimdClassBase()
+template <> inline simd_float::SimdClassBase()
 {
-    data_.simd_ = Detail::constant<SimdDataF, ValueDataF>(0.0f);
+    data_.simd_ = Detail::constant<simd_float::simd_type, simd_float::value_type>(0.0f);
 }
 // Constructor to broadcast the same value into all elements:
-template <> inline SimdF::SimdClassBase(ValueDataF val)
+template <> inline simd_float::SimdClassBase(value_type val)
 {
-    data_.simd_ = Detail::constant<SimdDataF, ValueDataF>(val);
+    data_.simd_ = Detail::constant<simd_type, value_type>(val);
 }
 template <>
 template <typename T, typename std::enable_if<true, T>::type*>
-inline SimdF::SimdClassBase(const SimdDataF& val_simd)
+inline simd_float::SimdClassBase(const simd_type& val_simd)
 {
     data_.simd_ = val_simd;
 }
-template <> inline SimdF::SimdClassBase(ValueDataF* val)
+template <> inline simd_float::SimdClassBase(value_type* val)
 {
-    data_.simd_ = Detail::load<SimdDataF, ValueDataF>(val);
+    data_.simd_ = Detail::load<simd_type, value_type>(val);
 }
-template <> inline SimdF::SimdClassBase(const SimdF& class_simd)
+template <> inline simd_float::SimdClassBase(const simd_float& class_simd)
 {
     data_.simd_ = class_simd.data_.simd_;
 }
-template <> inline SimdF::SimdClassBase(const SimdIndex& class_index)
+template <> inline simd_float::SimdClassBase(const simd_index& class_index)
 {
-    data_.simd_ = Detail::cast<SimdDataF, SimdDataI>(class_index.index());
+    data_.simd_ = Detail::cast<simd_type, simd_int::simd_type>(class_index.index());
 }
 
 template <>
-inline SimdF& SimdF::operator=(ValueDataF val)
+inline simd_float& simd_float::operator=(value_type val)
 {
-    data_.simd_ = Detail::constant<SimdDataF, ValueDataF>(val);
+    data_.simd_ = Detail::constant<simd_type, value_type>(val);
     return *this;
 }
 template <>
 template <typename T, typename std::enable_if<true, T>::type*>
-inline SimdF& SimdF::operator=(const SimdDataF& val_simd)
+inline simd_float& simd_float::operator=(const simd_type& val_simd)
 {
     data_.simd_ = val_simd;
     return *this;
 }
-template <> inline SimdF& SimdF::operator=(const SimdF& class_simd)
+template <> inline simd_float& simd_float::operator=(const simd_float& class_simd)
 {
     data_.simd_ = class_simd.data_.simd_;
     return *this;
@@ -70,18 +70,18 @@ template <> inline SimdF& SimdF::operator=(const SimdF& class_simd)
 // Load and Store
 // ------------------------------------------------------
 // Load
-template <> inline SimdF& SimdF::load(const ValueDataF* val_ptr)
+template <> inline simd_float& simd_float::load(const value_type* val_ptr)
 {
-    data_.simd_ = Detail::load<SimdDataF, ValueDataF>(val_ptr);
+    data_.simd_ = Detail::load<simd_type, value_type>(val_ptr);
     return *this;
 }
-template <> inline SimdF& SimdF::load_a(const ValueDataF* val_ptr)
+template <> inline simd_float& simd_float::load_a(const value_type* val_ptr)
 {
-    data_.simd_ = Detail::load_a<SimdDataF, ValueDataF>(val_ptr);
+    data_.simd_ = Detail::load_a<simd_type, value_type>(val_ptr);
     return *this;
 }
 template <>
-inline SimdF& SimdF::load_partial(int index, const ValueDataF* val_ptr)
+inline simd_float& simd_float::load_partial(int index, const value_type* val_ptr)
 {
     switch (index) {
     case 0:
@@ -104,28 +104,28 @@ inline SimdF& SimdF::load_partial(int index, const ValueDataF* val_ptr)
     return *this;
 }
 // Store
-template <> inline void SimdF::store(ValueDataF* val_ptr) const
+template <> inline void simd_float::store(value_type* val_ptr) const
 {
-    Detail::store<SimdDataF, ValueDataF>(data_.simd_, val_ptr);
+    Detail::store<simd_type, value_type>(data_.simd_, val_ptr);
 }
-template <> inline void SimdF::store_a(ValueDataF* val_ptr) const
+template <> inline void simd_float::store_a(value_type* val_ptr) const
 {
-    Detail::store_a<SimdDataF, ValueDataF>(data_.simd_, val_ptr);
+    Detail::store_a<simd_type, value_type>(data_.simd_, val_ptr);
 }
-template <> inline void SimdF::store_stream(ValueDataF* val_ptr) const
+template <> inline void simd_float::store_stream(value_type* val_ptr) const
 {
     _mm_stream_ps(val_ptr, data_.simd_);
 }
 template <>
-inline void SimdF::store_partial(int index, ValueDataF* val_ptr) const
+inline void simd_float::store_partial(int index, value_type* val_ptr) const
 {
     if (index < 1)
         return;
-    ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
+    value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper array
     store_a(data);
-    if (index > SimdF::SimdLen) {
-        index = SimdF::SimdLen;
+    if (index > SimdLen) {
+        index = SimdLen;
     }
     std::copy_n(data, index, val_ptr);
 }
@@ -133,24 +133,24 @@ inline void SimdF::store_partial(int index, ValueDataF* val_ptr) const
 // Gather and Scatter
 // ------------------------------------------------------
 template <>
-inline SimdF& SimdF::gather(const SimdIndex& index, const ValueDataF* val_ptr)
+inline simd_float& simd_float::gather(const simd_index& index, const value_type* val_ptr)
 {
-    ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+    simd_int::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         indices[__KFP_SIMD__Len_Int]{}; // Helper array
-    Detail::store_a<SimdDataI, ValueDataI>(index.index(), indices);
+    Detail::store_a<simd_int::simd_type, simd_int::value_type>(index.index(), indices);
     data_.simd_ = _mm_setr_ps(val_ptr[indices[0]], val_ptr[indices[1]],
                               val_ptr[indices[2]], val_ptr[indices[3]]);
     return *this;
 }
 template <>
-inline void SimdF::scatter(const SimdIndex& index, ValueDataF* val_ptr) const
+inline void simd_float::scatter(const simd_index& index, value_type* val_ptr) const
 {
-    ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
+    value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper array
     store_a(data);
-    ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+    simd_int::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         indices[__KFP_SIMD__Len_Int]{}; // Helper array
-    Detail::store_a<SimdDataI, ValueDataI>(index.index(), indices);
+    Detail::store_a<simd_int::simd_type, simd_int::value_type>(index.index(), indices);
     val_ptr[indices[0]] = data[0];
     val_ptr[indices[1]] = data[1];
     val_ptr[indices[2]] = data[2];
@@ -160,7 +160,7 @@ inline void SimdF::scatter(const SimdIndex& index, ValueDataF* val_ptr) const
 // ------------------------------------------------------
 // Data member accessors
 // ------------------------------------------------------
-template <> inline SimdF& SimdF::insert(int index, ValueDataF val)
+template <> inline simd_float& simd_float::insert(int index, value_type val)
 {
     assert((index > -1) && ("[Error] (insert): invalid index (" +
                             std::to_string(index) + ") given. Negative")
@@ -189,14 +189,14 @@ template <> inline SimdF& SimdF::insert(int index, ValueDataF val)
     int __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         indices[__KFP_SIMD__Len_Int] = { 0, 0, 0, 0 };
     indices[index] = -1;
-    const SimdDataF mask =
-        _mm_castsi128_ps(Detail::load_a<SimdDataI, ValueDataI>(indices));
-    data_.simd_ = Detail::select<SimdDataF>(
-        mask, Detail::constant<SimdDataF, ValueDataF>(val), data_.simd_);
+    const simd_type mask =
+        _mm_castsi128_ps(Detail::load_a<simd_int::simd_type, simd_int::value_type>(indices));
+    data_.simd_ = Detail::select<simd_type>(
+        mask, Detail::constant<simd_type, value_type>(val), data_.simd_);
 #endif
     return *this;
 }
-template <> inline ValueDataF SimdF::operator[](int index) const
+template <> inline simd_float::value_type simd_float::operator[](int index) const
 {
     assert((index > -1) && ("[Error] (operator[]): invalid index (" +
                             std::to_string(index) + ") given. Negative")
@@ -205,60 +205,60 @@ template <> inline ValueDataF SimdF::operator[](int index) const
            ("[Error] (operator[]): invalid index (" + std::to_string(index) +
             ") given. Exceeds maximum")
                .data());
-    return Detail::extract<ValueDataF, SimdDataF>(index, data_.simd_);
+    return Detail::extract<value_type, simd_type>(index, data_.simd_);
 }
-template <> inline SimdF& SimdF::cutoff(int index)
+template <> inline simd_float& simd_float::cutoff(int index)
 {
-    ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
+    value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper array
     store_a(data);
     return load_partial(index, data);
 }
 
-inline SimdF select(const SimdMask& mask, const SimdF& a, const SimdF& b)
+inline simd_float select(const simd_mask& mask, const simd_float& a, const simd_float& b)
 {
-    return SimdF(
-        Detail::select<SimdF::simd_type>(mask.maskf(), a.simd(), b.simd()));
+    return simd_float(
+        Detail::select<simd_float::simd_type>(mask.maskf(), a.simd(), b.simd()));
 }
 
-template <typename F> inline SimdF apply(const SimdF& a, const F& func)
+template <typename F> inline simd_float apply(const simd_float& a, const F& func)
 {
-    ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
+    simd_float::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper array
     a.store_a(data);
-    return SimdF{ _mm_setr_ps(func(data[0]), func(data[1]), func(data[2]),
+    return simd_float{ _mm_setr_ps(func(data[0]), func(data[1]), func(data[2]),
                               func(data[3])) };
 }
 
-inline SimdF round(const SimdF& a)
+inline simd_float round(const simd_float& a)
 {
 #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
-    return SimdF{ _mm_round_ps(a.simd(), _MM_FROUND_NINT) };
+    return simd_float{ _mm_round_ps(a.simd(), _MM_FROUND_NINT) };
 #elif 0
-    ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
+    simd_float::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper array
     a.store_a(data);
-    return SimdF{ _mm_setr_ps(std::round(data[0]), std::round(data[1]),
+    return simd_float{ _mm_setr_ps(std::round(data[0]), std::round(data[1]),
                               std::round(data[2]), std::round(data[3])) };
 #else
-    SimdDataI tmp = _mm_cvtps_epi32(a.simd()); // convert to integer
-    return SimdF{ _mm_cvtepi32_ps(tmp) }; // convert back to float
+    simd_int::simd_type tmp = _mm_cvtps_epi32(a.simd()); // convert to integer
+    return simd_float{ Detail::cast<simd_float::simd_type, simd_int::simd_type>(tmp) }; // convert back to float
 #endif
 }
 
-inline SimdMask isInf(const SimdF& a)
+inline simd_mask isInf(const simd_float& a)
 {
-    const SimdDataF mask_inf = _mm_castsi128_ps(_mm_set1_epi32(0x7F800000)) ;
-    return SimdMask{ _mm_cmpeq_ps(a.simd(), mask_inf) };
+    const simd_float::simd_type mask_inf = _mm_castsi128_ps(_mm_set1_epi32(0x7F800000)) ;
+    return simd_mask{ _mm_cmpeq_ps(a.simd(), mask_inf) };
 }
 
-inline SimdMask isFinite(const SimdF& a)
+inline simd_mask isFinite(const simd_float& a)
 {
-    const SimdDataF mask_inf = _mm_castsi128_ps(_mm_set1_epi32(0x7F800000)) ;
-    return SimdMask{ _mm_cmpneq_ps(_mm_and_ps(a.simd(), mask_inf), mask_inf) };
+    const simd_float::simd_type mask_inf = _mm_castsi128_ps(_mm_set1_epi32(0x7F800000)) ;
+    return simd_mask{ _mm_cmpneq_ps(_mm_and_ps(a.simd(), mask_inf), mask_inf) };
 }
 
-inline SimdMask isNaN(const SimdF& a)
+inline simd_mask isNaN(const simd_float& a)
 {
     return _mm_cmpunord_ps(a.simd(), a.simd());
 }

@@ -19,26 +19,30 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-using SimdDataI = SimdData<int, Tag::SSE>::simd_type;
-using SimdDataF = SimdData<float, Tag::SSE>::simd_type;
+using simd_mask = SimdMaskBase<Tag::SSE>;
+using simd_index = SimdIndexBase<Tag::SSE>;
 
-using ValueDataI = int;
-using ValueDataF = float;
-
-using SimdMask = SimdMaskBase<Tag::SSE>;
-using SimdIndex = SimdIndexBase<Tag::SSE>;
-
-using SimdF = SimdClassBase<float, Tag::SSE>;
-static_assert(std::is_same<SimdDataF, __m128>::value,
+using simd_float = SimdClassBase<float, Tag::SSE>;
+static_assert(std::is_same<simd_float::simd_type, __m128>::value,
               "[Error]: Invalid simd type for SSE float SimdClass.");
-static_assert(std::is_same<ValueDataF, float>::value,
+static_assert(std::is_same<simd_float::value_type, float>::value,
               "[Error]: Invalid value type for SSE float SimdClass.");
 
-using SimdI = SimdClassBase<int, Tag::SSE>;
-static_assert(std::is_same<SimdDataI, __m128i>::value,
+using simd_int = SimdClassBase<int, Tag::SSE>;
+static_assert(std::is_same<simd_int::simd_type, __m128i>::value,
               "[Error]: Invalid simd type for SSE int SimdClass.");
-static_assert(std::is_same<ValueDataI, int>::value,
+static_assert(std::is_same<simd_int::value_type, int>::value,
               "[Error]: Invalid value type for SSE int SimdClass.");
+
+namespace Detail{
+
+typedef simd_int::simd_type SimdDataI;
+typedef simd_float::simd_type SimdDataF;
+
+typedef simd_int::value_type ValueDataI;
+typedef simd_float::value_type ValueDataF;
+
+} // namespace Detail
 
 } // namespace SIMD
 } // namespace KFP

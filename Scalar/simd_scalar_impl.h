@@ -154,7 +154,7 @@ SimdClassBase<ValueType, tag>& SimdClassBase<ValueType, tag>::cutoff(int index)
 }
 
 template <typename T>
-inline T select(const SimdMask& mask, const T& a, const T& b)
+inline T select(const simd_mask& mask, const T& a, const T& b)
 {
     return T{(mask.AND() ? a : b)};
 }
@@ -164,24 +164,24 @@ template <typename T, typename F> inline T apply(const T& a, const F& func)
     return T{func(a.simd())};
 }
 
-inline SimdF round(const SimdF& a)
+inline simd_float round(const simd_float& a)
 {
-    return SimdF{std::round(a.simd())};
+    return simd_float{std::round(a.simd())};
 }
 
-inline SimdMask isInf(const SimdF& a)
+inline simd_mask isInf(const simd_float& a)
 {
-    return SimdMask{std::isinf(a.simd())};
+    return simd_mask{std::isinf(a.simd())};
 }
 
-inline SimdMask isFinite(const SimdF& a)
+inline simd_mask isFinite(const simd_float& a)
 {
-    return SimdMask{std::isfinite(a.simd())};
+    return simd_mask{std::isfinite(a.simd())};
 }
 
-inline SimdMask isNaN(const SimdF& a)
+inline simd_mask isNaN(const simd_float& a)
 {
-    return SimdMask{std::isnan(a.simd())};
+    return simd_mask{std::isnan(a.simd())};
 }
 
 } // namespace SIMD

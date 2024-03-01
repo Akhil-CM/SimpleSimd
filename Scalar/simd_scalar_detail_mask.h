@@ -22,7 +22,7 @@ namespace SIMD {
 namespace Detail {
 
 template <>
-inline void print<SimdMask>(std::ostream& stream, const SimdMask& class_simd)
+inline void print<simd_mask>(std::ostream& stream, const simd_mask& class_simd)
 {
     stream << std::boolalpha << "[" << static_cast<bool>(class_simd.maski()) << "]" << std::noboolalpha;
 }

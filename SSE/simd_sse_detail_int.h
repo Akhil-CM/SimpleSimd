@@ -153,7 +153,7 @@ inline SimdDataI multiply<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
     store_a<SimdDataI, ValueDataI>(a, data1);
     store_a<SimdDataI, ValueDataI>(b, data2);
     const ValueDataI  __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
-    data[SimdI::SimdLen]{ data1[0] * data2[0],
+    data[__KFP_SIMD__Len_Int]{ data1[0] * data2[0],
                                              data1[1] * data2[1],
                                              data1[2] * data2[2],
                                              data1[3] * data2[3] };
@@ -171,7 +171,7 @@ inline SimdDataI divide<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
     store_a<SimdDataI, ValueDataI>(a, data1);
     store_a<SimdDataI, ValueDataI>(b, data2);
     const ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
-    data[SimdI::SimdLen]{ data1[0] / data2[0],
+    data[__KFP_SIMD__Len_Int]{ data1[0] / data2[0],
                                              data1[1] / data2[1],
                                              data1[2] / data2[2],
                                              data1[3] / data2[3] };

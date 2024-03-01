@@ -19,49 +19,49 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-template<> inline SimdIndex::SimdIndexBase()
+template<> inline simd_index::SimdIndexBase()
 {
     index_ = 0;
 }
-template<> inline SimdIndex::SimdIndexBase(int val)
+template<> inline simd_index::SimdIndexBase(int val)
 {
     index_ = val;
 }
-template<> inline SimdIndex::SimdIndexBase(const SimdIndex& class_indices)
+template<> inline simd_index::SimdIndexBase(const simd_index& class_indices)
 {
     index_ = class_indices.index_;
 }
-template<> inline SimdIndex::SimdIndexBase(const SimdDataF& val_simd)
+template<> inline simd_index::SimdIndexBase(const simd_float::simd_type& val_simd)
 {
     index_ = int(val_simd);
 }
 template<>
-inline SimdIndex::SimdIndexBase(const SimdI& class_simd)
+inline simd_index::SimdIndexBase(const simd_int& class_simd)
 {
     index_ = class_simd.simd();
 }
-template<> inline SimdIndex::SimdIndexBase(const SimdF& class_simd)
+template<> inline simd_index::SimdIndexBase(const simd_float& class_simd)
 {
     index_ = static_cast<int>(class_simd.simd());
 }
 
-template<> inline SimdIndex& SimdIndex::operator=(int val)
+template<> inline simd_index& simd_index::operator=(int val)
 {
     index_ = val;
     return *this;
 }
-template<> inline SimdIndex& SimdIndex::operator=(const SimdIndex& class_indices)
+template<> inline simd_index& simd_index::operator=(const simd_index& class_indices)
 {
     index_ = class_indices.index_;
     return *this;
 }
-template<> inline SimdIndex& SimdIndex::operator=(const SimdDataF& val_simd)
+template<> inline simd_index& simd_index::operator=(const simd_float::simd_type& val_simd)
 {
     index_ = int(val_simd);
     return *this;
 }
 
-template<> inline ValueDataI SimdIndex::operator[](int index) const
+template<> inline simd_int::value_type simd_index::operator[](int index) const
 {
     assert((index == 0) && ("[Error] (operator[]): invalid index (" +
                             std::to_string(index) + ") given. Only zero is allowed.")

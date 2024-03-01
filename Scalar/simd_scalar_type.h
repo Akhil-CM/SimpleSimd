@@ -19,26 +19,30 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-using SimdDataI = SimdData<int, Tag::Scalar>::simd_type;
-using SimdDataF = SimdData<float, Tag::Scalar>::simd_type;
+using simd_mask = SimdMaskBase<Tag::Scalar>;
+using simd_index = SimdIndexBase<Tag::Scalar>;
 
-using ValueDataI = int;
-using ValueDataF = float;
-
-using SimdMask = SimdMaskBase<Tag::Scalar>;
-using SimdIndex = SimdIndexBase<Tag::Scalar>;
-
-using SimdF = SimdClassBase<float, Tag::Scalar>;
-static_assert(std::is_same<SimdDataF, ValueDataF>::value,
+using simd_float = SimdClassBase<float, Tag::Scalar>;
+static_assert(std::is_same<simd_float::simd_type, float>::value,
               "[Error]: Invalid simd type for Scalar float SimdClass.");
-static_assert(std::is_same<ValueDataF, float>::value,
+static_assert(std::is_same<simd_float::value_type, float>::value,
               "[Error]: Invalid value type for Scalar float SimdClass.");
 
-using SimdI = SimdClassBase<int, Tag::Scalar>;
-static_assert(std::is_same<SimdDataI, ValueDataI>::value,
+using simd_int = SimdClassBase<int, Tag::Scalar>;
+static_assert(std::is_same<simd_int::simd_type, int>::value,
               "[Error]: Invalid simd type for Scalar int SimdClass.");
-static_assert(std::is_same<ValueDataI, int>::value,
+static_assert(std::is_same<simd_int::value_type, int>::value,
               "[Error]: Invalid value type for Scalar int SimdClass.");
+
+namespace Detail{
+
+typedef simd_int::simd_type SimdDataI;
+typedef simd_float::simd_type SimdDataF;
+
+typedef simd_int::value_type ValueDataI;
+typedef simd_float::value_type ValueDataF;
+
+} // namespace Detail
 
 } // namespace SIMD
 } // namespace KFP
