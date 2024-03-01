@@ -89,7 +89,8 @@ inline SimdI& SimdI::load_partial(int index, const ValueDataI* val_ptr)
         data_.simd_ = _mm_setzero_si128();
         break;
     case 1:
-        data_.simd_ = _mm_loadu_si32(val_ptr);
+        // data_.simd_ = _mm_loadu_si32(val_ptr);
+        data_.simd_ = _mm_cvtsi32_si128(val_ptr[0]);
         break;
     case 2:
         data_.simd_ = _mm_setr_epi32(val_ptr[0], val_ptr[1], 0, 0);

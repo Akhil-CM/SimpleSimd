@@ -248,13 +248,13 @@ inline SimdF round(const SimdF& a)
 
 inline SimdMask isInf(const SimdF& a)
 {
-    const SimdDataF mask_inf{ _mm_castsi128_ps(_mm_set1_epi32(0x7F800000)) };
+    const SimdDataF mask_inf = _mm_castsi128_ps(_mm_set1_epi32(0x7F800000)) ;
     return SimdMask{ _mm_cmpeq_ps(a.simd(), mask_inf) };
 }
 
 inline SimdMask isFinite(const SimdF& a)
 {
-    const SimdDataF mask_inf{ _mm_castsi128_ps(_mm_set1_epi32(0x7F800000)) };
+    const SimdDataF mask_inf = _mm_castsi128_ps(_mm_set1_epi32(0x7F800000)) ;
     return SimdMask{ _mm_cmpneq_ps(_mm_and_ps(a.simd(), mask_inf), mask_inf) };
 }
 

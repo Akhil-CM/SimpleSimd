@@ -39,7 +39,7 @@ inline void print<SimdMask>(std::ostream& stream, const SimdMask& class_simd)
 template <>
 inline SimdDataI opNOT<SimdDataI>(const SimdDataI& a)
 {
-    const SimdDataI mask_true{ _mm_set1_epi32(-1) } ;
+    const SimdDataI mask_true = _mm_set1_epi32(-1)  ;
     return _mm_xor_si128(mask_true, a);
 }
 template <>
