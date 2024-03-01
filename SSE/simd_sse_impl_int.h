@@ -25,24 +25,47 @@ inline SimdI::SimdClassBase()
 {
     data_.simd_ = Detail::constant<SimdDataI, ValueDataI>(0);
 }
-template <> inline SimdI::SimdClassBase(const SimdI& class_simd)
-{
-    data_.simd_ = class_simd.data_.simd_;
-}
 // Constructor to broadcast the same value into all elements:
 template <> inline SimdI::SimdClassBase(ValueDataI val)
 {
     data_.simd_ = Detail::constant<SimdDataI, ValueDataI>(val);
 }
+template<>
+template<typename T, typename std::enable_if<true, T>::type*>
+inline SimdI::SimdClassBase(const SimdDataI& val_simd)
+{
+    data_.simd_ = val_simd;
+}
 template <> inline SimdI::SimdClassBase(ValueDataI* val)
 {
-    data_.simd_ = _mm_setr_epi32(val[0], val[1], val[2], val[3]);
+    data_.simd_ = Detail::load<SimdDataI, ValueDataI>(val);
+}
+template <> inline SimdI::SimdClassBase(const SimdI& class_simd)
+{
+    data_.simd_ = class_simd.data_.simd_;
+}
+template <> inline SimdI::SimdClassBase(const SimdIndex& class_index)
+{
+    data_.simd_ = class_index.index();
+}
+
+template <>
+inline SimdI& SimdI::operator=(ValueDataI val)
+{
+    data_.simd_ = Detail::constant<SimdDataI, ValueDataI>(val);
+    return *this;
 }
 template<>
 template<typename T, typename std::enable_if<true, T>::type*>
-inline SimdI::SimdClassBase(SimdDataI val_simd)
+inline SimdI& SimdI::operator=(const SimdDataI& val_simd)
 {
     data_.simd_ = val_simd;
+    return *this;
+}
+template <> inline SimdI& SimdI::operator=(const SimdI& class_simd)
+{
+    data_.simd_ = class_simd.data_.simd_;
+    return *this;
 }
 // ------------------------------------------------------
 // Load and Store
@@ -174,7 +197,7 @@ inline SimdI select(const SimdMask& mask, const SimdI& a, const SimdI& b)
         Detail::select<SimdI::simd_type>(mask.maski(), a.simd(), b.simd()));
 }
 
-template <typename F> inline SimdI apply(const SimdI& a, F& func)
+template <typename F> inline SimdI apply(const SimdI& a, const F& func)
 {
     ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         data[__KFP_SIMD__Len_Int]{}; // Helper array

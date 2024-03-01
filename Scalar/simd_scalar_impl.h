@@ -24,14 +24,19 @@ SimdClassBase<ValueType, tag>::SimdClassBase()
     data_.simd_ = ValueType{ 0 };
 }
 template<typename ValueType, Tag tag>
+SimdClassBase<ValueType, tag>::SimdClassBase(ValueType val)
+{
+    data_.simd_ = val;
+}
+template<typename ValueType, Tag tag>
 SimdClassBase<ValueType, tag>::SimdClassBase(const SimdClassBase& class_simd)
 {
     data_.simd_ = class_simd.data_.simd_;
 }
-template<typename ValueType, Tag tag>
-SimdClassBase<ValueType, tag>::SimdClassBase(ValueType val)
+template <typename ValueType, Tag tag>
+SimdClassBase<ValueType, tag>::SimdClassBase(const SimdIndexBase<tag>& class_index)
 {
-    data_.simd_ = val;
+    data_.simd_ = class_index.index();
 }
 
 template<typename ValueType, Tag tag>
@@ -154,7 +159,7 @@ inline T select(const SimdMask& mask, const T& a, const T& b)
     return T{(mask.AND() ? a : b)};
 }
 
-template <typename T, typename F> inline T apply(const T& a, F& func)
+template <typename T, typename F> inline T apply(const T& a, const F& func)
 {
     return T{func(a.simd())};
 }

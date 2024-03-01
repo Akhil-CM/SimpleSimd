@@ -5,6 +5,7 @@
 using KFP::SIMD::SimdMask;
 using KFP::SIMD::SimdIndex;
 using KFP::SIMD::SimdI;
+using KFP::SIMD::SimdF;
 
 int main()
 {
@@ -46,4 +47,8 @@ int main()
 
     std::cout << "Print load_partial of {1, 2, 3, 4} + SimdI{5}\n" ;
     std::cout << SimdI{}.load_partial(5, i1234) + SimdI{5} << "\n\n";
+
+    std::cout << "Print SimdI to SimdF cast\n" ;
+    std::cout << SimdI{}.load_partial(5, i1234) << "\n\n";
+    std::cout << SimdF{SimdI{}.load_partial(5, i1234)} + SimdF{0.5f} << "\n\n";
 }

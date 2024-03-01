@@ -23,6 +23,12 @@ namespace SIMD {
 
 namespace Detail {
 
+template<>
+inline SimdDataF cast(const SimdDataI& val_simd)
+{
+    return _mm_cvtepi32_ps(val_simd);
+}
+
 template <>
 inline SimdDataF constant<SimdDataF, ValueDataF>(ValueDataF val)
 {

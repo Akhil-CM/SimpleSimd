@@ -38,6 +38,7 @@ public:
     typedef typename SimdData<ValueType, tag>::simd_type simd_type;
     static constexpr int SimdSize{ sizeof(simd_type) };
     static constexpr int SimdLen{ SimdSize / sizeof(ValueType) };
+    static constexpr Tag tag_val{ tag };
 
     // ------------------------------------------------------
     // Constructors
@@ -45,20 +46,27 @@ public:
     // Default constructor:
     // SimdClassBase() = default ;
     SimdClassBase();
-    SimdClassBase(const SimdClassBase& class_simd);
     // Constructor to broadcast the same value into all elements:
     SimdClassBase(ValueType val);
-    SimdClassBase(ValueType* val);
     template <typename T = void,
-              typename std::enable_if<!(tag == Tag::Scalar), T>::type* = nullptr>
-    SimdClassBase(simd_type val_simd);
+              typename std::enable_if<(tag != Tag::Scalar), T>::type* = nullptr>
+    SimdClassBase(const simd_type& val_simd);
+    SimdClassBase(ValueType* val);
+    SimdClassBase(const SimdClassBase& class_simd);
+    template <typename T,
+              typename std::enable_if<!std::is_same<T, ValueType>::value>::type* = nullptr>
+    SimdClassBase(const SimdClassBase<T, tag>& class_simd)
+    {
+        data_.simd_ = Detail::cast<simd_type, typename SimdClassBase<T, tag>::simd_type>(class_simd.simd());
+    }
+    SimdClassBase(const SimdIndexBase<tag>& class_index);
 
     // Assignment constructors:
-    SimdClassBase& operator=(const SimdClassBase& class_simd);
     SimdClassBase& operator=(ValueType val);
     template <typename T = void,
-              typename std::enable_if<!(tag == Tag::Scalar), T>::type* = nullptr>
-    SimdClassBase& operator=(simd_type val_simd);
+              typename std::enable_if<(tag != Tag::Scalar), T>::type* = nullptr>
+    SimdClassBase& operator=(const simd_type& val_simd);
+    SimdClassBase& operator=(const SimdClassBase& class_simd);
 
     // ------------------------------------------------------
     // Load and Store
@@ -264,4 +272,4 @@ protected:
 } // namespace SIMD
 } // namespace KFP
 
-#endif // !SIMD_BASE_H
+#endif // !SIMD_CLASS_H

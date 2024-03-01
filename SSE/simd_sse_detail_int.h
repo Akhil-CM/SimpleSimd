@@ -22,6 +22,12 @@ namespace SIMD {
 
 namespace Detail {
 
+template<>
+inline SimdDataI cast(const SimdDataF& val_simd)
+{
+    return _mm_cvttps_epi32(val_simd);
+}
+
 template <>
 inline SimdDataI constant<SimdDataI, ValueDataI>(ValueDataI val)
 {
@@ -240,13 +246,6 @@ template <> inline SimdDataI pow<SimdDataI>(const SimdDataI& a, int exp)
 }
 
 template <>
-inline SimdDataI opNOT<SimdDataI>(const SimdDataI& a)
-{
-    const SimdDataI mask_true{ _mm_set1_epi32(-1) } ;
-    return _mm_xor_si128(mask_true, a);
-}
-
-template <>
 inline SimdDataI opLessThan<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
 {
     return _mm_cmplt_epi32(a, b);
@@ -294,6 +293,7 @@ inline SimdDataI opNotEqual<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
     const SimdDataI mask_true{ _mm_set1_epi32(-1) } ;
     return _mm_xor_si128(_mm_cmpeq_epi32(a, b), mask_true);
 }
+
 } // namespace Detail
 
 } // namespace SIMD

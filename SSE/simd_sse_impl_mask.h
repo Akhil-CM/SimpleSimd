@@ -72,10 +72,15 @@ template <> inline SimdMask& SimdMask::operator=(const SimdMaskBase& class_mask)
 
 template <> inline int SimdMask::count() const
 {
+#if 1
+    const int tmp{ Detail::sign<ValueDataI, SimdDataI>(mask_) };
+    return (tmp & 0x01) + (1 >> (tmp & 0x02)) + (2 >> (tmp & 0x04)) + (3 >> (tmp & 0x08));
+#else
     ValueDataI __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         data[__KFP_SIMD__Len_Int]{}; // Helper array
     Detail::store_a(mask_, data);
     return -(data[0] + data[1] + data[2] + data[3]) ;
+#endif
 }
 template <> inline bool SimdMask::AND() const
 {

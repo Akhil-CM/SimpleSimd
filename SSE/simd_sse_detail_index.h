@@ -28,21 +28,21 @@ template<> inline SimdDataI substract<SimdDataI, ValueDataI, SimdDataI>(const Va
 {
     return Detail::substract<SimdDataI>(Detail::constant<SimdDataI, ValueDataI>(val), a);
 }
-template<> inline SimdDataI substract<SimdDataI, SimdIndex, ValueDataI>(const SimdIndex& a, const ValueDataI& val)
+template<> inline SimdDataI substract<SimdDataI, SimdDataI, ValueDataI>(const SimdDataI& a, const ValueDataI& val)
 {
     return Detail::substract<SimdDataI>(a, Detail::constant<SimdDataI, ValueDataI>(val));
 }
 
-template<> inline SimdDataI multiply<SimdDataI, ValueDataI, SimdIndex>(const ValueDataI& val, const SimdIndex& a)
+template<> inline SimdDataI multiply<SimdDataI, ValueDataI, SimdDataI>(const ValueDataI& val, const SimdDataI& a)
 {
     return Detail::multiply<SimdDataI>(Detail::constant<SimdDataI, ValueDataI>(val), a);
 }
 
-template<> inline SimdDataI divide<SimdDataI, ValueDataI, SimdIndex>(const ValueDataI& val, const SimdIndex& a)
+template<> inline SimdDataI divide<SimdDataI, ValueDataI, SimdDataI>(const ValueDataI& val, const SimdDataI& a)
 {
     return Detail::divide<SimdDataI>(Detail::constant<SimdDataI, ValueDataI>(val), a);
 }
-template<> inline SimdDataI divide<SimdDataI, SimdIndex, ValueDataI>(const SimdIndex& a, const ValueDataI& val)
+template<> inline SimdDataI divide<SimdDataI, SimdDataI, ValueDataI>(const SimdDataI& a, const ValueDataI& val)
 {
     return Detail::divide<SimdDataI>(a, Detail::constant<SimdDataI, ValueDataI>(val));
 }

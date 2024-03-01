@@ -24,24 +24,47 @@ template <> inline SimdF::SimdClassBase()
 {
     data_.simd_ = Detail::constant<SimdDataF, ValueDataF>(0.0f);
 }
-template <> inline SimdF::SimdClassBase(const SimdF& class_simd)
-{
-    data_.simd_ = class_simd.data_.simd_;
-}
 // Constructor to broadcast the same value into all elements:
 template <> inline SimdF::SimdClassBase(ValueDataF val)
 {
     data_.simd_ = Detail::constant<SimdDataF, ValueDataF>(val);
 }
+template <>
+template <typename T, typename std::enable_if<true, T>::type*>
+inline SimdF::SimdClassBase(const SimdDataF& val_simd)
+{
+    data_.simd_ = val_simd;
+}
 template <> inline SimdF::SimdClassBase(ValueDataF* val)
 {
-    data_.simd_ = _mm_setr_ps(val[0], val[1], val[2], val[3]);
+    data_.simd_ = Detail::load<SimdDataF, ValueDataF>(val);
+}
+template <> inline SimdF::SimdClassBase(const SimdF& class_simd)
+{
+    data_.simd_ = class_simd.data_.simd_;
+}
+template <> inline SimdF::SimdClassBase(const SimdIndex& class_index)
+{
+    data_.simd_ = Detail::cast<SimdDataF, SimdDataI>(class_index.index());
+}
+
+template <>
+inline SimdF& SimdF::operator=(ValueDataF val)
+{
+    data_.simd_ = Detail::constant<SimdDataF, ValueDataF>(val);
+    return *this;
 }
 template <>
 template <typename T, typename std::enable_if<true, T>::type*>
-inline SimdF::SimdClassBase(SimdDataF val_simd)
+inline SimdF& SimdF::operator=(const SimdDataF& val_simd)
 {
     data_.simd_ = val_simd;
+    return *this;
+}
+template <> inline SimdF& SimdF::operator=(const SimdF& class_simd)
+{
+    data_.simd_ = class_simd.data_.simd_;
+    return *this;
 }
 // ------------------------------------------------------
 // Load and Store
@@ -198,7 +221,7 @@ inline SimdF select(const SimdMask& mask, const SimdF& a, const SimdF& b)
         Detail::select<SimdF::simd_type>(mask.maskf(), a.simd(), b.simd()));
 }
 
-template <typename F> inline SimdF apply(const SimdF& a, F& func)
+template <typename F> inline SimdF apply(const SimdF& a, const F& func)
 {
     ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper array

@@ -49,7 +49,7 @@ inline SimdIndex::SimdIndexBase(const SimdI& class_simd)
 }
 template<> inline SimdIndex::SimdIndexBase(const SimdF& class_simd)
 {
-    index_ = _mm_cvtps_epi32(class_simd.simd());
+    index_ = Detail::cast<SimdDataI, SimdDataF>(class_simd.simd());
 }
 
 template<> inline SimdIndex& SimdIndex::operator=(int val)
@@ -87,6 +87,11 @@ template<> inline ValueDataI SimdIndex::operator[](int index) const
     return Detail::extract<ValueDataI, SimdDataI>(index, index_);
 }
 
+inline SimdIndex select(const SimdMask& mask, const SimdIndex& a, const SimdIndex& b)
+{
+    return SimdIndex{
+        Detail::select<SimdDataI>(mask.maski(), a.index(), b.index())};
+}
 } // namespace SIMD
 } // namespace KFP
 

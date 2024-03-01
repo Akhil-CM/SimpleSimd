@@ -19,6 +19,9 @@ namespace Detail {
 // ------------------------------------------------------
 // General
 // ------------------------------------------------------
+template<typename T1, typename T2>
+T1 cast(const T2& val_simd);
+
 template <typename T1, typename T2> T1 constant(T2 val);
 
 template <typename T1, typename T2> T1 load(const T2* val_ptr);
@@ -72,16 +75,16 @@ template <typename T1, typename T2 = T1> T1 pow(const T2& a, int exp);
 
 /* Logical */
 template <typename T1, typename T2 = T1> T1 opNOT(const T2& a);
-template <typename T1, typename T2 = T1> T1 opANDbitwise(const T2& a);
-template <typename T1, typename T2 = T1> T1 opORbitwise(const T2& a);
-template <typename T1, typename T2 = T1> T1 opXORbitwise(const T2& a);
-
 template <typename T1, typename T2 = T1, typename T3 = T1>
-T1 opAND(const T1& a, const T2& b);
+T1 opANDbitwise(const T1& a, const T2& b);
 template <typename T1, typename T2 = T1, typename T3 = T1>
-T1 opOR(const T1& a, const T2& b);
+T1 opORbitwise(const T1& a, const T2& b);
 
 /* Comparison */
+template <typename T1, typename T2 = T1, typename T3 = T1>
+T1 opEqual(const T2& a, const T3& b);
+template <typename T1, typename T2 = T1, typename T3 = T1>
+T1 opNotEqual(const T2& a, const T3& b);
 template <typename T1, typename T2 = T1, typename T3 = T1>
 T1 opLessThan(const T2& a, const T3& b);
 template <typename T1, typename T2 = T1, typename T3 = T1>
@@ -90,10 +93,6 @@ template <typename T1, typename T2 = T1, typename T3 = T1>
 T1 opGreaterThan(const T2& a, const T3& b);
 template <typename T1, typename T2 = T1, typename T3 = T1>
 T1 opGreaterThanEqual(const T2& a, const T3& b);
-template <typename T1, typename T2 = T1, typename T3 = T1>
-T1 opEqual(const T2& a, const T3& b);
-template <typename T1, typename T2 = T1, typename T3 = T1>
-T1 opNotEqual(const T2& a, const T3& b);
 
 } // namespace Detail
 
