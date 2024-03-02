@@ -208,11 +208,27 @@ template <> inline SimdDataF pow<SimdDataF>(const SimdDataF& a, int exp)
 }
 
 template <>
-inline SimdDataF opNOT<SimdDataF>(const SimdDataF& a)
+inline SimdDataF opANDbitwise<SimdDataF>(const SimdDataF& a, const SimdDataF& b)
 {
-    const SimdDataF mask_true = _mm_castsi128_ps(_mm_set1_epi32(-1))  ;
-    return _mm_xor_ps(mask_true, a);
+    return _mm_and_ps(a, b);
 }
+template <>
+inline SimdDataF opORbitwise<SimdDataF>(const SimdDataF& a, const SimdDataF& b)
+{
+    return _mm_or_ps(a, b);
+}
+template <>
+inline SimdDataF opXORbitwise<SimdDataF>(const SimdDataF& a, const SimdDataF& b)
+{
+    return _mm_xor_ps(a, b);
+}
+
+// template <>
+// inline SimdDataF opNOT<SimdDataF>(const SimdDataF& a)
+// {
+//     const SimdDataF mask_true = _mm_castsi128_ps(_mm_set1_epi32(-1))  ;
+//     return _mm_xor_ps(mask_true, a);
+// }
 
 template <>
 inline SimdDataF opLessThan<SimdDataF>(const SimdDataF& a, const SimdDataF& b)

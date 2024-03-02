@@ -202,29 +202,40 @@ public:
     }
 
     /* Logical */
-    // friend SimdClassBase operator&(const SimdClassBase& a,
-    //                                const SimdClassBase& b)
-    // {
-    //     return SimdClassBase{Detail::opLessThan<simd_type>(a.data_.simd_, b.data_.simd_)} ;
-    // }
-    // friend SimdClassBase operator|(const SimdClassBase& a,
-    //                                const SimdClassBase& b)
-    // {
-    //     return SimdClassBase{Detail::opLessThanEqual<simd_type>(a.data_.simd_, b.data_.simd_)} ;
-    // }
-    // friend SimdClassBase operator^(const SimdClassBase& a,
-    //                                const SimdClassBase& b)
-    // {
-    //     return SimdClassBase{Detail::opLessThanEqual<simd_type>(a.data_.simd_, b.data_.simd_)} ;
-    //     return SimdClassBase(a.data_.simd_ ^ b.data_.simd_);
-    // }
-    // friend SimdClassBase operator!(const SimdClassBase& a)
-    // {
-    //     return SimdClassBase(!a.data_.simd_);
-    // }
-    // friend SimdClassBase operator||( const SimdClassBase &a, const SimdClassBase &b ){ // mask returned
-    //   return _mm_or_ps(a, b);
-    // }
+    template <typename T = void,
+              typename std::enable_if<std::is_same<int, ValueType>::value, T>::type* = nullptr>
+    friend SimdClassBase operator<<(const SimdClassBase& a,
+                                   int b)
+    {
+        return SimdClassBase{ Detail::opShiftLeft<simd_type>(a.data_.simd_,
+                                                        b) };
+    }
+    template <typename T = void,
+              typename std::enable_if<std::is_same<int, ValueType>::value, T>::type* = nullptr>
+    friend SimdClassBase operator>>(const SimdClassBase& a,
+                                   int b)
+    {
+        return SimdClassBase{ Detail::opShiftRight<simd_type>(a.data_.simd_,
+                                                        b) };
+    }
+    friend SimdClassBase operator&(const SimdClassBase& a,
+                                   const SimdClassBase& b)
+    {
+        return SimdClassBase{ Detail::opANDbitwise<simd_type>(a.data_.simd_,
+                                                        b.data_.simd_) };
+    }
+    friend SimdClassBase operator|(const SimdClassBase& a,
+                                   const SimdClassBase& b)
+    {
+        return SimdClassBase{ Detail::opORbitwise<simd_type>(a.data_.simd_,
+                                                        b.data_.simd_) };
+    }
+    friend SimdClassBase operator^(const SimdClassBase& a,
+                                   const SimdClassBase& b)
+    {
+        return SimdClassBase{ Detail::opXORbitwise<simd_type>(a.data_.simd_,
+                                                        b.data_.simd_) };
+    }
 
     /* Comparison */
     friend SimdMaskBase<tag> operator<(const SimdClassBase& a,

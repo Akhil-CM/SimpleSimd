@@ -246,6 +246,32 @@ template <> inline SimdDataI pow<SimdDataI>(const SimdDataI& a, int exp)
 }
 
 template <>
+inline SimdDataI opShiftLeft<SimdDataI>(const SimdDataI& a, int b)
+{
+    return _mm_slli_epi32(a, b);
+}
+template <>
+inline SimdDataI opShiftRight<SimdDataI>(const SimdDataI& a, int b)
+{
+    return _mm_srai_epi32(a, b);
+}
+template <>
+inline SimdDataI opANDbitwise<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
+{
+    return _mm_and_si128(a, b);
+}
+template <>
+inline SimdDataI opORbitwise<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
+{
+    return _mm_or_si128(a, b);
+}
+template <>
+inline SimdDataI opXORbitwise<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
+{
+    return _mm_xor_si128(a, b);
+}
+
+template <>
 inline SimdDataI opLessThan<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
 {
     return _mm_cmplt_epi32(a, b);

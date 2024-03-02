@@ -98,21 +98,35 @@ template <typename T1, typename T2> T1 pow(const T2& a, int exp)
 }
 
 /* Logical */
-// template <typename T> T opANDbitwise(const T& a) ;
-
-// template <typename T> T opORbitwise(const T& a) ;
-
-// template <typename T> T opXORbitwise(const T& a) ;
-
+template <typename T1, typename T2>
+T1 opShiftLeft(const T2& a, int b)
+{
+    return (a << b) ;
+}
+template <typename T1, typename T2>
+T1 opShiftRight(const T2& a, int b)
+{
+    return (a >> b) ;
+}
 template <typename T1, typename T2, typename T3>
-T1 opAND(const T1& a, const T2& b)
+T1 opANDbitwise(const T1& a, const T2& b)
 {
     return (a&b) ;
 }
 template <typename T1, typename T2, typename T3>
-T1 opOR(const T1& a, const T2& b)
+T1 opORbitwise(const T1& a, const T2& b)
 {
     return (a|b) ;
+}
+template <typename T1, typename T2, typename T3>
+T1 opAND(const T1& a, const T2& b)
+{
+    return (a&&b) ;
+}
+template <typename T1, typename T2, typename T3>
+T1 opOR(const T1& a, const T2& b)
+{
+    return (a||b) ;
 }
 
 /* Comparison */

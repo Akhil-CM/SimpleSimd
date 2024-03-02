@@ -87,11 +87,11 @@ public:
     }
     friend SimdMaskBase operator&&(const SimdMaskBase& a, const SimdMaskBase& b)
     { // mask returned
-        return SimdMaskBase{ Detail::opANDbitwise<simd_typei>(a.mask_, b.mask_) };
+        return SimdMaskBase{ Detail::opAND<simd_typei>(a.mask_, b.mask_) };
     }
     friend SimdMaskBase operator||(const SimdMaskBase& a, const SimdMaskBase& b)
     { // mask returned
-        return SimdMaskBase{ Detail::opORbitwise<simd_typei>(a.mask_, b.mask_) };
+        return SimdMaskBase{ Detail::opOR<simd_typei>(a.mask_, b.mask_) };
     }
 
 protected:

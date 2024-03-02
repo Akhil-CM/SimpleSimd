@@ -18,7 +18,7 @@ int main()
     std::cout << "Print Simd Mask(simd_index < 5)\n" ;
     std::cout << simd_mask{index < 5} << "\n\n";
 
-    std::cout << "Print Simd Mask(simd_index < 5)\n" ;
+    std::cout << "Print Simd Index\n" ;
     std::cout << index << "\n\n";
     std::cout << "Print simd_index + 5\n" ;
     std::cout << index + 5 << "\n\n";

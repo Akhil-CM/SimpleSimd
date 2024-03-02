@@ -33,17 +33,6 @@ template <> inline SimdDataI opNOT<SimdDataI>(const SimdDataI& a)
 }
 
 template <>
-inline SimdDataI opANDbitwise(const SimdDataI& a, const SimdDataI& b)
-{
-    return static_cast<SimdDataI>(a && b);
-}
-template <>
-inline SimdDataI opORbitwise(const SimdDataI& a, const SimdDataI& b)
-{
-    return static_cast<SimdDataI>(a || b);
-}
-
-template <>
 inline bool opEqual<bool, SimdDataI, SimdDataI>(const SimdDataI& a,
                                               const SimdDataI& b)
 {

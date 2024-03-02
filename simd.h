@@ -11,6 +11,7 @@ Emails: mithran@fias.uni-frankfurt.de
 
 // Determine instruction set, and define platform-dependent functions
 #include "Base/simd_macros.h"
+#include "Base/simd_allocate.h"
 
 // Select appropriate header files depending on instruction set
 #if defined(__KFP_SIMD__AVX)

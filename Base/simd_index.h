@@ -128,6 +128,37 @@ public:
         return SimdIndexBase{Detail::divide<simd_typei, simd_typei, int>(a.index_, val)};
     }
 
+    /* Logical */
+    friend SimdIndexBase operator<<(const SimdIndexBase& a,
+                                   int b)
+    {
+        return SimdIndexBase{ Detail::opShiftLeft<simd_typei>(a.index_,
+                                                        b) };
+    }
+    friend SimdIndexBase operator>>(const SimdIndexBase& a,
+                                   int b)
+    {
+        return SimdIndexBase{ Detail::opShiftRight<simd_typei>(a.index_,
+                                                        b) };
+    }
+    friend SimdIndexBase operator&(const SimdIndexBase& a,
+                                   const SimdIndexBase& b)
+    {
+        return SimdIndexBase{ Detail::opANDbitwise<simd_typei>(a.index_,
+                                                        b.index_) };
+    }
+    friend SimdIndexBase operator|(const SimdIndexBase& a,
+                                   const SimdIndexBase& b)
+    {
+        return SimdIndexBase{ Detail::opORbitwise<simd_typei>(a.index_,
+                                                        b.index_) };
+    }
+    friend SimdIndexBase operator^(const SimdIndexBase& a,
+                                   const SimdIndexBase& b)
+    {
+        return SimdIndexBase{ Detail::opXORbitwise<simd_typei>(a.index_,
+                                                        b.index_) };
+    }
     /* Comparison */
     friend SimdMaskBase<tag> operator<(const SimdIndexBase& a, const SimdIndexBase& b)
     { // mask returned

@@ -37,29 +37,30 @@ inline void print<simd_mask>(std::ostream& stream, const simd_mask& class_simd)
 }
 
 template <>
+inline SimdDataI opAND<SimdDataI>(const SimdDataI& a,
+                                                 const SimdDataI& b)
+{
+    return Detail::opANDbitwise<SimdDataI>(a,b);
+}
+template <>
+inline SimdDataI opOR<SimdDataI>(const SimdDataI& a,
+                                                 const SimdDataI& b)
+{
+    return Detail::opORbitwise<SimdDataI>(a,b);
+}
+
+template <>
 inline SimdDataI opNOT<SimdDataI>(const SimdDataI& a)
 {
     const SimdDataI mask_true = _mm_set1_epi32(-1)  ;
     return _mm_xor_si128(mask_true, a);
 }
 template <>
-inline SimdDataI opANDbitwise<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
-{
-    return _mm_and_si128(a, b);
-}
-template <>
-inline SimdDataI opORbitwise<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
-{
-    return _mm_or_si128(a, b);
-}
-
-template <>
 inline bool opEqual<bool, SimdDataI, SimdDataI>(const SimdDataI& a,
                                               const SimdDataI& b)
 {
     return ( sign<ValueDataI, SimdDataI>(a) == sign<ValueDataI, SimdDataI>(b) );
 }
-
 template <>
 inline bool opNotEqual<bool, SimdDataI, SimdDataI>(const SimdDataI& a,
                                                  const SimdDataI& b)

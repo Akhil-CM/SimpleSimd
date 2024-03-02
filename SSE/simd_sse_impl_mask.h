@@ -74,7 +74,7 @@ template <> inline int simd_mask::count() const
 {
 #if 1
     const int tmp{ Detail::sign<simd_int::value_type, simd_int::simd_type>(mask_) };
-    return (tmp & 0x01) + (1 >> (tmp & 0x02)) + (2 >> (tmp & 0x04)) + (3 >> (tmp & 0x08));
+    return (tmp & 0x01) + ((tmp & 0x02) >> 1) + ((tmp & 0x04) >> 2) + ((tmp & 0x08) >> 3);
 #else
     simd_int::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         data[__KFP_SIMD__Len_Int]{}; // Helper array
