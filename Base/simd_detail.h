@@ -44,8 +44,6 @@ template <typename T> void print(std::ostream& stream, const T& val_simd);
 // ------------------------------------------------------
 // Basic Arithmetic
 // ------------------------------------------------------
-template <typename T1, typename T2 = T1> T1 sign(const T2& a);
-
 template <typename T1, typename T2 = T1> T1 minus(const T2& a);
 
 template <typename T1, typename T2 = T1, typename T3 = T1>
@@ -103,6 +101,8 @@ template <typename T1, typename T2 = T1, typename T3 = T1>
 T1 opGreaterThan(const T2& a, const T3& b);
 template <typename T1, typename T2 = T1, typename T3 = T1>
 T1 opGreaterThanEqual(const T2& a, const T3& b);
+
+template <typename T1, typename T2 = T1> T1 sign(const T2& a);
 
 } // namespace Detail
 

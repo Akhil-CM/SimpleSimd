@@ -11,12 +11,12 @@ Emails: mithran@fias.uni-frankfurt.de
 
 #include "../Base/simd_macros.h"
 #include "../Base/simd_detail.h"
+#include "simd_sse_detail_int.h"
 #include "simd_sse_type.h"
 
 #include <x86intrin.h>
 #include <iostream>
 #include <cmath>
-#include <xmmintrin.h>
 
 namespace KFP {
 namespace SIMD {
@@ -128,8 +128,7 @@ inline void print<SimdDataF>(std::ostream& stream, const SimdDataF& val_simd)
 
 template <> inline SimdDataF minus<SimdDataF>(const SimdDataF& a)
 {
-    const SimdDataF mask_minus = _mm_castsi128_ps(_mm_set1_epi32(0x80000000))  ;
-    return _mm_xor_ps(a, mask_minus);
+    return _mm_xor_ps(a, _mm_castsi128_ps(getMask<MASK::MINUS>()));
 }
 
 template <>
@@ -180,8 +179,7 @@ template <> inline SimdDataF rsqrt<SimdDataF>(const SimdDataF& a)
 
 template <> inline SimdDataF abs<SimdDataF>(const SimdDataF& a)
 {
-    const SimdDataF mask_abs = _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF))  ;
-    return _mm_and_ps(a, mask_abs);
+    return _mm_and_ps(a,  _mm_castsi128_ps(getMask<MASK::ABS>()));
 }
 
 template <> inline SimdDataF log<SimdDataF>(const SimdDataF& a)
@@ -267,6 +265,13 @@ inline SimdDataF opNotEqual<SimdDataF>(const SimdDataF& a, const SimdDataF& b)
 {
     return _mm_cmpneq_ps(a, b);
 }
+
+template <>
+inline SimdDataF sign<SimdDataF>(const SimdDataF& a)
+{
+    return Detail::opANDbitwise<SimdDataF>(_mm_castsi128_ps(getMask<MASK::MINUS>()), a);
+}
+
 } // namespace Detail
 
 } // namespace SIMD

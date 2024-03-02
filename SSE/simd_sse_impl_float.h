@@ -230,6 +230,17 @@ template <typename F> inline simd_float apply(const simd_float& a, const F& func
                               func(data[3])) };
 }
 
+inline simd_float signMultiply(const simd_int& a, const simd_float& b)
+{
+    const simd_int::simd_type& mask_minus = Detail::sign<simd_int::simd_type>(a.simd());
+    return simd_float{ Detail::opXORbitwise<simd_float::simd_type>(_mm_castsi128_ps(mask_minus), b.simd()) };
+}
+inline simd_float signMultiply(const simd_float& a, const simd_float& b)
+{
+    const simd_float::simd_type& mask_minus = Detail::sign<simd_float::simd_type>(a.simd());
+    return simd_float{ Detail::opXORbitwise<simd_float::simd_type>(mask_minus, b.simd()) };
+}
+
 inline simd_float round(const simd_float& a)
 {
 #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
@@ -248,13 +259,12 @@ inline simd_float round(const simd_float& a)
 
 inline simd_mask isInf(const simd_float& a)
 {
-    const simd_float::simd_type mask_inf = _mm_castsi128_ps(_mm_set1_epi32(0x7F800000)) ;
-    return simd_mask{ _mm_cmpeq_ps(a.simd(), mask_inf) };
+    return simd_mask{ _mm_cmpeq_ps(a.simd(), _mm_castsi128_ps(Detail::getMask<Detail::MASK::INF>())) };
 }
 
 inline simd_mask isFinite(const simd_float& a)
 {
-    const simd_float::simd_type mask_inf = _mm_castsi128_ps(_mm_set1_epi32(0x7F800000)) ;
+    const simd_float::simd_type mask_inf = _mm_castsi128_ps(Detail::getMask<Detail::MASK::INF>()) ;
     return simd_mask{ _mm_cmpneq_ps(_mm_and_ps(a.simd(), mask_inf), mask_inf) };
 }
 

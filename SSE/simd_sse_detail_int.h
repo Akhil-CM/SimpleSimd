@@ -22,6 +22,28 @@ namespace SIMD {
 
 namespace Detail {
 
+enum class MASK
+{
+    ABS,
+    MINUS,
+    TRUE,
+    INF
+};
+template<MASK mask>
+inline SimdDataI getMask()
+{
+    switch (mask) {
+    case MASK::ABS:
+        return _mm_set1_epi32(0x7FFFFFFF)  ;
+    case MASK::MINUS:
+        return _mm_set1_epi32(0x80000000)  ;
+    case MASK::TRUE:
+        return _mm_set1_epi32(-1)  ;
+    case MASK::INF:
+        return _mm_set1_epi32(0x7F800000)  ;
+    }
+}
+
 template<>
 inline SimdDataI cast(const SimdDataF& val_simd)
 {
@@ -116,16 +138,9 @@ inline void print<SimdDataI>(std::ostream& stream, const SimdDataI& val_simd)
            << data[3] << "]";
 }
 
-template <>
-inline int sign<int, SimdDataI>(const SimdDataI& a)
-{
-    return _mm_movemask_ps(_mm_castsi128_ps(a));
-}
-
 template <> inline SimdDataI minus<SimdDataI>(const SimdDataI& a)
 {
-    const SimdDataI mask_minus = _mm_set1_epi32(0x80000000)  ;
-    return _mm_xor_si128(a, mask_minus);
+    return _mm_xor_si128(a, getMask<MASK::MINUS>());
 }
 
 template <>
@@ -222,8 +237,7 @@ template <> inline SimdDataI abs<SimdDataI>(const SimdDataI& a)
 #if defined(__KFP_SIMD__SSSE3) // SSSE3
     return _mm_abs_epi32(a);
 #else
-    const SimdDataI mask_abs = _mm_set1_epi32(0x7FFFFFFF)  ;
-    return _mm_and_si128(a, mask_abs);
+    return _mm_and_si128(a, getMask<MASK::ABS>());
 #endif
 }
 
@@ -284,8 +298,7 @@ inline SimdDataI opLessThanEqual<SimdDataI>(const SimdDataI& a,
 #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
     return _mm_cmpeq_epi32(_mm_min_epi32(a, b), a);
 #else
-    const SimdDataI mask_true = _mm_set1_epi32(-1)  ;
-    return _mm_xor_si128(_mm_cmpgt_epi32(a, b), mask_true);
+    return _mm_xor_si128(_mm_cmpgt_epi32(a, b), getMask<MASK::TRUE>());
 #endif
 }
 
@@ -303,8 +316,7 @@ inline SimdDataI opGreaterThanEqual<SimdDataI>(const SimdDataI& a,
 #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
     return _mm_cmpeq_epi32(_mm_min_epi32(b, a), b);
 #else
-    const SimdDataI mask_true = _mm_set1_epi32(-1)  ;
-    return _mm_xor_si128(_mm_cmplt_epi32(a, b), mask_true);
+    return _mm_xor_si128(_mm_cmplt_epi32(a, b), getMask<MASK::TRUE>());
 #endif
 }
 
@@ -316,8 +328,18 @@ inline SimdDataI opEqual<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
 template <>
 inline SimdDataI opNotEqual<SimdDataI>(const SimdDataI& a, const SimdDataI& b)
 {
-    const SimdDataI mask_true = _mm_set1_epi32(-1)  ;
-    return _mm_xor_si128(_mm_cmpeq_epi32(a, b), mask_true);
+    return _mm_xor_si128(_mm_cmpeq_epi32(a, b), getMask<MASK::TRUE>());
+}
+
+template <>
+inline int sign<int, SimdDataI>(const SimdDataI& a)
+{
+    return _mm_movemask_ps(_mm_castsi128_ps(a));
+}
+template <>
+inline SimdDataI sign<SimdDataI>(const SimdDataI& a)
+{
+    return Detail::opANDbitwise<SimdDataI>(getMask<MASK::MINUS>(), a);
 }
 
 } // namespace Detail

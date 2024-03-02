@@ -85,6 +85,10 @@ public:
     { // mask returned
         return Detail::opNotEqual<bool, simd_typei, simd_typei>(a.mask_, b.mask_);
     }
+    friend SimdMaskBase operator^(const SimdMaskBase& a, const SimdMaskBase& b)
+    { // mask returned
+        return SimdMaskBase{ Detail::opXORbitwise<simd_typei>(a.mask_, b.mask_) };
+    }
     friend SimdMaskBase operator&&(const SimdMaskBase& a, const SimdMaskBase& b)
     { // mask returned
         return SimdMaskBase{ Detail::opAND<simd_typei>(a.mask_, b.mask_) };

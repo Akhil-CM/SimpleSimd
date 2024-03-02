@@ -109,22 +109,27 @@ T1 opShiftRight(const T2& a, int b)
     return (a >> b) ;
 }
 template <typename T1, typename T2, typename T3>
-T1 opANDbitwise(const T1& a, const T2& b)
+T1 opANDbitwise(const T2& a, const T3& b)
 {
     return (a&b) ;
 }
 template <typename T1, typename T2, typename T3>
-T1 opORbitwise(const T1& a, const T2& b)
+T1 opORbitwise(const T2& a, const T3& b)
 {
     return (a|b) ;
 }
 template <typename T1, typename T2, typename T3>
-T1 opAND(const T1& a, const T2& b)
+T1 opXORbitwise(const T2& a, const T3& b)
+{
+    return (a^b) ;
+}
+template <typename T1, typename T2, typename T3>
+T1 opAND(const T2& a, const T3& b)
 {
     return (a&&b) ;
 }
 template <typename T1, typename T2, typename T3>
-T1 opOR(const T1& a, const T2& b)
+T1 opOR(const T2& a, const T3& b)
 {
     return (a||b) ;
 }

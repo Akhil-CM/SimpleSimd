@@ -207,6 +207,17 @@ template <typename F> inline simd_int apply(const simd_int& a, const F& func)
                               func(data[3])) };
 }
 
+inline simd_int signMultiply(const simd_int& a, const simd_int& b)
+{
+    const simd_int::simd_type& mask_sign = Detail::sign<simd_int::simd_type>(a.simd());
+    return simd_int{ Detail::opXORbitwise<simd_int::simd_type>(mask_sign, b.simd()) };
+}
+inline simd_int signMultiply(const simd_float& a, const simd_int& b)
+{
+    const simd_float::simd_type& mask_sign = Detail::sign<simd_float::simd_type>(a.simd());
+    return simd_int{ Detail::opXORbitwise<simd_int::simd_type>(_mm_castps_si128(mask_sign), b.simd()) };
+}
+
 } // namespace SIMD
 } // namespace KFP
 
