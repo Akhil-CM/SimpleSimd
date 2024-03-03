@@ -35,6 +35,7 @@ public:
     // Default constructor:
     SimdIndexBase();
     SimdIndexBase(int val);
+    SimdIndexBase(int* val);
     SimdIndexBase(const SimdIndexBase& class_indices);
     template<typename T=void, typename std::enable_if<!(std::is_same<int, simd_typei>::value), T>::type* = nullptr>
     SimdIndexBase(const simd_typei& val_simd);
@@ -55,8 +56,21 @@ public:
     SimdIndexBase& operator=(const simd_typef& val_simd);
 
     // ------------------------------------------------------
+    // Load and Store
+    // ------------------------------------------------------
+    // Member function to load from array (unaligned)
+    SimdIndexBase& load(const int* p);
+    SimdIndexBase& load_a(const int* p);
+    // Member function to store into array (unaligned)
+    void store(int* p) const;
+    void store_a(int* p) const;
+    void store_stream(int* p) const;
+
+    // ------------------------------------------------------
     // Data member accessors
     // ------------------------------------------------------
+    // Member function to change a single element in vector
+    SimdIndexBase& insert(int index, int val);
     int operator[](int index) const;
 
     simd_typei& index()

@@ -128,6 +128,18 @@ inline SimdDataI select<SimdDataI>(const SimdDataI& mask, const SimdDataI& a,
     return _mm_or_si128(_mm_and_si128(mask, a), _mm_andnot_si128(mask, b));
 #endif
 }
+
+template <> inline SimdDataI rotated(int amount, const SimdDataI& val)
+{
+    switch (static_cast<unsigned int>(amount) % simd_int::SimdLen) {
+    case  0: return val;
+    case  1: return _mm_alignr_epi8(val, val, 4 & 0x1fu);
+    case  2: return _mm_alignr_epi8(val, val, 8 & 0x1fu);
+    case  3: return _mm_alignr_epi8(val, val, 12 & 0x1fu);
+    }
+    return constant<SimdDataI, ValueDataI>(0);
+}
+
 template <>
 inline void print<SimdDataI>(std::ostream& stream, const SimdDataI& val_simd)
 {

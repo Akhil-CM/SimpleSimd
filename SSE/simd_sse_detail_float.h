@@ -23,14 +23,12 @@ namespace SIMD {
 
 namespace Detail {
 
-template<>
-inline SimdDataF cast(const SimdDataI& val_simd)
+template <> inline SimdDataF cast(const SimdDataI& val_simd)
 {
     return _mm_cvtepi32_ps(val_simd);
 }
 
-template <>
-inline SimdDataF constant<SimdDataF, ValueDataF>(ValueDataF val)
+template <> inline SimdDataF constant<SimdDataF, ValueDataF>(ValueDataF val)
 {
     return _mm_set1_ps(val);
 }
@@ -53,14 +51,13 @@ inline void store<SimdDataF, ValueDataF>(const SimdDataF& val_simd,
 }
 template <>
 inline void store_a<SimdDataF, ValueDataF>(const SimdDataF& val_simd,
-                                         ValueDataF* val_ptr)
+                                           ValueDataF* val_ptr)
 {
     _mm_store_ps(val_ptr, val_simd);
 }
 template <int N> inline ValueDataF get(const SimdDataF& a)
 {
-    const SimdDataF result =
-        _mm_shuffle_ps(a, a, (N&3));
+    const SimdDataF result = _mm_shuffle_ps(a, a, (N & 3));
     return _mm_cvtss_f32(result);
 }
 template <>
@@ -107,13 +104,32 @@ inline ValueDataF extract<ValueDataF, SimdDataF>(int index, const SimdDataF& a)
 
 template <>
 inline SimdDataF select(const SimdDataF& mask, const SimdDataF& a,
-                                const SimdDataF& b)
+                        const SimdDataF& b)
 {
 #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
     return _mm_blendv_ps(b, a, mask);
 #else
     return _mm_or_ps(_mm_and_ps(mask, a), _mm_andnot_ps(mask, b));
 #endif
+}
+
+template <> inline SimdDataF rotated(int amount, const SimdDataF& val)
+{
+    SimdDataI tmp = _mm_castps_si128(val);
+    switch (static_cast<unsigned int>(amount) % simd_int::SimdLen) {
+    case 0:
+        return val;
+    case 1:
+        tmp = _mm_alignr_epi8(tmp, tmp, 4 & 0x1fu);
+        break;
+    case 2:
+        tmp = _mm_alignr_epi8(tmp, tmp, 8 & 0x1fu);
+        break;
+    case 3:
+        tmp = _mm_alignr_epi8(tmp, tmp, 12 & 0x1fu);
+        break;
+    }
+    return _mm_castsi128_ps(tmp);
 }
 
 template <>
@@ -179,7 +195,7 @@ template <> inline SimdDataF rsqrt<SimdDataF>(const SimdDataF& a)
 
 template <> inline SimdDataF abs<SimdDataF>(const SimdDataF& a)
 {
-    return _mm_and_ps(a,  _mm_castsi128_ps(getMask<MASK::ABS>()));
+    return _mm_and_ps(a, _mm_castsi128_ps(getMask<MASK::ABS>()));
 }
 
 template <> inline SimdDataF log<SimdDataF>(const SimdDataF& a)
@@ -266,10 +282,10 @@ inline SimdDataF opNotEqual<SimdDataF>(const SimdDataF& a, const SimdDataF& b)
     return _mm_cmpneq_ps(a, b);
 }
 
-template <>
-inline SimdDataF sign<SimdDataF>(const SimdDataF& a)
+template <> inline SimdDataF sign<SimdDataF>(const SimdDataF& a)
 {
-    return Detail::opANDbitwise<SimdDataF>(_mm_castsi128_ps(getMask<MASK::MINUS>()), a);
+    return Detail::opANDbitwise<SimdDataF>(
+        _mm_castsi128_ps(getMask<MASK::MINUS>()), a);
 }
 
 } // namespace Detail

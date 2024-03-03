@@ -26,7 +26,11 @@ template<> inline simd_index::SimdIndexBase()
 }
 template<> inline simd_index::SimdIndexBase(int val)
 {
-    index_ = Detail::constant<simd_int::simd_type, simd_int::value_type>(val);
+    index_ = Detail::constant<simd_typei, simd_int::value_type>(val);
+}
+template<> inline simd_index::SimdIndexBase(int* val_ptr)
+{
+    index_ = Detail::load<simd_typei, int>(val_ptr);
 }
 template<> inline simd_index::SimdIndexBase(const simd_index& class_indices)
 {
@@ -34,13 +38,13 @@ template<> inline simd_index::SimdIndexBase(const simd_index& class_indices)
 }
 template<>
 template<typename T, typename std::enable_if<true, T>::type*>
-inline simd_index::SimdIndexBase(const simd_int::simd_type& val_simd)
+inline simd_index::SimdIndexBase(const simd_typei& val_simd)
 {
     index_ = val_simd;
 }
-template<> inline simd_index::SimdIndexBase(const simd_float::simd_type& val_simd)
+template<> inline simd_index::SimdIndexBase(const simd_typef& val_simd)
 {
-    index_ = Detail::cast<simd_int::simd_type, simd_float::simd_type>(val_simd);
+    index_ = Detail::cast<simd_typei, simd_typef>(val_simd);
 }
 template<>
 inline simd_index::SimdIndexBase(const simd_int& class_simd)
@@ -49,12 +53,12 @@ inline simd_index::SimdIndexBase(const simd_int& class_simd)
 }
 template<> inline simd_index::SimdIndexBase(const simd_float& class_simd)
 {
-    index_ = Detail::cast<simd_int::simd_type, simd_float::simd_type>(class_simd.simd());
+    index_ = Detail::cast<simd_typei, simd_typef>(class_simd.simd());
 }
 
 template<> inline simd_index& simd_index::operator=(int val)
 {
-    index_ = Detail::constant<simd_int::simd_type, simd_int::value_type>(val);
+    index_ = Detail::constant<simd_typei, simd_int::value_type>(val);
     return *this;
 }
 template<> inline simd_index& simd_index::operator=(const simd_index& class_indices)
@@ -63,18 +67,55 @@ template<> inline simd_index& simd_index::operator=(const simd_index& class_indi
     return *this;
 }
 template<>
-template<typename T, typename std::enable_if<!(std::is_same<int, simd_int::simd_type>::value), T>::type*>
-inline simd_index& simd_index::operator=(const simd_int::simd_type& val_simd)
+template<typename T, typename std::enable_if<true, T>::type*>
+inline simd_index& simd_index::operator=(const simd_typei& val_simd)
 {
     index_ = val_simd;
     return *this;
 }
-template<> inline simd_index& simd_index::operator=(const simd_float::simd_type& val_simd)
+template<> inline simd_index& simd_index::operator=(const simd_typef& val_simd)
 {
-    index_ = Detail::cast<simd_int::simd_type, simd_float::simd_type>(val_simd);
+    index_ = Detail::cast<simd_typei, simd_typef>(val_simd);
     return *this;
 }
 
+// ------------------------------------------------------
+// Load and Store
+// ------------------------------------------------------
+// Load
+template <> inline simd_index& simd_index::load(const int* val_ptr)
+{
+    index_ = Detail::load<simd_typei, int>(val_ptr);
+    return *this;
+}
+template <> inline simd_index& simd_index::load_a(const int* val_ptr)
+{
+    index_ = Detail::load_a<simd_typei, int>(val_ptr);
+    return *this;
+}
+// Store
+template <> inline void simd_index::store(int* val_ptr) const
+{
+    Detail::store<simd_typei, int>(index_, val_ptr);
+}
+template <> inline void simd_index::store_a(int* val_ptr) const
+{
+    Detail::store_a<simd_typei, int>(index_, val_ptr);
+}
+template <> inline void simd_index::store_stream(int* val_ptr) const
+{
+    _mm_stream_si128(reinterpret_cast<simd_typei*>(val_ptr), index_);
+}
+template <> inline simd_index& simd_index::insert(int index, int val)
+{
+    int __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
+    indices[4] = { 0, 0, 0, 0 };
+    indices[index] = -1;
+    const simd_typei mask = Detail::load_a<simd_typei, int>(indices) ;
+    index_ =
+        Detail::select<simd_typei>(mask, Detail::constant<simd_typei, int>(val), index_);
+    return *this;
+}
 template<> inline simd_int::value_type simd_index::operator[](int index) const
 {
     assert((index > -1) && ("[Error] (operator[]): invalid index (" +

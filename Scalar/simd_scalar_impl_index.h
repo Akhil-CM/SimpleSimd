@@ -27,6 +27,10 @@ template<> inline simd_index::SimdIndexBase(int val)
 {
     index_ = val;
 }
+template<> inline simd_index::SimdIndexBase(int* val_ptr)
+{
+    index_ = val_ptr[0];
+}
 template<> inline simd_index::SimdIndexBase(const simd_index& class_indices)
 {
     index_ = class_indices.index_;
@@ -61,6 +65,33 @@ template<> inline simd_index& simd_index::operator=(const simd_float::simd_type&
     return *this;
 }
 
+// ------------------------------------------------------
+// Load and Store
+// ------------------------------------------------------
+// Load
+template <> inline simd_index& simd_index::load(const int* val_ptr)
+{
+    index_ = val_ptr[0];
+    return *this;
+}
+template <> inline simd_index& simd_index::load_a(const int* val_ptr)
+{
+    index_ = val_ptr[0];
+    return *this;
+}
+// Store
+template <> inline void simd_index::store(int* val_ptr) const
+{
+    val_ptr[0] = index_;
+}
+template <> inline void simd_index::store_a(int* val_ptr) const
+{
+    val_ptr[0] = index_;
+}
+template <> inline void simd_index::store_stream(int* val_ptr) const
+{
+    val_ptr[0] = index_;
+}
 template<> inline simd_int::value_type simd_index::operator[](int index) const
 {
     assert((index == 0) && ("[Error] (operator[]): invalid index (" +

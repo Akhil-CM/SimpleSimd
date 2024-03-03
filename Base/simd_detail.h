@@ -39,6 +39,9 @@ T1 extract(int index, const T2& val_simd);
 
 template <typename T1, typename T2 = T1, typename T3 = T1, typename T4 = T1> T1 select(const T2& mask, const T3& a, const T4& b);
 
+template <typename T1, typename T2=T1>
+T1 rotated(int index, const T2& val_simd);
+
 template <typename T> void print(std::ostream& stream, const T& val_simd);
 
 // ------------------------------------------------------

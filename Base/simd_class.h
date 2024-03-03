@@ -96,8 +96,8 @@ public:
     // ------------------------------------------------------
     // Gather and Scatter
     // ------------------------------------------------------
-    SimdClassBase& gather(const SimdIndexBase<tag>& indices, const ValueType* p);
-    void scatter(const SimdIndexBase<tag>& indices, ValueType* p) const;
+    SimdClassBase& gather(const ValueType* p, const SimdIndexBase<tag>& indices);
+    void scatter(ValueType* p, const SimdIndexBase<tag>& indices) const;
 
     // ------------------------------------------------------
     // Data member accessors
@@ -121,6 +121,10 @@ public:
     ValueType operator[](int index) const;
     // cut off vector to n elements. The last 4-n elements are set to zero
     SimdClassBase& cutoff(int index);
+    SimdClassBase rotated(int amount) const
+    {
+        return SimdClassBase{ Detail::rotated<simd_type>(amount, data_.simd_) };
+    }
 
     // ------------------------------------------------------
     // Print I/O
@@ -145,11 +149,23 @@ public:
         return SimdClassBase{ Detail::add<simd_type>(a.data_.simd_,
                                                      b.data_.simd_) };
     }
+    friend SimdClassBase& operator+=(SimdClassBase& a,
+                                   const SimdClassBase& b)
+    {
+        a = a + b;
+        return a;
+    }
     friend SimdClassBase operator-(const SimdClassBase& a,
                                    const SimdClassBase& b)
     {
         return SimdClassBase{ Detail::substract<simd_type>(a.data_.simd_,
                                                            b.data_.simd_) };
+    }
+    friend SimdClassBase& operator-=(SimdClassBase& a,
+                                   const SimdClassBase& b)
+    {
+        a = a - b;
+        return a;
     }
     friend SimdClassBase operator*(const SimdClassBase& a,
                                    const SimdClassBase& b)
@@ -157,11 +173,23 @@ public:
         return SimdClassBase{ Detail::multiply<simd_type>(a.data_.simd_,
                                                           b.data_.simd_) };
     }
+    friend SimdClassBase& operator*=(SimdClassBase& a,
+                                   const SimdClassBase& b)
+    {
+        a = a * b;
+        return a;
+    }
     friend SimdClassBase operator/(const SimdClassBase& a,
                                    const SimdClassBase& b)
     {
         return SimdClassBase{ Detail::divide<simd_type>(a.data_.simd_,
                                                         b.data_.simd_) };
+    }
+    friend SimdClassBase& operator/=(SimdClassBase& a,
+                                   const SimdClassBase& b)
+    {
+        a = a / b;
+        return a;
     }
 
     friend SimdClassBase min(const SimdClassBase& a, const SimdClassBase& b)

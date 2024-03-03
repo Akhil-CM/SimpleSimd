@@ -103,13 +103,13 @@ void SimdClassBase<ValueType, tag>::store_partial(int index, ValueType* p) const
 }
 
 template<typename ValueType, Tag tag>
-SimdClassBase<ValueType, tag>& SimdClassBase<ValueType, tag>::gather(const SimdIndexBase<tag>& indices, const ValueType* p)
+SimdClassBase<ValueType, tag>& SimdClassBase<ValueType, tag>::gather(const ValueType* p, const SimdIndexBase<tag>& indices)
 {
     data_.simd_ = p[indices[0]];
     return *this;
 }
 template<typename ValueType, Tag tag>
-void SimdClassBase<ValueType, tag>::scatter(const SimdIndexBase<tag>& indices, ValueType* p) const
+void SimdClassBase<ValueType, tag>::scatter(ValueType* p, const SimdIndexBase<tag>& indices) const
 {
     p[indices[0]] = data_.simd_;
 }

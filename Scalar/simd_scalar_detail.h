@@ -25,6 +25,11 @@ template <typename T1, typename T2> T1 cast(const T2& val_simd)
     return static_cast<T1>(val_simd);
 }
 
+template <typename T1, typename T2> inline T1 rotated(int amount, const T2& val)
+{
+    return val;
+}
+
 template <typename T> void print(std::ostream& stream, const T& val_simd)
 {
     stream << "[" << val_simd << "]";

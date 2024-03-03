@@ -133,7 +133,7 @@ inline void simd_float::store_partial(int index, value_type* val_ptr) const
 // Gather and Scatter
 // ------------------------------------------------------
 template <>
-inline simd_float& simd_float::gather(const simd_index& index, const value_type* val_ptr)
+inline simd_float& simd_float::gather(const value_type* val_ptr, const simd_index& index)
 {
     simd_int::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         indices[__KFP_SIMD__Len_Int]{}; // Helper array
@@ -143,7 +143,7 @@ inline simd_float& simd_float::gather(const simd_index& index, const value_type*
     return *this;
 }
 template <>
-inline void simd_float::scatter(const simd_index& index, value_type* val_ptr) const
+inline void simd_float::scatter(value_type* val_ptr, const simd_index& index) const
 {
     value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper array

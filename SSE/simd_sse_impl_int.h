@@ -135,14 +135,13 @@ inline void simd_int::store_partial(int index, value_type* val_ptr) const
 // Gather and Scatter
 // ------------------------------------------------------
 template <>
-inline simd_int& simd_int::gather(const simd_index& index,
-                                const value_type* val_ptr)
+inline simd_int& simd_int::gather(const value_type* val_ptr, const simd_index& index)
 {
     data_.simd_ = _mm_setr_epi32( val_ptr[index[0]], val_ptr[index[1]], val_ptr[index[2]], val_ptr[index[3]]) ;
     return *this;
 }
 template <>
-inline void simd_int::scatter(const simd_index& index, value_type* val_ptr) const
+inline void simd_int::scatter(value_type* val_ptr, const simd_index& index) const
 {
     value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         data[__KFP_SIMD__Len_Int]{}; // Helper array
