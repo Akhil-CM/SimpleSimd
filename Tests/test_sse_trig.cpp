@@ -413,6 +413,8 @@ int main()
     std::cout << std::string(20, '-') << '\n';
     std::cout << "Sin : " << KFP::SIMD::apply(sf5678, ApplySin<float>{}) << '\n';
     std::cout << "Cos : " << KFP::SIMD::apply(sf5678, ApplyCos<float>{}) << '\n';
+    std::cout << "Sin : " << KFP::SIMD::apply(sf5678, [](float x){return std::sin(x);}) << '\n';
+    std::cout << "Cos : " << KFP::SIMD::apply(sf5678, [](float x){return std::cos(x);}) << '\n';
 
     std::cout << "\n\n";
     std::cout << std::string(20, '-') << '\n';
