@@ -20,10 +20,6 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-template <> inline simd_float::SimdClassBase()
-{
-    data_.simd_ = Detail::constant<simd_float::simd_type, simd_float::value_type>(0.0f);
-}
 // Constructor to broadcast the same value into all elements:
 template <> inline simd_float::SimdClassBase(value_type val)
 {
@@ -43,11 +39,8 @@ template <> inline simd_float::SimdClassBase(const simd_float& class_simd)
 {
     data_.simd_ = class_simd.data_.simd_;
 }
-template <> inline simd_float::SimdClassBase(const simd_index& class_index)
-{
-    data_.simd_ = Detail::cast<simd_type, simd_int::simd_type>(class_index.index());
-}
 
+// Assignment constructors:
 template <>
 inline simd_float& simd_float::operator=(value_type val)
 {
@@ -66,20 +59,33 @@ template <> inline simd_float& simd_float::operator=(const simd_float& class_sim
     data_.simd_ = class_simd.data_.simd_;
     return *this;
 }
+
+// ------------------------------------------------------
+// Factory methods
+// ------------------------------------------------------
+template <> inline simd_float simd_float::iota(value_type start)
+{
+    simd_float result;
+    result.data_.simd_ = _mm_setr_ps(start, start + 1.0f, start + 2.0f, start + 3.0f);
+    return result;
+}
+
 // ------------------------------------------------------
 // Load and Store
 // ------------------------------------------------------
-// Load
+// Member function to load from array (unaligned)
 template <> inline simd_float& simd_float::load(const value_type* val_ptr)
 {
     data_.simd_ = Detail::load<simd_type, value_type>(val_ptr);
     return *this;
 }
+// Member function to load from array (aligned)
 template <> inline simd_float& simd_float::load_a(const value_type* val_ptr)
 {
     data_.simd_ = Detail::load_a<simd_type, value_type>(val_ptr);
     return *this;
 }
+// Partial load. Load n elements and set the rest to 0
 template <>
 inline simd_float& simd_float::load_partial(int index, const value_type* val_ptr)
 {
@@ -103,54 +109,58 @@ inline simd_float& simd_float::load_partial(int index, const value_type* val_ptr
     }
     return *this;
 }
-// Store
+// Member function to store into array (unaligned)
 template <> inline void simd_float::store(value_type* val_ptr) const
 {
     Detail::store<simd_type, value_type>(data_.simd_, val_ptr);
 }
+// Member function storing into array (aligned)
 template <> inline void simd_float::store_a(value_type* val_ptr) const
 {
     Detail::store_a<simd_type, value_type>(data_.simd_, val_ptr);
 }
+// Member function storing to aligned uncached memory (non-temporal store).
 template <> inline void simd_float::store_stream(value_type* val_ptr) const
 {
     _mm_stream_ps(val_ptr, data_.simd_);
 }
+// Partial store. Store n elements
 template <>
-inline void simd_float::store_partial(int index, value_type* val_ptr) const
+inline void simd_float::store_partial(int n, value_type* val_ptr) const
 {
-    if (index < 1)
+    if (n < 1)
         return;
-    value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-        data[__KFP_SIMD__Len_Float]{}; // Helper array
-    store_a(data);
-    if (index > SimdLen) {
-        index = SimdLen;
+    if (n > SimdLen) {
+        n = SimdLen;
     }
-    std::copy_n(data, index, val_ptr);
+    value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
+        data[__KFP_SIMD__Len_Float]{}; // Helper data array
+    store_a(data);
+    std::copy_n(data, n, val_ptr);
 }
+
 // ------------------------------------------------------
 // Gather and Scatter
 // ------------------------------------------------------
 template <>
-inline simd_float& simd_float::gather(const value_type* val_ptr, const simd_index& index)
+inline simd_float& simd_float::gather(const value_type* val_ptr, const simd_int& index)
 {
     simd_int::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
-        indices[__KFP_SIMD__Len_Int]{}; // Helper array
-    Detail::store_a<simd_int::simd_type, simd_int::value_type>(index.index(), indices);
+        indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
+    Detail::store_a<simd_int::simd_type, simd_int::value_type>(index.simd(), indices);
     data_.simd_ = _mm_setr_ps(val_ptr[indices[0]], val_ptr[indices[1]],
                               val_ptr[indices[2]], val_ptr[indices[3]]);
     return *this;
 }
 template <>
-inline void simd_float::scatter(value_type* val_ptr, const simd_index& index) const
+inline void simd_float::scatter(value_type* val_ptr, const simd_int& index) const
 {
     value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-        data[__KFP_SIMD__Len_Float]{}; // Helper array
+        data[__KFP_SIMD__Len_Float]{}; // Helper data array
     store_a(data);
     simd_int::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
-        indices[__KFP_SIMD__Len_Int]{}; // Helper array
-    Detail::store_a<simd_int::simd_type, simd_int::value_type>(index.index(), indices);
+        indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
+    Detail::store_a<simd_int::simd_type, simd_int::value_type>(index.simd(), indices);
     val_ptr[indices[0]] = data[0];
     val_ptr[indices[1]] = data[1];
     val_ptr[indices[2]] = data[2];
@@ -160,42 +170,6 @@ inline void simd_float::scatter(value_type* val_ptr, const simd_index& index) co
 // ------------------------------------------------------
 // Data member accessors
 // ------------------------------------------------------
-template <> inline simd_float& simd_float::insert(int index, value_type val)
-{
-    assert((index > -1) && ("[Error] (insert): invalid index (" +
-                            std::to_string(index) + ") given. Negative")
-                               .data());
-    assert((index < SimdLen) &&
-           ("[Error] (insert): invalid index (" + std::to_string(index) +
-            ") given. Exceeds maximum")
-               .data());
-#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
-    switch (index) {
-    case 0:
-        data_.simd_ = _mm_insert_ps(data_.simd_, _mm_set_ss(val), 0 << 4);
-        break;
-    case 1:
-        data_.simd_ = _mm_insert_ps(data_.simd_, _mm_set_ss(val), 1 << 4);
-        break;
-    case 2:
-        data_.simd_ = _mm_insert_ps(data_.simd_, _mm_set_ss(val), 2 << 4);
-        break;
-    case 3:
-    default:
-        data_.simd_ = _mm_insert_ps(data_.simd_, _mm_set_ss(val), 3 << 4);
-        break;
-    }
-#else
-    int __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
-        indices[__KFP_SIMD__Len_Int] = { 0, 0, 0, 0 };
-    indices[index] = -1;
-    const simd_type mask =
-        _mm_castsi128_ps(Detail::load_a<simd_int::simd_type, simd_int::value_type>(indices));
-    data_.simd_ = Detail::select<simd_type>(
-        mask, Detail::constant<simd_type, value_type>(val), data_.simd_);
-#endif
-    return *this;
-}
 template <> inline simd_float::value_type simd_float::operator[](int index) const
 {
     assert((index > -1) && ("[Error] (operator[]): invalid index (" +
@@ -207,12 +181,82 @@ template <> inline simd_float::value_type simd_float::operator[](int index) cons
                .data());
     return Detail::extract<value_type, simd_type>(index, data_.simd_);
 }
-template <> inline simd_float& simd_float::cutoff(int index)
+
+// ------------------------------------------------------
+// Data elements manipulation
+// ------------------------------------------------------
+template <> inline simd_float& simd_float::insert(int index, value_type val)
+{
+    assert((index > -1) && ("[Error] (insert): invalid index (" +
+                            std::to_string(index) + ") given. Negative")
+                               .data());
+    assert((index < SimdLen) &&
+           ("[Error] (insert): invalid index (" + std::to_string(index) +
+            ") given. Exceeds maximum")
+               .data());
+    Detail::insert<simd_type, value_type>(data_.simd_, index & 0x03, val);
+    return *this;
+}
+template <> inline simd_float simd_float::insertCopy(int index, value_type val) const
+{
+    assert((index > -1) && ("[Error] (insertCopy): invalid index (" +
+                            std::to_string(index) + ") given. Negative")
+                               .data());
+    assert((index < SimdLen) &&
+           ("[Error] (insertCopy): invalid index (" + std::to_string(index) +
+            ") given. Exceeds maximum")
+               .data());
+    simd_float result{*this};
+    Detail::insert<simd_type, value_type>(result.data_.simd_, index & 0x03, val);
+    return result;
+
+}
+template <> inline simd_float& simd_float::cutoff(int n)
 {
     value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-        data[__KFP_SIMD__Len_Float]{}; // Helper array
+        data[__KFP_SIMD__Len_Float]{}; // Helper data array
     store_a(data);
-    return load_partial(index, data);
+    return load_partial(n, data);
+}
+template <> inline simd_float simd_float::cutoffCopy(int n) const
+{
+    value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
+        data[__KFP_SIMD__Len_Float]{}; // Helper data array
+    store_a(data);
+    return simd_float{}.load_partial(n, data);
+}
+template <> inline simd_float& simd_float::shiftLeft(int n)
+{
+    data_.simd_ = Detail::shiftLLanes<simd_type>(n, data_.simd_);
+    return *this;
+}
+template <> inline simd_float simd_float::shiftLeftCopy(int n) const
+{
+    simd_float result;
+    result.data_.simd_ = Detail::shiftLLanes<simd_type>(n, data_.simd_);
+    return result;
+}
+template <> inline simd_float& simd_float::shiftRight(int n)
+{
+    data_.simd_ = Detail::shiftRLanes<simd_type>(n, data_.simd_);
+    return *this;
+}
+template <> inline simd_float simd_float::shiftRightCopy(int n) const
+{
+    simd_float result;
+    result.data_.simd_ = Detail::shiftRLanes<simd_type>(n, data_.simd_);
+    return result;
+}
+template <> inline simd_float& simd_float::rotate(int n)
+{
+    data_.simd_ = Detail::rotate<simd_type>(n & 0x03, data_.simd_);
+    return *this;
+}
+template <> inline simd_float simd_float::rotateCopy(int n) const
+{
+    simd_float result;
+    result.data_.simd_ = Detail::rotate<simd_type>(n & 0x03, data_.simd_);
+    return result;
 }
 
 inline simd_float select(const simd_mask& mask, const simd_float& a, const simd_float& b)
@@ -224,21 +268,10 @@ inline simd_float select(const simd_mask& mask, const simd_float& a, const simd_
 template <typename F> inline simd_float apply(const simd_float& a, const F& func)
 {
     simd_float::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-        data[__KFP_SIMD__Len_Float]{}; // Helper array
+        data[__KFP_SIMD__Len_Float]{}; // Helper data array
     a.store_a(data);
     return simd_float{ _mm_setr_ps(func(data[0]), func(data[1]), func(data[2]),
                               func(data[3])) };
-}
-
-inline simd_float signMultiply(const simd_int& a, const simd_float& b)
-{
-    const simd_int::simd_type& mask_minus = Detail::sign<simd_int::simd_type>(a.simd());
-    return simd_float{ Detail::opXORbitwise<simd_float::simd_type>(_mm_castsi128_ps(mask_minus), b.simd()) };
-}
-inline simd_float signMultiply(const simd_float& a, const simd_float& b)
-{
-    const simd_float::simd_type& mask_minus = Detail::sign<simd_float::simd_type>(a.simd());
-    return simd_float{ Detail::opXORbitwise<simd_float::simd_type>(mask_minus, b.simd()) };
 }
 
 inline simd_float round(const simd_float& a)
@@ -247,25 +280,25 @@ inline simd_float round(const simd_float& a)
     return simd_float{ _mm_round_ps(a.simd(), _MM_FROUND_NINT) };
 #elif 0
     simd_float::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-        data[__KFP_SIMD__Len_Float]{}; // Helper array
+        data[__KFP_SIMD__Len_Float]{}; // Helper data array
     a.store_a(data);
     return simd_float{ _mm_setr_ps(std::round(data[0]), std::round(data[1]),
                               std::round(data[2]), std::round(data[3])) };
 #else
     simd_int::simd_type tmp = _mm_cvtps_epi32(a.simd()); // convert to integer
-    return simd_float{ Detail::cast<simd_float::simd_type, simd_int::simd_type>(tmp) }; // convert back to float
+    return simd_float{ Detail::value_cast<simd_float::simd_type, simd_int::simd_type>(tmp) }; // convert back to float
 #endif
 }
 
 inline simd_mask isInf(const simd_float& a)
 {
-    return simd_mask{ _mm_cmpeq_ps(a.simd(), _mm_castsi128_ps(Detail::getMask<Detail::MASK::INF>())) };
+    return simd_mask{ Detail::equal<simd_float::simd_type>(a.simd(), Detail::type_cast<simd_float::simd_type, simd_int::simd_type>(Detail::getMask<Detail::MASK::INF>())) };
 }
 
 inline simd_mask isFinite(const simd_float& a)
 {
-    const simd_float::simd_type mask_inf = _mm_castsi128_ps(Detail::getMask<Detail::MASK::INF>()) ;
-    return simd_mask{ _mm_cmpneq_ps(_mm_and_ps(a.simd(), mask_inf), mask_inf) };
+    const simd_float::simd_type mask_inf = Detail::type_cast<simd_float::simd_type, simd_int::simd_type>(Detail::getMask<Detail::MASK::INF>()) ;
+    return simd_mask{ Detail::notEqual<simd_float::simd_type>(Detail::ANDBits<simd_float::simd_type>(a.simd(), mask_inf), mask_inf) };
 }
 
 inline simd_mask isNaN(const simd_float& a)
@@ -276,4 +309,4 @@ inline simd_mask isNaN(const simd_float& a)
 } // namespace SIMD
 } // namespace KFP
 
-#endif
+#endif // !SIMD_SSE_IMPL_FLOAT_H

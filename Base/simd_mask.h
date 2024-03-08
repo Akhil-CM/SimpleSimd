@@ -13,7 +13,7 @@ Emails: mithran@fias.uni-frankfurt.de
 #include "simd_data.h"
 #include "simd_detail.h"
 
-#include <iosfwd>
+#include <iostream>
 
 namespace KFP {
 namespace SIMD {
@@ -23,13 +23,17 @@ template <Tag tag> class SimdMaskBase
 public:
     typedef typename SimdData<int, tag>::simd_type simd_typei;
     typedef typename SimdData<float, tag>::simd_type simd_typef;
+    typedef typename SimdData<int, tag>::value_type value_typei;
+    typedef typename SimdData<float, tag>::value_type value_typef;
+    static constexpr Tag tag_val{ tag };
     static constexpr int SimdSize{ sizeof(simd_typei) };
     static constexpr int SimdLen{ SimdSize / sizeof(int) };
+
     // ------------------------------------------------------
     // Constructors
     // ------------------------------------------------------
     // Default constructor:
-    SimdMaskBase();
+    SimdMaskBase() {};
     SimdMaskBase(bool val);
     SimdMaskBase(const bool* val_ptr);
     SimdMaskBase(const simd_typei& mask);
@@ -43,6 +47,14 @@ public:
     SimdMaskBase& operator=(const SimdMaskBase& class_mask);
 
     // ------------------------------------------------------
+    // Load and Store
+    // ------------------------------------------------------
+    // Member function to load from array.
+    SimdMaskBase& load(const bool* val_ptr);
+    // Member function to store into array.
+    void store(bool* val_ptr) const;
+
+    // ------------------------------------------------------
     // Status accessors
     // ------------------------------------------------------
     int count() const;
@@ -52,8 +64,6 @@ public:
     // ------------------------------------------------------
     // Data member accessors
     // ------------------------------------------------------
-    bool operator[](int index) const;
-
     simd_typei& maski()
     {
         return mask_;
@@ -63,49 +73,66 @@ public:
         return mask_;
     }
     simd_typef maskf() const;
+    bool operator[](int index) const;
+
+    // ------------------------------------------------------
+    // Data elements manipulation
+    // ------------------------------------------------------
+    // Member function to change a single element in vector
+    SimdMaskBase& insert(int index, bool val);
+    // Member function to change a single element in copy of vector which is returned
+    SimdMaskBase insertCopy(int index, bool val) const;
+    // Cut off vector to n elements. The last (SimdLen - n) elements are set to false
+    SimdMaskBase& cutoff(int index);
+    // Cut off copy of vector to n elements. The last (SimdLen - n) elements are set to false
+    SimdMaskBase cutoffCopy(int index) const;
 
     // ------------------------------------------------------
     // Print I/O
     // ------------------------------------------------------
-    friend std::ostream& operator<<(std::ostream& stream, const SimdMaskBase& s)
+    friend std::ostream& operator<<(std::ostream& stream, const SimdMaskBase& a)
     {
-        Detail::print<SimdMaskBase>(stream, s);
+        bool mask[__KFP_SIMD__Len_Int]{}; // Helper mask array
+        a.store(mask);
+        stream << "[" << std::boolalpha;
+        for(int idx{0} ; idx < (SimdMaskBase::SimdLen-1) ; ++idx){
+            stream << mask[idx] << ", ";
+        }
+        stream << mask[(SimdMaskBase::SimdLen-1)] << std::noboolalpha << "]";
         return stream;
     }
-    /* Comparison */
+
+    // Comparison (mask returned)
     friend SimdMaskBase operator!(const SimdMaskBase& a)
     {
-        return SimdMaskBase{ Detail::opNOT<simd_typei>(a.mask_) };
+        return SimdMaskBase{ Detail::NOTBits<simd_typei>(a.mask_) };
     }
     friend bool operator==(const SimdMaskBase& a, const SimdMaskBase& b)
-    { // mask returned
-        return Detail::opEqual<bool, simd_typei, simd_typei>(a.mask_, b.mask_);
+    {
+        return Detail::equal<bool, simd_typei, simd_typei>(a.mask_, b.mask_);
     }
     friend bool operator!=(const SimdMaskBase& a, const SimdMaskBase& b)
-    { // mask returned
-        return Detail::opNotEqual<bool, simd_typei, simd_typei>(a.mask_, b.mask_);
+    {
+        return Detail::notEqual<bool, simd_typei, simd_typei>(a.mask_, b.mask_);
     }
     friend SimdMaskBase operator^(const SimdMaskBase& a, const SimdMaskBase& b)
-    { // mask returned
-        return SimdMaskBase{ Detail::opXORbitwise<simd_typei>(a.mask_, b.mask_) };
+    {
+        return SimdMaskBase{ Detail::XORBits<simd_typei>(a.mask_, b.mask_) };
     }
     friend SimdMaskBase operator&&(const SimdMaskBase& a, const SimdMaskBase& b)
-    { // mask returned
-        return SimdMaskBase{ Detail::opAND<simd_typei>(a.mask_, b.mask_) };
+    {
+        return SimdMaskBase{ Detail::ANDLanes<simd_typei>(a.mask_, b.mask_) };
     }
     friend SimdMaskBase operator||(const SimdMaskBase& a, const SimdMaskBase& b)
-    { // mask returned
-        return SimdMaskBase{ Detail::opOR<simd_typei>(a.mask_, b.mask_) };
+    {
+        return SimdMaskBase{ Detail::ORLanes<simd_typei>(a.mask_, b.mask_) };
     }
 
 protected:
     simd_typei mask_;
-    // int __KFP_SIMD__ATTR_ALIGN(
-    //     __KFP_SIMD__Size_Int) bools_[__KFP_SIMD__Len_Int]{}; // Indices array
-    // __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) int bools_[__KFP_SIMD__Len_Int]{};
 };
 
 } // namespace SIMD
 } // namespace KFP
 
-#endif
+#endif // !SIMD_MASK_H

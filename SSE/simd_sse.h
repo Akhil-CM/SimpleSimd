@@ -9,8 +9,8 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_SSE_H
 #define SIMD_SSE_H
 
+// Mask
 #include "simd_sse_impl_mask.h"
-#include "simd_sse_impl_index.h"
 // Int
 #include "simd_sse_impl_int.h"
 // Float
@@ -30,4 +30,4 @@ static_assert(
     (KFP::SIMD::simd_int::SimdLen == __KFP_SIMD__SSE_Len_Int),
     "[Error] (simd_sse.h): KFP::SIMD::simd_int given invalid length of simd type.");
 
-#endif
+#endif // !SIMD_SSE_H

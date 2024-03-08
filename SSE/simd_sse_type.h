@@ -11,7 +11,6 @@ Emails: mithran@fias.uni-frankfurt.de
 
 #include "../Base/simd_data.h"
 #include "../Base/simd_mask.h"
-#include "../Base/simd_index.h"
 #include "../Base/simd_class.h"
 
 #include <type_traits>
@@ -20,7 +19,6 @@ namespace KFP {
 namespace SIMD {
 
 using simd_mask = SimdMaskBase<Tag::SSE>;
-using simd_index = SimdIndexBase<Tag::SSE>;
 
 using simd_float = SimdClassBase<float, Tag::SSE>;
 static_assert(std::is_same<simd_float::simd_type, __m128>::value,
@@ -47,4 +45,4 @@ typedef simd_float::value_type ValueDataF;
 } // namespace SIMD
 } // namespace KFP
 
-#endif
+#endif // !SIMD_SSE_TYPE_H

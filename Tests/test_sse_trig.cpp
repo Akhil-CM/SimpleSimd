@@ -4,7 +4,6 @@
 #include <Vc/Vc>
 
 using KFP::SIMD::simd_mask;
-using KFP::SIMD::simd_index;
 using KFP::SIMD::simd_float;
 using KFP::SIMD::simd_int;
 using Vc::float_m;
@@ -16,7 +15,7 @@ __KFP_SIMD__INLINE simd_float Sin(const simd_float& phi)
 {
     const simd_float pi{3.1415926535897932f};
     const simd_float nTurnsF = (phi + pi) / (simd_float{2.f}*pi);
-    simd_index nTurns = simd_index{nTurnsF};
+    simd_int nTurns = simd_int{nTurnsF};
     nTurns = select((nTurns <= 0) && (phi < -pi), nTurns-1, nTurns);
 
     const simd_float& x{ phi - simd_float(nTurns)*(simd_float(2.f)*pi) };
@@ -34,6 +33,11 @@ __KFP_SIMD__INLINE simd_float Sin(const simd_float& phi)
 __KFP_SIMD__INLINE simd_float Cos(const simd_float& phi)
 {
     return Sin(phi + simd_float{1.570796326795f}); //x + pi/2
+}
+
+static inline __attribute__((always_inline)) simd_float multiplySign(const simd_int& s, const simd_float& x) {
+    const simd_float& sign_val = simd_float::type_cast(s.sign());
+    return simd_float{ sign_val ^ x };
 }
 
 static __KFP_SIMD__INLINE simd_float sinSeries(const simd_float x) {
@@ -69,10 +73,12 @@ static __KFP_SIMD__INLINE void sincos(simd_float x, simd_float& sinX, simd_float
 
     const simd_float sinS = sinSeries(x);
     const simd_float cosS = cosSeries(x);
+    // std::cout << "sinS : " << sinS << '\n';
+    // std::cout << "cosS : " << cosS << '\n';
 
     const simd_mask mask = (q == simd_int{0} || q == simd_int{2});
-    sinX = KFP::SIMD::signMultiply( sinSign, select(mask, sinS, cosS) );
-    cosX = KFP::SIMD::signMultiply( cosSign, select(mask, cosS, sinS) );
+    sinX = multiplySign( sinSign, select(mask, sinS, cosS) );
+    cosX = multiplySign( cosSign, select(mask, cosS, sinS) );
     // sinX = select(mask, sinS, cosS);
     // sinX = multiplySign(sinSign, sinX);
     // cosX = select(mask, cosS, sinS);
@@ -217,6 +223,8 @@ static inline __attribute__((always_inline)) void sincos(float_v x, float_v& sin
 
     const float_v sinS = sinSeries(x);
     const float_v cosS = cosSeries(x);
+    // std::cout << "sinS : " << sinS << '\n';
+    // std::cout << "cosS : " << cosS << '\n';
 
     const float_m mask = simd_cast<float_m>(q == 0 || q == 2);
     sinX = multiplySign( sinSign, iif(mask, sinS, cosS) );
@@ -409,10 +417,13 @@ int main()
 
     std::cout << "\n\n";
     std::cout << std::string(20, '-') << '\n';
-    std::cout << "Print sincos of {5.0f, 6.0f, 7.0f, 8.0f} simd_float apply\n" ;
+    std::cout << "Print sincos of {5.0f, 6.0f, 7.0f, 8.0f} simd_float apply with functor\n" ;
     std::cout << std::string(20, '-') << '\n';
     std::cout << "Sin : " << KFP::SIMD::apply(sf5678, ApplySin<float>{}) << '\n';
     std::cout << "Cos : " << KFP::SIMD::apply(sf5678, ApplyCos<float>{}) << '\n';
+    std::cout << std::string(20, '-') << '\n';
+    std::cout << "Print sincos of {5.0f, 6.0f, 7.0f, 8.0f} simd_float apply with lambda\n" ;
+    std::cout << std::string(20, '-') << '\n';
     std::cout << "Sin : " << KFP::SIMD::apply(sf5678, [](float x){return std::sin(x);}) << '\n';
     std::cout << "Cos : " << KFP::SIMD::apply(sf5678, [](float x){return std::cos(x);}) << '\n';
 

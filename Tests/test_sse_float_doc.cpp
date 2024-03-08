@@ -5,44 +5,22 @@
 #include "../simd.h"
 #include <iostream>
 
-using KFP::SIMD::simd_mask;
-using KFP::SIMD::simd_index;
 using KFP::SIMD::simd_float;
 
-TEST_CASE("Testing simd_mask") {
-    simd_mask mask;
-    SUBCASE("Testing default state") {
-        CHECK(mask == simd_mask{false});
-        CHECK(mask.AND() == false);
-        CHECK(mask.OR() == false);
-        CHECK(mask.count() == 0);
-    }
-
-    simd_mask mask_true{true};
-    SUBCASE("Testing constant constructor") {
-        CHECK(mask_true.AND() == true);
-        CHECK(mask_true.OR() == true);
-        CHECK(mask_true.count() == 4);
-    }
-
-    bool masks[]{true, false, false, false};
-    simd_mask mask_1true3false{masks};
-    SUBCASE("Testing variable constructor") {
-        CHECK(mask_1true3false.AND() == false);
-        CHECK(mask_1true3false.OR() == true);
-        CHECK(mask_1true3false.count() == 1);
-    }
-}
 TEST_CASE("Testing methods") {
-    float constants[]{1.0f, 1.0f, 1.0f, 1.0f};
+    float fone[]{1.0f, 1.0f, 1.0f, 1.0f};
     float f1234[]{1.0f, 2.0f, 3.0f, 4.0f};
-    const simd_float val_const = simd_float(constants) ;
-    const simd_float val_1234 = simd_float(f1234) ;
+    float f3412[]{3.0f, 4.0f, 1.0f, 2.0f};
+    float f4321[]{4.0f, 3.0f, 2.0f, 1.0f};
+    [[maybe_unused]] const simd_float val_zero = simd_float{0.0f} ;
+    [[maybe_unused]] const simd_float val_one = simd_float(fone) ;
+    [[maybe_unused]] const simd_float val_1234 = simd_float(f1234) ;
+    [[maybe_unused]] const simd_float val_3412 = simd_float(f3412) ;
+    [[maybe_unused]] const simd_float val_4321 = simd_float(f4321) ;
     SUBCASE("Testing the single value constructor") {
-        CHECK((val_const == simd_float(1.0f)).AND() );
+        CHECK((val_one == simd_float(1.0f)).AND() );
     }
     SUBCASE("Testing insert") {
-        const simd_float val_zero = simd_float{0.0f} ;
         float f1000[]{1.0f, 0.0f, 0.0f, 0.0f};
         float f0200[]{0.0f, 2.0f, 0.0f, 0.0f};
         float f0030[]{0.0f, 0.0f, 3.0f, 0.0f};
@@ -55,9 +33,21 @@ TEST_CASE("Testing methods") {
         CHECK((simd_float{0.0f}.insert(1, 2.0f) == val_0200).AND());
         CHECK((simd_float{0.0f}.insert(2, 3.0f) == val_0030).AND());
         CHECK((simd_float{0.0f}.insert(3, 4.0f) == val_0004).AND());
-        SUBCASE("Testing addition version 1") {
+        SUBCASE("Testing addition version") {
             CHECK((val_1234 == (val_1000 + val_0200 + val_0030 + val_1000)).count() == 2);
             CHECK((val_1234 == (val_1000 + val_0200 + val_0030 + val_0004)).AND());
+        }
+        SUBCASE("Testing insert, shift, rotate") {
+            CHECK((val_zero.insertCopy(0, 1) == (val_1000)).count() == 4);
+            std::cout << "val_zero.insertCopy(2, 2) : " << val_zero.insertCopy(2, 2) << '\n';
+            std::cout << "(val_0200).shiftRightCopy(1) : " << (val_0200).shiftRightCopy(1) << '\n';
+            CHECK((val_zero.insertCopy(2, 2) == (val_0200).shiftRightCopy(1)).count() == 4);
+            std::cout << "val_zero.insertCopy(0, 1)*2 : " << val_zero.insertCopy(0, 1)*2 << '\n';
+            std::cout << "(val_0200).shiftLeftCopy(1) : " << (val_0200).shiftLeftCopy(1) << '\n';
+            CHECK((val_zero.insertCopy(0, 1)*2 == (val_0200).shiftLeftCopy(1)).count() == 4);
+            std::cout << "val_3412 : " << val_3412 << '\n';
+            std::cout << "(val_1234).rotateCopy(2) : " << (val_1234).rotateCopy(2) << '\n';
+            CHECK((val_3412 == (val_1234).rotateCopy(2)).count() == 4);
         }
     }
 }

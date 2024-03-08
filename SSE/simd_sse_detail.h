@@ -11,7 +11,5 @@ Emails: mithran@fias.uni-frankfurt.de
 
 #include "simd_sse_detail_int.h"
 #include "simd_sse_detail_float.h"
-#include "simd_sse_detail_mask.h"
-#include "simd_sse_detail_index.h"
 
-#endif
+#endif // !SIMD_SSE_DETAIL_H
