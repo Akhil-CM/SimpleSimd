@@ -8,23 +8,27 @@
 using KFP::SIMD::simd_float;
 
 TEST_CASE("Testing methods") {
-    float fone[]{1.0f, 1.0f, 1.0f, 1.0f};
-    float f1234[]{1.0f, 2.0f, 3.0f, 4.0f};
-    float f3412[]{3.0f, 4.0f, 1.0f, 2.0f};
-    float f4321[]{4.0f, 3.0f, 2.0f, 1.0f};
+    const float fone[]{1.0f, 1.0f, 1.0f, 1.0f};
+    const float f1234[]{1.0f, 2.0f, 3.0f, 4.0f};
+    const float f2341[]{2.0f, 3.0f, 4.0f, 1.0f};
+    const float f3412[]{3.0f, 4.0f, 1.0f, 2.0f};
+    const float f4123[]{4.0f, 1.0f, 2.0f, 3.0f};
+    const float f4321[]{4.0f, 3.0f, 2.0f, 1.0f};
     [[maybe_unused]] const simd_float val_zero = simd_float{0.0f} ;
     [[maybe_unused]] const simd_float val_one = simd_float(fone) ;
     [[maybe_unused]] const simd_float val_1234 = simd_float(f1234) ;
+    [[maybe_unused]] const simd_float val_2341 = simd_float(f2341) ;
     [[maybe_unused]] const simd_float val_3412 = simd_float(f3412) ;
+    [[maybe_unused]] const simd_float val_4123 = simd_float(f4123) ;
     [[maybe_unused]] const simd_float val_4321 = simd_float(f4321) ;
     SUBCASE("Testing the single value constructor") {
         CHECK((val_one == simd_float(1.0f)).AND() );
     }
     SUBCASE("Testing insert") {
-        float f1000[]{1.0f, 0.0f, 0.0f, 0.0f};
-        float f0200[]{0.0f, 2.0f, 0.0f, 0.0f};
-        float f0030[]{0.0f, 0.0f, 3.0f, 0.0f};
-        float f0004[]{0.0f, 0.0f, 0.0f, 4.0f};
+        const float f1000[]{1.0f, 0.0f, 0.0f, 0.0f};
+        const float f0200[]{0.0f, 2.0f, 0.0f, 0.0f};
+        const float f0030[]{0.0f, 0.0f, 3.0f, 0.0f};
+        const float f0004[]{0.0f, 0.0f, 0.0f, 4.0f};
         const simd_float val_1000 = simd_float(f1000);
         const simd_float val_0200 = simd_float(f0200);
         const simd_float val_0030 = simd_float(f0030);
@@ -48,6 +52,9 @@ TEST_CASE("Testing methods") {
             std::cout << "val_3412 : " << val_3412 << '\n';
             std::cout << "(val_1234).rotateCopy(2) : " << (val_1234).rotateCopy(2) << '\n';
             CHECK((val_3412 == (val_1234).rotateCopy(2)).count() == 4);
+            std::cout << "val_2341 : " << val_2341 << '\n';
+            std::cout << "(val_1234).rotateCopy(1) : " << (val_1234).rotateCopy(1) << '\n';
+            CHECK((val_2341 == (val_1234).rotateCopy(1)).count() == 4);
         }
     }
 }

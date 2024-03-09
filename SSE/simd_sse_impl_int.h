@@ -34,7 +34,7 @@ inline simd_int::SimdClassBase(const simd_type& val_simd)
 {
     data_.simd_ = val_simd;
 }
-template <> inline simd_int::SimdClassBase(value_type* val)
+template <> inline simd_int::SimdClassBase(const value_type* val)
 {
     data_.simd_ = Detail::load<simd_type, value_type>(val);
 }

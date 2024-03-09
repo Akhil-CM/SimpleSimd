@@ -31,7 +31,7 @@ inline simd_float::SimdClassBase(const simd_type& val_simd)
 {
     data_.simd_ = val_simd;
 }
-template <> inline simd_float::SimdClassBase(value_type* val)
+template <> inline simd_float::SimdClassBase(const value_type* val)
 {
     data_.simd_ = Detail::load<simd_type, value_type>(val);
 }

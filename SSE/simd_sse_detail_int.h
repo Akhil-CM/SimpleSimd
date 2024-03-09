@@ -266,11 +266,11 @@ template <> inline SimdDataI rotate<SimdDataI>(int n, const SimdDataI &val_simd)
   case 0:
     return val_simd;
   case 1:
-    return _mm_alignr_epi8(val_simd, val_simd, 3 * value_size_bytes);
+    return _mm_alignr_epi8(val_simd, val_simd, value_size_bytes);
   case 2:
     return _mm_alignr_epi8(val_simd, val_simd, 2 * value_size_bytes);
   case 3:
-    return _mm_alignr_epi8(val_simd, val_simd, value_size_bytes);
+    return _mm_alignr_epi8(val_simd, val_simd, 3 * value_size_bytes);
   }
     return constant<SimdDataI, ValueDataI>(0);
 #else
@@ -278,14 +278,14 @@ template <> inline SimdDataI rotate<SimdDataI>(int n, const SimdDataI &val_simd)
   case 0:
     return val_simd;
   case 1:
-    return ORBits<SimdDataI>(shiftRLanes<SimdDataI>(1, val_simd),
-                             shiftLLanes<SimdDataI>(3, val_simd));
+    return ORBits<SimdDataI>(shiftLLanes<SimdDataI>(1, val_simd),
+                             shiftRLanes<SimdDataI>(3, val_simd));
   case 2:
-    return ORBits<SimdDataI>(shiftRLanes<SimdDataI>(2, val_simd),
-                             shiftLLanes<SimdDataI>(2, val_simd));
+    return ORBits<SimdDataI>(shiftLLanes<SimdDataI>(2, val_simd),
+                             shiftRLanes<SimdDataI>(2, val_simd));
   case 3:
-    return ORBits<SimdDataI>(shiftRLanes<SimdDataI>(3, val_simd),
-                             shiftLLanes<SimdDataI>(1, val_simd));
+    return ORBits<SimdDataI>(shiftLLanes<SimdDataI>(3, val_simd),
+                             shiftRLanes<SimdDataI>(1, val_simd));
   }
     return constant<SimdDataI, ValueDataI>(0);
 #endif

@@ -49,7 +49,7 @@ public:
     template <typename T = void,
               typename std::enable_if<(tag != Tag::Scalar), T>::type* = nullptr>
     SimdClassBase(const simd_type& val_simd);
-    SimdClassBase(ValueType* val_ptr);
+    SimdClassBase(const ValueType* val_ptr);
     SimdClassBase(const SimdClassBase& class_simd);
     template <typename T,
               typename std::enable_if<!std::is_same<T, ValueType>::value>::type* = nullptr>
