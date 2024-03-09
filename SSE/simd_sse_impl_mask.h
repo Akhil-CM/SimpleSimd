@@ -35,16 +35,24 @@ template <> inline simd_mask::SimdMaskBase(const bool* val_ptr)
 }
 template <> inline simd_mask::SimdMaskBase(const simd_typei& mask)
 {
-    mask_ = Detail::NOTBits<simd_typei>( Detail::equal<simd_typei>(mask, _mm_setzero_si128()) );
+    mask_ = mask;
 }
 template <> inline simd_mask::SimdMaskBase(const simd_typef& mask)
 {
-    mask_ = Detail::NOTBits<simd_typei>( Detail::type_cast<simd_typei, simd_typef>(Detail::equal<simd_typef>(mask, _mm_setzero_ps())) );
+    mask_ = Detail::type_cast<simd_typei, simd_typef>(mask);
 }
 template <> inline simd_mask::SimdMaskBase(const simd_mask& class_mask)
 {
     mask_ = class_mask.mask_ ;
 }
+// template <> inline simd_mask::SimdMaskBase(const simd_int& mask)
+// {
+//     mask_ = Detail::NOTBits<simd_typei>( Detail::equal<simd_typei>(mask.simd(), _mm_setzero_si128()) );
+// }
+// template <> inline simd_mask::SimdMaskBase(const simd_float& mask)
+// {
+//     mask_ = Detail::NOTBits<simd_typei>( Detail::type_cast<simd_typei, simd_typef>(Detail::equal<simd_typef>(mask.simd(), _mm_setzero_ps())) );
+// }
 
 // Assignment operators
 template <> inline simd_mask& simd_mask::operator=(bool val)
@@ -54,12 +62,12 @@ template <> inline simd_mask& simd_mask::operator=(bool val)
 }
 template <> inline simd_mask& simd_mask::operator=(const simd_typei& mask)
 {
-    mask_ = Detail::NOTBits<simd_typei>( Detail::equal<simd_typei>(mask, _mm_setzero_si128()) );
+    mask_ = mask;
     return *this ;
 }
 template <> inline simd_mask& simd_mask::operator=(const simd_typef& mask)
 {
-    mask_ = Detail::NOTBits<simd_typei>( Detail::type_cast<simd_typei, simd_typef>(Detail::equal<simd_typef>(mask, _mm_setzero_ps())) );
+    mask_ = Detail::type_cast<simd_typei, simd_typef>(mask);
     return *this ;
 }
 template <> inline simd_mask& simd_mask::operator=(const simd_mask& class_mask)

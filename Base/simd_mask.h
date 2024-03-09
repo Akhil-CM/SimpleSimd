@@ -127,6 +127,16 @@ public:
     {
         return SimdMaskBase{ Detail::ORLanes<simd_typei>(a.mask_, b.mask_) };
     }
+    friend SimdMaskBase& operator&=(SimdMaskBase& a, const SimdMaskBase& b)
+    {
+        a = a && b;
+        return a;
+    }
+    friend SimdMaskBase& operator|=(SimdMaskBase& a, const SimdMaskBase& b)
+    {
+        a = a || b;
+        return a;
+    }
 
 protected:
     simd_typei mask_;
