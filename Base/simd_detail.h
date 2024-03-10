@@ -72,6 +72,9 @@ template <typename T1, typename T2 = T1, typename T3 = T1>
 T1 ANDLanes(const T2 &a, const T3 &b);
 template <typename T1, typename T2 = T1, typename T3 = T1>
 T1 ORLanes(const T2 &a, const T3 &b);
+template <typename T1, typename T2 = T1, typename T3 = T1>
+T1 XORLanes(const T2 &a, const T3 &b);
+template <typename T1, typename T2 = T1> T1 NOTLanes(const T2 &a);
 
 // ------------------------------------------------------
 // Manipulate lanes

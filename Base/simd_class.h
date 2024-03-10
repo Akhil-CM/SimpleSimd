@@ -43,7 +43,7 @@ public:
     // Constructors
     // ------------------------------------------------------
     // Default constructor:
-    SimdClassBase() {};
+    SimdClassBase();
     // Constructor to broadcast the same value into all elements:
     SimdClassBase(ValueType val);
     template <typename T = void,

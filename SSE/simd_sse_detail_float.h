@@ -158,7 +158,7 @@ inline ValueDataF extract<ValueDataF, SimdDataF>(int index, const SimdDataF& a)
 #if 0
     ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
     data[__KFP_SIMD__Len_Float]{}; // Helper array
-    store_a(data);
+    store(data);
     return data[index];
 // #elif defined(__KFP_SIMD__SSE4_1)
 #elif 0
@@ -216,7 +216,7 @@ inline void insert<SimdDataF, ValueDataF>(SimdDataF &val_simd, int index,
   int __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
       indices[__KFP_SIMD__Len_Int] = {0, 0, 0, 0};
   indices[index] = -1;
-  const SimdDataF mask = type_cast<SimdDataF, SimdDataI>(load_a<SimdDataI, ValueDataI>(indices));
+  const SimdDataF mask = type_cast<SimdDataF, SimdDataI>(load<SimdDataI, ValueDataI>(indices));
   val_simd = select<SimdDataF>(
       mask, constant<SimdDataF, ValueDataF>(val), val_simd);
 #endif
@@ -292,7 +292,7 @@ template <> inline SimdDataF log<SimdDataF>(const SimdDataF& a)
 {
     ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper array
-    store_a<SimdDataF, ValueDataF>(a, data);
+    store<SimdDataF, ValueDataF>(a, data);
     return _mm_setr_ps(std::log(data[0]), std::log(data[1]), std::log(data[2]),
                        std::log(data[3]));
 }
@@ -304,7 +304,7 @@ template <> inline SimdDataF pow<SimdDataF>(const SimdDataF& a, int exp)
 #else
     ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper array
-    store_a<SimdDataF, ValueDataF>(a, data);
+    store<SimdDataF, ValueDataF>(a, data);
     return _mm_setr_ps(std::pow(data[0], exp), std::pow(data[1], exp),
                        std::pow(data[2], exp), std::pow(data[3], exp));
 #endif
@@ -320,7 +320,7 @@ inline void print<SimdDataF>(std::ostream& stream, const SimdDataF& val_simd)
 {
     ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper array
-    store_a<SimdDataF, ValueDataF>(val_simd, data);
+    store<SimdDataF, ValueDataF>(val_simd, data);
     stream << "[" << data[0] << ", " << data[1] << ", " << data[2] << ", "
            << data[3] << "]";
 }

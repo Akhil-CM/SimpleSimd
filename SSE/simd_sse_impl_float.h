@@ -20,6 +20,13 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
+// ------------------------------------------------------
+// Constructors
+// ------------------------------------------------------
+template <> inline simd_float::SimdClassBase()
+{
+    data_.simd_ = _mm_setzero_ps();
+}
 // Constructor to broadcast the same value into all elements:
 template <> inline simd_float::SimdClassBase(value_type val)
 {
@@ -135,7 +142,7 @@ inline void simd_float::store_partial(int n, value_type* val_ptr) const
     }
     value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper data array
-    store_a(data);
+    store(data);
     std::copy_n(data, n, val_ptr);
 }
 
@@ -147,7 +154,7 @@ inline simd_float& simd_float::gather(const value_type* val_ptr, const simd_int&
 {
     simd_int::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
-    Detail::store_a<simd_int::simd_type, simd_int::value_type>(index.simd(), indices);
+    Detail::store<simd_int::simd_type, simd_int::value_type>(index.simd(), indices);
     data_.simd_ = _mm_setr_ps(val_ptr[indices[0]], val_ptr[indices[1]],
                               val_ptr[indices[2]], val_ptr[indices[3]]);
     return *this;
@@ -157,10 +164,10 @@ inline void simd_float::scatter(value_type* val_ptr, const simd_int& index) cons
 {
     value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper data array
-    store_a(data);
+    store(data);
     simd_int::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
-    Detail::store_a<simd_int::simd_type, simd_int::value_type>(index.simd(), indices);
+    Detail::store<simd_int::simd_type, simd_int::value_type>(index.simd(), indices);
     val_ptr[indices[0]] = data[0];
     val_ptr[indices[1]] = data[1];
     val_ptr[indices[2]] = data[2];
@@ -215,14 +222,14 @@ template <> inline simd_float& simd_float::cutoff(int n)
 {
     value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper data array
-    store_a(data);
+    store(data);
     return load_partial(n, data);
 }
 template <> inline simd_float simd_float::cutoffCopy(int n) const
 {
     value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper data array
-    store_a(data);
+    store(data);
     return simd_float{}.load_partial(n, data);
 }
 template <> inline simd_float& simd_float::shiftLeft(int n)
@@ -269,7 +276,7 @@ template <typename F> inline simd_float apply(const simd_float& a, const F& func
 {
     simd_float::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper data array
-    a.store_a(data);
+    a.store(data);
     return simd_float{ _mm_setr_ps(func(data[0]), func(data[1]), func(data[2]),
                               func(data[3])) };
 }
@@ -281,7 +288,7 @@ inline simd_float round(const simd_float& a)
 #elif 0
     simd_float::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
         data[__KFP_SIMD__Len_Float]{}; // Helper data array
-    a.store_a(data);
+    a.store(data);
     return simd_float{ _mm_setr_ps(std::round(data[0]), std::round(data[1]),
                               std::round(data[2]), std::round(data[3])) };
 #else

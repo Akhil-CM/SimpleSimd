@@ -33,7 +33,7 @@ public:
     // Constructors
     // ------------------------------------------------------
     // Default constructor:
-    SimdMaskBase() {};
+    SimdMaskBase();
     SimdMaskBase(bool val);
     SimdMaskBase(const bool* val_ptr);
     SimdMaskBase(const simd_typei& mask);
@@ -105,7 +105,7 @@ public:
     // Comparison (mask returned)
     friend SimdMaskBase operator!(const SimdMaskBase& a)
     {
-        return SimdMaskBase{ Detail::NOTBits<simd_typei>(a.mask_) };
+        return SimdMaskBase{ Detail::NOTLanes<simd_typei>(a.mask_) };
     }
     friend bool operator==(const SimdMaskBase& a, const SimdMaskBase& b)
     {
@@ -117,7 +117,7 @@ public:
     }
     friend SimdMaskBase operator^(const SimdMaskBase& a, const SimdMaskBase& b)
     {
-        return SimdMaskBase{ Detail::XORBits<simd_typei>(a.mask_, b.mask_) };
+        return SimdMaskBase{ Detail::XORLanes<simd_typei>(a.mask_, b.mask_) };
     }
     friend SimdMaskBase operator&&(const SimdMaskBase& a, const SimdMaskBase& b)
     {

@@ -19,6 +19,10 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
+template <> inline simd_mask::SimdMaskBase()
+{
+    mask_ = Detail::constant<simd_typei, value_typei>(0) ;
+}
 template <> inline simd_mask::SimdMaskBase(bool val)
 {
     mask_ = Detail::constant<simd_typei, value_typei>(-int(val)) ;
@@ -31,7 +35,7 @@ template <> inline simd_mask::SimdMaskBase(const bool* val_ptr)
     data[1] = -int(val_ptr[1]);
     data[2] = -int(val_ptr[2]);
     data[3] = -int(val_ptr[3]);
-    mask_ = Detail::load_a<simd_typei, value_typei>(data) ;
+    mask_ = Detail::load<simd_typei, value_typei>(data) ;
 }
 template <> inline simd_mask::SimdMaskBase(const simd_typei& mask)
 {
@@ -87,14 +91,14 @@ template <> inline simd_mask& simd_mask::load(const bool* val_ptr)
     data[1] = -int(val_ptr[1]);
     data[2] = -int(val_ptr[2]);
     data[3] = -int(val_ptr[3]);
-    mask_ = Detail::load_a<simd_typei, value_typei>(data) ;
+    mask_ = Detail::load<simd_typei, value_typei>(data) ;
     return *this;
 }
 template <> inline void simd_mask::store(bool* val_ptr) const
 {
     value_typei __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         data[__KFP_SIMD__Len_Int]{}; // Helper data array
-    Detail::store_a<simd_typei, value_typei>(mask_, data);
+    Detail::store<simd_typei, value_typei>(mask_, data);
     val_ptr[0] = data[0];
     val_ptr[1] = data[1];
     val_ptr[2] = data[2];
@@ -112,7 +116,7 @@ template <> inline int simd_mask::count() const
 #else
     value_typei __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         data[__KFP_SIMD__Len_Int]{}; // Helper data array
-    Detail::store_a(mask_, data);
+    Detail::store(mask_, data);
     return -(data[0] + data[1] + data[2] + data[3]) ;
 #endif
 }
@@ -170,7 +174,7 @@ template <> inline simd_mask& simd_mask::cutoff(int n)
     if(n >= SimdLen) return *this;
     value_typei __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         data[__KFP_SIMD__Len_Int]{}; // Helper data array
-    Detail::store_a<simd_typei, value_typei>(mask_, data);
+    Detail::store<simd_typei, value_typei>(mask_, data);
     value_typei __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         mask[__KFP_SIMD__Len_Int]{0, 0, 0, 0}; // Helper mask array
     switch(n){
@@ -196,7 +200,7 @@ template <> inline simd_mask& simd_mask::cutoff(int n)
         default:
             break;
     }
-    mask_ = Detail::load_a<simd_typei, value_typei>(mask);
+    mask_ = Detail::load<simd_typei, value_typei>(mask);
     return *this;
 }
 template <> inline simd_mask simd_mask::cutoffCopy(int n) const
@@ -204,7 +208,7 @@ template <> inline simd_mask simd_mask::cutoffCopy(int n) const
     if(n >= SimdLen) return *this;
     value_typei __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         data[__KFP_SIMD__Len_Int]{}; // Helper data array
-    Detail::store_a<simd_typei, value_typei>(mask_, data);
+    Detail::store<simd_typei, value_typei>(mask_, data);
     value_typei __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         mask[__KFP_SIMD__Len_Int]{0, 0, 0, 0}; // Helper mask array
     switch(n){
@@ -231,7 +235,7 @@ template <> inline simd_mask simd_mask::cutoffCopy(int n) const
             break;
     }
     simd_mask result;
-    result.mask_ = Detail::load_a<simd_typei, value_typei>(mask);
+    result.mask_ = Detail::load<simd_typei, value_typei>(mask);
     return result;
 }
 

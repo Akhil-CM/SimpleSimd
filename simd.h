@@ -36,4 +36,4 @@ static_assert(
     (KFP::SIMD::simd_int::SimdLen == __KFP_SIMD__Len_Int),
     "[Error]: KFP::SIMD::simd_int given invalid length of simd type.");
 
-#endif
+#endif // !SIMD_SIMD_H
