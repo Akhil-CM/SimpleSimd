@@ -328,6 +328,54 @@ public:
         return SimdMaskBase<tag>{Detail::notEqual<simd_type>(a.data_.simd_,
                                                             b.data_.simd_)};
     }
+    friend SimdMaskBase<tag> operator<(const SimdClassBase& a, ValueType val)
+    { // mask returned
+        return (a < SimdClassBase{ val });
+    }
+    friend SimdMaskBase<tag> operator<=(const SimdClassBase& a, ValueType val)
+    { // mask returned
+        return (a <= SimdClassBase{ val });
+    }
+    friend SimdMaskBase<tag> operator>(const SimdClassBase& a, ValueType val)
+    { // mask returned
+        return (a > SimdClassBase{ val });
+    }
+    friend SimdMaskBase<tag> operator>=(const SimdClassBase& a, ValueType val)
+    { // mask returned
+        return (a >= SimdClassBase{ val });
+    }
+    friend SimdMaskBase<tag> operator==(const SimdClassBase& a, ValueType val)
+    { // mask returned
+        return (a == SimdClassBase{ val });
+    }
+    friend SimdMaskBase<tag> operator!=(const SimdClassBase& a, ValueType val)
+    { // mask returned
+        return (a != SimdClassBase{ val });
+    }
+    friend SimdMaskBase<tag> operator<(ValueType val, const SimdClassBase& a)
+    { // mask returned
+        return (SimdClassBase{ val } < a);
+    }
+    friend SimdMaskBase<tag> operator<=(ValueType val, const SimdClassBase& a)
+    { // mask returned
+        return (SimdClassBase{ val } <= a);
+    }
+    friend SimdMaskBase<tag> operator>(ValueType val, const SimdClassBase& a)
+    { // mask returned
+        return (SimdClassBase{ val } > a);
+    }
+    friend SimdMaskBase<tag> operator>=(ValueType val, const SimdClassBase& a)
+    { // mask returned
+        return (SimdClassBase{ val } >= a);
+    }
+    friend SimdMaskBase<tag> operator==(ValueType val, const SimdClassBase& a)
+    { // mask returned
+        return (SimdClassBase{ val } == a);
+    }
+    friend SimdMaskBase<tag> operator!=(ValueType val, const SimdClassBase& a)
+    { // mask returned
+        return (SimdClassBase{ val } != a);
+    }
 
 protected:
     SimdData<ValueType, tag> data_;
