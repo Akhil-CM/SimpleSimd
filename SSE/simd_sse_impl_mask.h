@@ -239,6 +239,17 @@ template <> inline simd_mask simd_mask::cutoffCopy(int n) const
     return result;
 }
 
+template <>
+inline void Detail::print<simd_mask>(std::ostream &stream, const simd_mask &a) {
+    bool mask[__KFP_SIMD__Len_Int]{}; // Helper mask array
+    a.store(mask);
+    stream << "[" << std::boolalpha;
+    for(int idx{0} ; idx != (simd_mask::SimdLen-1) ; ++idx){
+        stream << mask[idx] << ", ";
+    }
+    stream << mask[(simd_mask::SimdLen-1)] << std::noboolalpha << "]";
+}
+
 } // namespace SIMD
 } // namespace KFP
 

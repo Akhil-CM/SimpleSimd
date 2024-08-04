@@ -161,6 +161,206 @@ static __KFP_SIMD__INLINE simd_float ATan2( const simd_float &y, const simd_floa
     return b;
 }
 
+__m128 asin_sse_better_approx1(__m128 x) {
+    // Constants from the Taylor series expansion of asin(x)
+    const __m128 one_third = _mm_set1_ps(1.0f / 3.0f);
+    const __m128 one_fifth = _mm_set1_ps(1.0f / 5.0f);
+    const __m128 one_seventh = _mm_set1_ps(1.0f / 7.0f);
+    const __m128 one_ninth = _mm_set1_ps(1.0f / 9.0f);
+
+    // Coefficients for higher order terms, adjusted for simplicity and demonstration
+    const __m128 c3 = _mm_set1_ps(0.166666666f); // (1/2)*1/3 for x^3 term
+    const __m128 c5 = _mm_set1_ps(0.075f);       // (1*3)/(2*4)*1/5 for x^5 term
+    const __m128 c7 = _mm_set1_ps(0.0446428571f); // (1*3*5)/(2*4*6)*1/7 for x^7 term
+    const __m128 c9 = _mm_set1_ps(0.0303819444f); // (1*3*5*7)/(2*4*6*8)*1/9 for x^9 term
+
+    __m128 x2 = _mm_mul_ps(x, x); // x^2
+    __m128 x3 = _mm_mul_ps(x2, x); // x^3
+    __m128 x5 = _mm_mul_ps(x3, x2); // x^5
+    __m128 x7 = _mm_mul_ps(x5, x2); // x^7
+    __m128 x9 = _mm_mul_ps(x7, x2); // x^9
+
+    // Compute the terms of the polynomial approximation
+    __m128 term3 = _mm_mul_ps(c3, x3);
+    __m128 term5 = _mm_mul_ps(c5, x5);
+    __m128 term7 = _mm_mul_ps(c7, x7);
+    __m128 term9 = _mm_mul_ps(c9, x9);
+
+    // Combine the terms
+    __m128 result = x; // Start with the linear term
+    result = _mm_add_ps(result, term3);
+    result = _mm_add_ps(result, term5);
+    result = _mm_add_ps(result, term7);
+    result = _mm_add_ps(result, term9);
+
+    return result;
+}
+
+__m128 asin_sse_better_approx2(__m128 x) {
+    // Example coefficients for a conceptual polynomial approximation.
+    // In practice, you should use coefficients derived from an accurate source.
+    const __m128 c1 = _mm_set1_ps(1.0f);
+    const __m128 c3 = _mm_set1_ps(0.16666666666f); // 1/6 for x^3 term
+    const __m128 c5 = _mm_set1_ps(0.075f);         // Approximation for x^5 term
+    const __m128 c7 = _mm_set1_ps(0.04464285714f); // Approximation for x^7 term
+
+    __m128 x2 = _mm_mul_ps(x, x);  // x^2
+    __m128 x3 = _mm_mul_ps(x2, x); // x^3
+    __m128 x5 = _mm_mul_ps(x2, x3); // x^5
+    __m128 x7 = _mm_mul_ps(x2, x5); // x^7
+
+    // Compute the polynomial approximation: x + c3*x^3 + c5*x^5 + c7*x^7
+    __m128 result = _mm_add_ps(x, _mm_mul_ps(c3, x3)); // x + c3*x^3
+    result = _mm_add_ps(result, _mm_mul_ps(c5, x5));   // + c5*x^5
+    result = _mm_add_ps(result, _mm_mul_ps(c7, x7));   // + c7*x^7
+
+    return result;
+}
+
+__m128 asin_sse_better_approx3(__m128 x) {
+    // Assuming x is in the range [-1, 1]
+    const __m128 one = _mm_set1_ps(1.0f);
+    const __m128 half = _mm_set1_ps(0.5f);
+
+    // Coefficients for a polynomial approximation (these are fabricated for demonstration
+    // and do not represent an optimized minimax polynomial for asin)
+    const __m128 a = _mm_set1_ps(1.57079632679f); // π/2 for large values close to 1 or -1
+    const __m128 b = _mm_set1_ps(0.0f); // Placeholder coefficient
+    const __m128 c = _mm_set1_ps(-0.2145988016f); // Example coefficients for small values
+    const __m128 d = _mm_set1_ps(0.0886901108f);
+    const __m128 e = _mm_set1_ps(-0.0484999454f);
+
+    __m128 abs_x = _mm_andnot_ps(_mm_set1_ps(-0.f), x); // abs(x)
+    __m128 x2 = _mm_mul_ps(x, x);
+    __m128 x3 = _mm_mul_ps(x2, x);
+
+    // Use a different approximation depending on the range of x
+    __m128 result_small = _mm_add_ps(_mm_mul_ps(c, x), _mm_set1_ps(1.57079632679f)); // For abs(x) near 1, simple linear approx
+    result_small = _mm_add_ps(result_small, _mm_mul_ps(d, x2)); // Add quadratic term
+    result_small = _mm_add_ps(result_small, _mm_mul_ps(e, x3)); // Add cubic term
+
+    __m128 result_large = _mm_sub_ps(a, _mm_sqrt_ps(_mm_sub_ps(one, x))); // For values close to 1 or -1
+
+    // Select which result to use based on the magnitude of x
+    __m128 mask_large = _mm_cmpgt_ps(abs_x, half); // abs(x) > 0.5
+    __m128 result = _mm_blendv_ps(result_small, result_large, mask_large);
+
+    return result;
+}
+
+// static __KFP_SIMD__INLINE simd_float ASin( const simd_float &x )
+// {
+//     return simd_float{ asin_sse_better_approx1(x.simd()) };
+// }
+
+static __KFP_SIMD__INLINE simd_float ASin(simd_float x) {
+    // Coefficients for higher order terms based on the polynomial approximation
+    const simd_float c3 = 0.166666666f; // For x^3 term
+    const simd_float c5 = 0.075f;       // For x^5 term
+    const simd_float c7 = 0.0446428571f; // For x^7 term
+    const simd_float c9 = 0.0303819444f; // For x^9 term
+
+    simd_mask neg_mask = (x < 0.0f);
+    x = abs(x);
+
+    simd_float x2 = (x * x);  // x^2
+    simd_float x3 = (x2 * x); // x^3
+    simd_float x5 = (x3 * x2); // x^5
+    simd_float x7 = (x5 * x2); // x^7
+    simd_float x9 = (x7 * x2); // x^9
+
+    // Compute the terms of the polynomial approximation and sum them
+    simd_float term3 = (c3 * x3);
+    simd_float term5 = (c5 * x5);
+    simd_float term7 = (c7 * x7);
+    simd_float term9 = (c9 * x9);
+
+    // Combine the terms
+    simd_float result = x; // Start with the linear term
+    result = (result + term3);
+    result = (result + term5);
+    result = (result + term7);
+    result = (result + term9);
+
+    result = KFP::SIMD::select(neg_mask, -result, result);
+
+    return result;
+}
+
+// Extract exponent and mantissa (IEEE 754) and use polynomial approximation for mantissa.
+__m128 log_sse1(__m128 x) {
+    const __m128 one = _mm_set1_ps(1.0f);
+
+    // Constants for polynomial approximation of ln(x) in the range [1, 2)
+    const __m128 a = _mm_set1_ps(0.69314718056f); // ln(2)
+    const __m128 b = _mm_set1_ps(2.0f);
+    const __m128 c = _mm_set1_ps(-0.33333333333f); // Coefficient for x^2 term (example)
+    // More coefficients can be added for higher accuracy
+
+    // Extract exponent and treat mantissa
+    __m128i i = _mm_castps_si128(x);
+    __m128i exponent = _mm_sub_epi32(_mm_srli_epi32(i, 23), _mm_set1_epi32(127));
+    __m128 mantissa = _mm_or_ps(_mm_castsi128_ps(_mm_and_si128(i, _mm_set1_epi32(0x7FFFFF))), one);
+
+    // Compute logarithm for mantissa using polynomial approximation: ln(mantissa) ≈ mantissa + c*mantissa^2 + ...
+    __m128 log_mantissa = _mm_add_ps(mantissa, _mm_mul_ps(c, _mm_mul_ps(mantissa, mantissa))); // Simplified
+    // Adjust log_mantissa based on actual polynomial used
+
+    // Convert exponent to float, multiply by ln(2), and add to the log of the mantissa
+    __m128 log_exponent = _mm_mul_ps(_mm_cvtepi32_ps(exponent), a);
+    __m128 result = _mm_add_ps(log_exponent, log_mantissa);
+
+    return result;
+}
+
+__m128 log_sse2(__m128 x) {
+    // Constants
+    const __m128 log2_e = _mm_set1_ps(std::log2(std::exp(1.0f))); // log2(e)
+    const __m128 one = _mm_set1_ps(1.0f);
+
+    // Polynomial coefficients for log(mantissa) approximation
+    // Example coefficients; for real use, optimize these based on a minimax polynomial or other accurate source
+    const __m128 c1 = _mm_set1_ps(0.9999964239f);
+    const __m128 c2 = _mm_set1_ps(-0.4998741238f);
+    const __m128 c3 = _mm_set1_ps(0.3317990258f);
+    const __m128 c4 = _mm_set1_ps(-0.2407338084f);
+    const __m128 c5 = _mm_set1_ps(0.1676540711f);
+
+    // Extract exponent and normalize mantissa
+    __m128i ix = _mm_castps_si128(x);
+    __m128i exp = _mm_sub_epi32(_mm_srli_epi32(ix, 23), _mm_set1_epi32(127));
+    __m128 mantissa = _mm_or_ps(_mm_castsi128_ps(_mm_and_si128(ix, _mm_set1_epi32(0x7FFFFF))), one);
+
+    // Normalize mantissa to [0.5, 1.0) range
+    mantissa = _mm_mul_ps(mantissa, _mm_set1_ps(0.5f));
+    exp = _mm_add_epi32(exp, _mm_set1_epi32(1));
+
+    // Polynomial approximation for log(mantissa) in the range [0.5, 1.0)
+    __m128 log_mantissa = _mm_mul_ps(c1, mantissa);
+    __m128 m2 = _mm_mul_ps(mantissa, mantissa);
+    log_mantissa = _mm_add_ps(log_mantissa, _mm_mul_ps(c2, m2));
+    __m128 m3 = _mm_mul_ps(m2, mantissa);
+    log_mantissa = _mm_add_ps(log_mantissa, _mm_mul_ps(c3, m3));
+    __m128 m4 = _mm_mul_ps(m3, mantissa);
+    log_mantissa = _mm_add_ps(log_mantissa, _mm_mul_ps(c4, m4));
+    __m128 m5 = _mm_mul_ps(m4, mantissa);
+    log_mantissa = _mm_add_ps(log_mantissa, _mm_mul_ps(c5, m5));
+
+    // Adjust log_mantissa based on exponent, convert exponent to float for multiplication
+    __m128 e = _mm_cvtepi32_ps(exp);
+    __m128 log_exp = _mm_mul_ps(e, log2_e);
+
+    // Combine parts: log(x) = exponent * log(2) + log(mantissa)
+    __m128 result = _mm_add_ps(log_exp, log_mantissa);
+
+    return result;
+}
+
+static __KFP_SIMD__INLINE simd_float Log( const simd_float &x )
+{
+    return simd_float{ log_sse2(x.simd()) };
+}
+
 Vc::float_v SinVc( const Vc::float_v& phi )
 {
     const Vc::float_v pi(3.1415926535897932f);
@@ -438,4 +638,37 @@ int main()
     std::cout << "Print atan2 of {1.0f, 2.0f, 3.0f, 4.0f} and {5.0f, 6.0f, 7.0f, 8.0f} simd_float\n" ;
     std::cout << std::string(20, '-') << '\n';
     std::cout << "ATan2 : " << ATan2(sf1234, sf5678) << '\n';
+
+    simd_float::value_type fp1234[simd_float::SimdLen]{0.1f, 0.2f, 0.3f, 0.4f};
+    simd_float::value_type fp5678[simd_float::SimdLen]{0.5f, 0.6f, 0.7f, 0.8f};
+    simd_float sfp1234{fp1234}, sfp5678{fp5678};
+    float_v vfp1234{fp1234}, vfp5678{fp5678};
+    std::cout << "\n\n";
+    std::cout << std::string(20, '-') << '\n';
+    std::cout << "Print asin of {0.1f, 0.2f, 0.3f, 0.4f} and {0.5f, 0.6f, 0.7f, 0.8f} simd_float apply with lambda\n" ;
+    std::cout << std::string(20, '-') << '\n';
+    std::cout << "Sin : " << KFP::SIMD::apply(sfp1234, [](float x){return std::asin(x);}) << '\n';
+    std::cout << "Sin : " << KFP::SIMD::apply(sfp5678, [](float x){return std::asin(x);}) << '\n';
+    std::cout << std::string(20, '-') << '\n';
+    std::cout << "Print asin of {0.1f, 0.2f, 0.3f, 0.4f} and {0.5f, 0.6f, 0.7f, 0.8f} simd_float\n" ;
+    std::cout << std::string(20, '-') << '\n';
+    std::cout << ASin(sfp1234) << '\n';
+    std::cout << ASin(sfp5678) << '\n';
+    std::cout << std::string(20, '-') << '\n';
+    std::cout << "Print asin of {0.1f, 0.2f, 0.3f, 0.4f} and {0.5f, 0.6f, 0.7f, 0.8f} Vc::float_v\n" ;
+    std::cout << std::string(20, '-') << '\n';
+    std::cout << Vc::asin(vfp1234) << '\n';
+    std::cout << Vc::asin(vfp5678) << '\n';
+
+    std::cout << "\n\n";
+    std::cout << std::string(20, '-') << '\n';
+    std::cout << "Print log of {1.0f, 2.0f, 3.0f, 4.0f} and {5.0f, 6.0f, 7.0f, 8.0f} simd_float\n" ;
+    std::cout << std::string(20, '-') << '\n';
+    std::cout << "First : " << Log(sf1234) << '\n';
+    std::cout << "Second : " << Log(sf5678) << '\n';
+    std::cout << std::string(20, '-') << '\n';
+    std::cout << "Print log of {1.0f, 2.0f, 3.0f, 4.0f} and {5.0f, 6.0f, 7.0f, 8.0f} Vc::float_v\n" ;
+    std::cout << std::string(20, '-') << '\n';
+    std::cout << "First : " << Vc::log(vf1234) << '\n';
+    std::cout << "Second : " << Vc::log(vf5678) << '\n';
 }

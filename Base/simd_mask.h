@@ -92,13 +92,7 @@ public:
     // ------------------------------------------------------
     friend std::ostream& operator<<(std::ostream& stream, const SimdMaskBase& a)
     {
-        bool mask[__KFP_SIMD__Len_Int]{}; // Helper mask array
-        a.store(mask);
-        stream << "[" << std::boolalpha;
-        for(int idx{0} ; idx < (SimdMaskBase::SimdLen-1) ; ++idx){
-            stream << mask[idx] << ", ";
-        }
-        stream << mask[(SimdMaskBase::SimdLen-1)] << std::noboolalpha << "]";
+        Detail::print<SimdMaskBase>(stream, a);
         return stream;
     }
 

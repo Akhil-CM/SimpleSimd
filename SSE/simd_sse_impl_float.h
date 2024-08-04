@@ -186,7 +186,7 @@ template <> inline simd_float::value_type simd_float::operator[](int index) cons
            ("[Error] (operator[]): invalid index (" + std::to_string(index) +
             ") given. Exceeds maximum")
                .data());
-    return Detail::extract<value_type, simd_type>(index, data_.simd_);
+    return Detail::extract<value_type, simd_type>(index & 0x03, data_.simd_);
 }
 
 // ------------------------------------------------------
@@ -266,7 +266,7 @@ template <> inline simd_float simd_float::rotateCopy(int n) const
     return result;
 }
 
-inline simd_float select(const simd_mask& mask, const simd_float& a, const simd_float& b)
+__KFP_SIMD__INLINE simd_float select(const simd_mask& mask, const simd_float& a, const simd_float& b)
 {
     return simd_float(
         Detail::select<simd_float::simd_type>(mask.maskf(), a.simd(), b.simd()));
@@ -281,7 +281,7 @@ template <typename F> inline simd_float apply(const simd_float& a, const F& func
                               func(data[3])) };
 }
 
-inline simd_float round(const simd_float& a)
+__KFP_SIMD__INLINE simd_float round(const simd_float& a)
 {
 #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
     return simd_float{ _mm_round_ps(a.simd(), _MM_FROUND_NINT) };
@@ -297,18 +297,18 @@ inline simd_float round(const simd_float& a)
 #endif
 }
 
-inline simd_mask isInf(const simd_float& a)
+__KFP_SIMD__INLINE simd_mask isInf(const simd_float& a)
 {
     return simd_mask{ Detail::equal<simd_float::simd_type>(a.simd(), Detail::type_cast<simd_float::simd_type, simd_int::simd_type>(Detail::getMask<Detail::MASK::INF>())) };
 }
 
-inline simd_mask isFinite(const simd_float& a)
+__KFP_SIMD__INLINE simd_mask isFinite(const simd_float& a)
 {
     const simd_float::simd_type mask_inf = Detail::type_cast<simd_float::simd_type, simd_int::simd_type>(Detail::getMask<Detail::MASK::INF>()) ;
     return simd_mask{ Detail::notEqual<simd_float::simd_type>(Detail::ANDBits<simd_float::simd_type>(a.simd(), mask_inf), mask_inf) };
 }
 
-inline simd_mask isNaN(const simd_float& a)
+__KFP_SIMD__INLINE simd_mask isNaN(const simd_float& a)
 {
     return _mm_cmpunord_ps(a.simd(), a.simd());
 }

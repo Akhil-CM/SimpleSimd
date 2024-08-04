@@ -12,6 +12,7 @@ Emails: mithran@fias.uni-frankfurt.de
 #include <cstdint>
 #include <cassert>
 #include <limits>
+#include <mm_malloc.h>
 #include <vector>
 
 namespace KFP
@@ -24,7 +25,35 @@ constexpr bool isAlignment(std::size_t N)
     return (N > 0) && ((N & (N - 1)) == 0);
 }
 
-inline void*
+// inline void*
+// alignedAllocate(std::size_t size, std::size_t alignment)
+// {
+//     assert((isAlignment(alignment) && "[Error] (alignedAllocate): Invalid value given for aligment"));
+//     if(!size) return nullptr;
+//     constexpr std::size_t voidptr_Alignment = alignof(void*);
+//     if (alignment < voidptr_Alignment) {
+//         alignment = voidptr_Alignment;
+//     }
+//     constexpr std::size_t voidptr_Size = sizeof(void*);
+//     std::size_t buffer_size = size + alignment + voidptr_Size;
+//     void* aligned{nullptr};
+//     void* original = ::operator new(buffer_size);
+//     if (original) {
+//         aligned = static_cast<void*>(static_cast<char*>(original) + voidptr_Size);
+//         // aligned = static_cast<void*>(static_cast<uint8_t*>(original) + voidptr_Size);
+//         buffer_size -= voidptr_Size;
+//         const std::size_t tmp = reinterpret_cast<uintptr_t>(aligned) + alignment - 1;
+//         aligned = reinterpret_cast<void*>(tmp & ~(alignment-1));
+//         *(static_cast<void**>(aligned) - 1) = original;
+//         return aligned;
+//         // if (std::align(alignment, size, aligned, buffer_size)){
+//         //     *(static_cast<void**>(aligned) - 1) = original;
+//         //     return aligned;
+//         // }
+//     }
+//     return nullptr;
+// }
+inline __attribute__((always_inline)) void*
 alignedAllocate(std::size_t size, std::size_t alignment)
 {
     assert((isAlignment(alignment) && "[Error] (alignedAllocate): Invalid value given for aligment"));
@@ -33,31 +62,25 @@ alignedAllocate(std::size_t size, std::size_t alignment)
     if (alignment < voidptr_Alignment) {
         alignment = voidptr_Alignment;
     }
-    constexpr std::size_t voidptr_Size = sizeof(void*);
-    std::size_t buffer_size = size + alignment + voidptr_Size;
-    void* aligned{nullptr};
-    void* original = ::operator new(buffer_size);
-    if (original) {
-        aligned = static_cast<void*>(static_cast<char*>(original) + voidptr_Size);
-        // aligned = static_cast<void*>(static_cast<uint8_t*>(original) + voidptr_Size);
-        buffer_size -= voidptr_Size;
-        const auto tmp = reinterpret_cast<uintptr_t>(aligned) + alignment - 1;
-        aligned = reinterpret_cast<void*>(tmp & ~(alignment-1));
-        *(static_cast<void**>(aligned) - 1) = original;
+    void* aligned = _mm_malloc(size, alignment);
+    if (aligned) {
         return aligned;
-        // if (std::align(alignment, size, aligned, buffer_size)){
-        //     *(static_cast<void**>(aligned) - 1) = original;
-        //     return aligned;
-        // }
     }
     return nullptr;
 }
 
-inline void
+// inline void
+// alignedDeallocate(void* ptr)
+// {
+//     if (ptr) {
+//         ::operator delete(*(static_cast<void**>(ptr) - 1));
+//     }
+// }
+inline __attribute__((always_inline)) void
 alignedDeallocate(void* ptr)
 {
     if (ptr) {
-        ::operator delete(*(static_cast<void**>(ptr) - 1));
+        _mm_free(ptr);
     }
 }
 
@@ -148,7 +171,7 @@ public:
 
     void deallocate(pointer ptr, size_type) noexcept
     {
-        alignedDeallocate(ptr);
+        alignedDeallocate(static_cast<void*>(ptr));
     }
 
     size_type max_size() const noexcept

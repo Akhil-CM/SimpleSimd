@@ -265,7 +265,7 @@ template <> inline simd_int simd_int::rotateCopy(int n) const
     return result;
 }
 
-inline simd_int select(const simd_mask& mask, const simd_int& a, const simd_int& b)
+__KFP_SIMD__INLINE simd_int select(const simd_mask& mask, const simd_int& a, const simd_int& b)
 {
     return simd_int(
         Detail::select<simd_int::simd_type>(mask.maski(), a.simd(), b.simd()));
