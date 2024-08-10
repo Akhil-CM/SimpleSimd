@@ -9,10 +9,11 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_ALLOCATE_H
 #define SIMD_ALLOCATE_H
 
+#include <iostream>
 #include <cstdint>
-#include <cassert>
+#include <cstddef>
 #include <limits>
-#include <mm_malloc.h>
+#include <new>
 #include <vector>
 
 namespace KFP
@@ -25,62 +26,47 @@ constexpr bool isAlignment(std::size_t N)
     return (N > 0) && ((N & (N - 1)) == 0);
 }
 
-// inline void*
-// alignedAllocate(std::size_t size, std::size_t alignment)
-// {
-//     assert((isAlignment(alignment) && "[Error] (alignedAllocate): Invalid value given for aligment"));
-//     if(!size) return nullptr;
-//     constexpr std::size_t voidptr_Alignment = alignof(void*);
-//     if (alignment < voidptr_Alignment) {
-//         alignment = voidptr_Alignment;
-//     }
-//     constexpr std::size_t voidptr_Size = sizeof(void*);
-//     std::size_t buffer_size = size + alignment + voidptr_Size;
-//     void* aligned{nullptr};
-//     void* original = ::operator new(buffer_size);
-//     if (original) {
-//         aligned = static_cast<void*>(static_cast<char*>(original) + voidptr_Size);
-//         // aligned = static_cast<void*>(static_cast<uint8_t*>(original) + voidptr_Size);
-//         buffer_size -= voidptr_Size;
-//         const std::size_t tmp = reinterpret_cast<uintptr_t>(aligned) + alignment - 1;
-//         aligned = reinterpret_cast<void*>(tmp & ~(alignment-1));
-//         *(static_cast<void**>(aligned) - 1) = original;
-//         return aligned;
-//         // if (std::align(alignment, size, aligned, buffer_size)){
-//         //     *(static_cast<void**>(aligned) - 1) = original;
-//         //     return aligned;
-//         // }
-//     }
-//     return nullptr;
-// }
-inline __attribute__((always_inline)) void*
-alignedAllocate(std::size_t size, std::size_t alignment)
+constexpr bool isAligned(std::size_t N, std::size_t alignment)
 {
-    assert((isAlignment(alignment) && "[Error] (alignedAllocate): Invalid value given for aligment"));
-    if(!size) return nullptr;
-    constexpr std::size_t voidptr_Alignment = alignof(void*);
-    if (alignment < voidptr_Alignment) {
-        alignment = voidptr_Alignment;
-    }
-    void* aligned = _mm_malloc(size, alignment);
-    if (aligned) {
-        return aligned;
-    }
-    return nullptr;
+    return (N % alignment) == 0;
 }
 
-// inline void
-// alignedDeallocate(void* ptr)
-// {
-//     if (ptr) {
-//         ::operator delete(*(static_cast<void**>(ptr) - 1));
-//     }
-// }
-inline __attribute__((always_inline)) void
-alignedDeallocate(void* ptr)
+template<std::size_t alignment=alignof(std::max_align_t)>
+inline void* alignedAllocate(std::size_t size)
+{
+    static_assert(alignment && isAlignment(alignment), "[Error] (KFP::SIMD::alignedAllocate): Invalid value given for aligment");
+    if(!size) return nullptr;
+
+    constexpr std::size_t voidptr_Alignment = alignof(void*);
+    constexpr std::size_t align_val = (alignment < voidptr_Alignment) ? voidptr_Alignment : alignment;
+
+    constexpr std::size_t voidptr_Size = sizeof(void*);
+    std::size_t buffer_size = size + align_val + voidptr_Size;
+    void* original = ::operator new(buffer_size);
+    if (not original) return nullptr;
+
+    void* aligned = static_cast<void*>(static_cast<char*>(original) + voidptr_Size);
+    // void* aligned = static_cast<void*>(static_cast<uint8_t*>(original) + voidptr_Size);
+    const std::uintptr_t tmp = reinterpret_cast<std::uintptr_t>(aligned) + align_val - 1;
+    const std::uintptr_t reminder = (tmp & (align_val - 1));
+    const std::uintptr_t aligned_loc = (tmp - reminder);
+    aligned = reinterpret_cast<void*>(aligned_loc);
+    // aligned = reinterpret_cast<void*>(tmp & ~(align_val-1));
+
+    if (not isAligned(aligned_loc, align_val)) {
+        std::cerr << ("[Error] (KFP::SIMD::alignedAllocate): The allocated buffer is not aligned.\n");
+        return nullptr;
+    }
+
+    *(static_cast<void**>(aligned) - 1) = original;
+
+    return aligned;
+}
+
+inline void alignedDeallocate(void* ptr)
 {
     if (ptr) {
-        _mm_free(ptr);
+        ::operator delete(*(static_cast<void**>(ptr) - 1));
     }
 }
 
@@ -128,7 +114,6 @@ class AlignedAllocator {
         Alignment >= alignof(T),
         "[Error] (AlignedAllocator): Types like int have minimum alignment requirements or access will result in crashes."
     );
-    // assert((isAlignment(Alignment) && "[Error] (AlignedAllocator): Invalid value given for aligment"));
 public:
     typedef T value_type;
     typedef T* pointer;
@@ -162,7 +147,7 @@ public:
         if (size == 0) {
             return nullptr;
         }
-        void* p = alignedAllocate(sizeof(T) * size, Alignment);
+        void* p = alignedAllocate<Alignment>(sizeof(T) * size);
         if (!p) {
             throw std::bad_alloc();
         }
@@ -217,4 +202,4 @@ using Vector = std::vector<T, AlignedAllocator<T, Alignment>>;
 } // namespace SIMD
 } // namespace KFP
 
-#endif
+#endif // !SIMD_ALLOCATE_H
