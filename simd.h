@@ -6,8 +6,8 @@ Emails: mithran@fias.uni-frankfurt.de
 ==================================================
 */
 
-#ifndef SIMD_SIMD_H
-#define SIMD_SIMD_H
+#ifndef KFP_SIMD_H
+#define KFP_SIMD_H
 
 // Determine instruction set, and define platform-dependent functions
 #include "Base/simd_macros.h"
@@ -38,4 +38,4 @@ static_assert(
     (KFP::SIMD::simd_int::SimdLen == __KFP_SIMD__Len_Int),
     "[Error]: KFP::SIMD::simd_int given invalid length of simd type.");
 
-#endif // !SIMD_SIMD_H
+#endif // !KFP_SIMD_H
