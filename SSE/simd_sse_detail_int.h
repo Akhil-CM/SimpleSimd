@@ -1,7 +1,7 @@
 // -*- C++ Header -*-
 /*
 ==================================================
-Authors: A.Mithran;
+Authors: A.Mithran, P. Kisel, I. Kisel
 Emails: mithran@fias.uni-frankfurt.de
 ==================================================
 */
@@ -23,9 +23,19 @@ namespace SIMD {
 namespace Detail {
 
 enum class MASK { ABS, MINUS, TRUE, INF };
-template <MASK mask> __KFP_SIMD__INLINE SimdDataI getMask() {
+
+template <MASK mask>
+constexpr __KFP_SIMD__INLINE SimdDataI getMask() {
   switch (mask) {
   case MASK::ABS:
+//     {
+//         __m128i minus1;
+// #if _MSC_VER && !__INTEL_COMPILER
+//         minus1 = _mm_setzero_si128();
+// #endif
+//         minus1 = _mm_cmpeq_epi32(minus1, minus1);
+//         return (_mm_srli_epi32(minus1, 1));
+//     }
     return _mm_set1_epi32(0x7FFFFFFF);
   case MASK::MINUS:
     return _mm_set1_epi32(0x80000000);
@@ -401,7 +411,7 @@ template <> __KFP_SIMD__INLINE SimdDataI pow<SimdDataI>(const SimdDataI &a, int 
   return _mm_setr_epi32(std::pow(data[0], exp), std::pow(data[1], exp),
                         std::pow(data[2], exp), std::pow(data[3], exp));
 }
-template <> __KFP_SIMD__INLINE int sign<int, SimdDataI>(const SimdDataI &a) {
+template <> __KFP_SIMD__INLINE ValueDataI sign<int, SimdDataI>(const SimdDataI &a) {
   return _mm_movemask_ps(_mm_castsi128_ps(a));
 }
 template <> __KFP_SIMD__INLINE SimdDataI sign<SimdDataI>(const SimdDataI &a) {

@@ -122,11 +122,19 @@ template <> inline int simd_mask::count() const
 }
 template <> inline bool simd_mask::AND() const
 {
-    return static_cast<bool>(count() == 4) ;
+#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
+    return _mm_testc_si128(mask_, Detail::getMask<Detail::MASK::TRUE>());
+#else
+    return Detail::sign<value_typei, simd_typei>(mask_) == 0x0000000F;
+#endif
 }
 template <> inline bool simd_mask::OR() const
 {
-    return static_cast<bool>(count() != 0) ;
+#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
+    return not _mm_testz_si128(mask_, mask_);
+#else
+    return Detail::sign<value_typei, simd_typei>(mask_) != 0;
+#endif
 }
 
 // ------------------------------------------------------
