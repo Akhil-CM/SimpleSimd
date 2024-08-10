@@ -29,8 +29,9 @@ template <> inline simd_mask::SimdMaskBase(bool val)
 }
 template <> inline simd_mask::SimdMaskBase(const bool* val_ptr)
 {
-    value_typei __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
-        data[__KFP_SIMD__Len_Int]{}; // Helper data array
+
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_typei
+    data[__KFP_SIMD__Len_Int]{}; // Helper data array
     data[0] = -int(val_ptr[0]);
     data[1] = -int(val_ptr[1]);
     data[2] = -int(val_ptr[2]);
@@ -85,8 +86,8 @@ template <> inline simd_mask& simd_mask::operator=(const simd_mask& class_mask)
 // ------------------------------------------------------
 template <> inline simd_mask& simd_mask::load(const bool* val_ptr)
 {
-    value_typei __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
-        data[__KFP_SIMD__Len_Int]{}; // Helper data array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_typei
+    data[__KFP_SIMD__Len_Int]{}; // Helper data array
     data[0] = -int(val_ptr[0]);
     data[1] = -int(val_ptr[1]);
     data[2] = -int(val_ptr[2]);
@@ -96,8 +97,8 @@ template <> inline simd_mask& simd_mask::load(const bool* val_ptr)
 }
 template <> inline void simd_mask::store(bool* val_ptr) const
 {
-    value_typei __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
-        data[__KFP_SIMD__Len_Int]{}; // Helper data array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_typei
+    data[__KFP_SIMD__Len_Int]{}; // Helper data array
     Detail::store<simd_typei, value_typei>(mask_, data);
     val_ptr[0] = data[0];
     val_ptr[1] = data[1];
@@ -114,8 +115,8 @@ template <> inline int simd_mask::count() const
     const int tmp{ Detail::sign<value_typei, simd_typei>(mask_) };
     return (tmp & 0x01) + ((tmp & 0x02) >> 1) + ((tmp & 0x04) >> 2) + ((tmp & 0x08) >> 3);
 #else
-    value_typei __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
-        data[__KFP_SIMD__Len_Int]{}; // Helper data array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_typei
+    data[__KFP_SIMD__Len_Int]{}; // Helper data array
     Detail::store(mask_, data);
     return -(data[0] + data[1] + data[2] + data[3]) ;
 #endif
@@ -180,8 +181,8 @@ template <> inline simd_mask simd_mask::insertCopy(int index, bool val) const
 template <> inline simd_mask& simd_mask::cutoff(int n)
 {
     if(n >= SimdLen) return *this;
-    value_typei __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
-        data[__KFP_SIMD__Len_Int]{}; // Helper data array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_typei
+    data[__KFP_SIMD__Len_Int]{}; // Helper data array
     Detail::store<simd_typei, value_typei>(mask_, data);
     value_typei __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         mask[__KFP_SIMD__Len_Int]{0, 0, 0, 0}; // Helper mask array
@@ -214,8 +215,8 @@ template <> inline simd_mask& simd_mask::cutoff(int n)
 template <> inline simd_mask simd_mask::cutoffCopy(int n) const
 {
     if(n >= SimdLen) return *this;
-    value_typei __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
-        data[__KFP_SIMD__Len_Int]{}; // Helper data array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_typei
+    data[__KFP_SIMD__Len_Int]{}; // Helper data array
     Detail::store<simd_typei, value_typei>(mask_, data);
     value_typei __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
         mask[__KFP_SIMD__Len_Int]{0, 0, 0, 0}; // Helper mask array

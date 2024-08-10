@@ -140,8 +140,8 @@ inline void simd_float::store_partial(int n, value_type* val_ptr) const
     if (n > SimdLen) {
         n = SimdLen;
     }
-    value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-        data[__KFP_SIMD__Len_Float]{}; // Helper data array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) value_type
+    data[__KFP_SIMD__Len_Float]{}; // Helper data array
     store(data);
     std::copy_n(data, n, val_ptr);
 }
@@ -152,8 +152,8 @@ inline void simd_float::store_partial(int n, value_type* val_ptr) const
 template <>
 inline simd_float& simd_float::gather(const value_type* val_ptr, const simd_int& index)
 {
-    simd_int::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
-        indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) simd_int::value_type
+    indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
     Detail::store<simd_int::simd_type, simd_int::value_type>(index.simd(), indices);
     data_.simd_ = _mm_setr_ps(val_ptr[indices[0]], val_ptr[indices[1]],
                               val_ptr[indices[2]], val_ptr[indices[3]]);
@@ -162,11 +162,11 @@ inline simd_float& simd_float::gather(const value_type* val_ptr, const simd_int&
 template <>
 inline void simd_float::scatter(value_type* val_ptr, const simd_int& index) const
 {
-    value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-        data[__KFP_SIMD__Len_Float]{}; // Helper data array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) value_type
+    data[__KFP_SIMD__Len_Float]{}; // Helper data array
     store(data);
-    simd_int::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
-        indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) simd_int::value_type
+    indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
     Detail::store<simd_int::simd_type, simd_int::value_type>(index.simd(), indices);
     val_ptr[indices[0]] = data[0];
     val_ptr[indices[1]] = data[1];
@@ -220,15 +220,15 @@ template <> inline simd_float simd_float::insertCopy(int index, value_type val) 
 }
 template <> inline simd_float& simd_float::cutoff(int n)
 {
-    value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-        data[__KFP_SIMD__Len_Float]{}; // Helper data array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) value_type
+    data[__KFP_SIMD__Len_Float]{}; // Helper data array
     store(data);
     return load_partial(n, data);
 }
 template <> inline simd_float simd_float::cutoffCopy(int n) const
 {
-    value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-        data[__KFP_SIMD__Len_Float]{}; // Helper data array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) value_type
+    data[__KFP_SIMD__Len_Float]{}; // Helper data array
     store(data);
     return simd_float{}.load_partial(n, data);
 }
@@ -274,8 +274,8 @@ __KFP_SIMD__INLINE simd_float select(const simd_mask& mask, const simd_float& a,
 
 template <typename F> inline simd_float apply(const simd_float& a, const F& func)
 {
-    simd_float::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-        data[__KFP_SIMD__Len_Float]{}; // Helper data array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) simd_float::value_type
+    data[__KFP_SIMD__Len_Float]{}; // Helper data array
     a.store(data);
     return simd_float{ _mm_setr_ps(func(data[0]), func(data[1]), func(data[2]),
                               func(data[3])) };
@@ -286,8 +286,8 @@ __KFP_SIMD__INLINE simd_float round(const simd_float& a)
 #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
     return simd_float{ _mm_round_ps(a.simd(), _MM_FROUND_NINT) };
 #elif 0
-    simd_float::value_type __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-        data[__KFP_SIMD__Len_Float]{}; // Helper data array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) simd_float::value_type
+    data[__KFP_SIMD__Len_Float]{}; // Helper data array
     a.store(data);
     return simd_float{ _mm_setr_ps(std::round(data[0]), std::round(data[1]),
                               std::round(data[2]), std::round(data[3])) };

@@ -156,8 +156,8 @@ template <>
 __KFP_SIMD__INLINE ValueDataF extract<ValueDataF, SimdDataF>(int index, const SimdDataF& a)
 {
 #if 0
-    ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-    data[__KFP_SIMD__Len_Float]{}; // Helper array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) ValueDataF
+    data[__KFP_SIMD__Len_Float]{}; // Helper data array
     store(data);
     return data[index];
 // #elif defined(__KFP_SIMD__SSE4_1)
@@ -213,12 +213,12 @@ __KFP_SIMD__INLINE void insert<SimdDataF, ValueDataF>(SimdDataF &val_simd, int i
         break;
     }
 #else
-  int __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Int)
-      indices[__KFP_SIMD__Len_Int] = {0, 0, 0, 0};
-  indices[index] = -1;
-  const SimdDataF mask = type_cast<SimdDataF, SimdDataI>(load<SimdDataI, ValueDataI>(indices));
-  val_simd = select<SimdDataF>(
-      mask, constant<SimdDataF, ValueDataF>(val), val_simd);
+
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) int
+    indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
+    indices[index] = -1;
+    const SimdDataF mask = type_cast<SimdDataF, SimdDataI>(load<SimdDataI, ValueDataI>(indices));
+    val_simd = select<SimdDataF>(mask, constant<SimdDataF, ValueDataF>(val), val_simd);
 #endif
 }
 template <>
@@ -290,8 +290,8 @@ template <> __KFP_SIMD__INLINE SimdDataF abs<SimdDataF>(const SimdDataF& a)
 }
 template <> __KFP_SIMD__INLINE SimdDataF log<SimdDataF>(const SimdDataF& a)
 {
-    ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-        data[__KFP_SIMD__Len_Float]{}; // Helper array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) ValueDataF
+    data[__KFP_SIMD__Len_Float]{}; // Helper data array
     store<SimdDataF, ValueDataF>(a, data);
     return _mm_setr_ps(std::log(data[0]), std::log(data[1]), std::log(data[2]),
                        std::log(data[3]));
@@ -302,8 +302,8 @@ template <> __KFP_SIMD__INLINE SimdDataF pow<SimdDataF>(const SimdDataF& a, int 
     std::cerr << "[Error]: SimdF_t pow not implemented\n" ;
     exit(1) ;
 #else
-    ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-        data[__KFP_SIMD__Len_Float]{}; // Helper array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) ValueDataF
+    data[__KFP_SIMD__Len_Float]{}; // Helper data array
     store<SimdDataF, ValueDataF>(a, data);
     return _mm_setr_ps(std::pow(data[0], exp), std::pow(data[1], exp),
                        std::pow(data[2], exp), std::pow(data[3], exp));
@@ -318,8 +318,8 @@ template <> __KFP_SIMD__INLINE SimdDataF sign<SimdDataF>(const SimdDataF& a)
 template <>
 __KFP_SIMD__INLINE void print<SimdDataF>(std::ostream& stream, const SimdDataF& val_simd)
 {
-    ValueDataF __KFP_SIMD__ATTR_ALIGN(__KFP_SIMD__Size_Float)
-        data[__KFP_SIMD__Len_Float]{}; // Helper array
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) ValueDataF
+    data[__KFP_SIMD__Len_Float]{}; // Helper data array
     store<SimdDataF, ValueDataF>(val_simd, data);
     stream << "[" << data[0] << ", " << data[1] << ", " << data[2] << ", "
            << data[3] << "]";
