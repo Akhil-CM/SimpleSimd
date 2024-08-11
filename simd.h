@@ -15,7 +15,6 @@ Emails: mithran@fias.uni-frankfurt.de
 
 // Select appropriate header files depending on instruction set
 #if defined(__KFP_SIMD__AVX)
-#error "[Error] (simd.h): KFParticle SIMD AVX not implemented."
 #include "AVX/simd_avx.h"
 #elif defined(__KFP_SIMD__SSE)
 #include "SSE/simd_sse.h"
