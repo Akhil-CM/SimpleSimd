@@ -121,7 +121,7 @@ __KFP_SIMD__INLINE SimdDataI equal<SimdDataI>(const SimdDataI &a, const SimdData
 }
 template <>
 __KFP_SIMD__INLINE SimdDataI notEqual<SimdDataI>(const SimdDataI &a, const SimdDataI &b) {
-  return XORBits<SimdDataI>(equal<SimdDataI>(a, b), getMask<MASK::TRUE>());
+  return NOTBits<SimdDataI>(equal<SimdDataI>(a, b));
 }
 template <>
 __KFP_SIMD__INLINE SimdDataI lessThan<SimdDataI>(const SimdDataI &a, const SimdDataI &b) {
@@ -138,7 +138,7 @@ __KFP_SIMD__INLINE SimdDataI lessThanEqual<SimdDataI>(const SimdDataI &a,
 #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
   return equal<SimdDataI>(_mm_min_epi32(a, b), a);
 #else
-  return XORBits<SimdDataI>(greaterThan<SimdDataI>(a, b), getMask<MASK::TRUE>());
+  return NOTBits<SimdDataI>(greaterThan<SimdDataI>(a, b));
 #endif
 }
 template <>
@@ -147,7 +147,7 @@ __KFP_SIMD__INLINE SimdDataI greaterThanEqual<SimdDataI>(const SimdDataI &a,
 #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
   return equal<SimdDataI>(_mm_min_epi32(b, a), b);
 #else
-  return XORBits<SimdDataI>(lessThan<SimdDataI>(a, b), getMask<MASK::TRUE>());
+  return lessThanEqual<SimdDataI>(b, a);
 #endif
 }
 
