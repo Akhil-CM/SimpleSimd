@@ -1,7 +1,6 @@
 // -*- C++ -*-
-#include "../simd.h"
+#include "../../simd.h"
 #include <iostream>
-#include <xmmintrin.h>
 
 using KFP::SIMD::simd_float;
 using KFP::SIMD::simd_int;

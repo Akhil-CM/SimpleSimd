@@ -1,5 +1,5 @@
 // -*- C++ -*-
-#include "../simd.h"
+#include "../../simd.h"
 #include <iostream>
 #include <Vc/Vc>
 

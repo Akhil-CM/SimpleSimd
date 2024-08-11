@@ -1,6 +1,6 @@
 /*.exe
-/Tests/*.exe
-/Tests/*.log
-/Tests/*.out
-/Tests/*.s
-/Tests/*.o
+/Tests/**/*.exe
+/Tests/**/*.log
+/Tests/**/*.out
+/Tests/**/*.s
+/Tests/**/*.o

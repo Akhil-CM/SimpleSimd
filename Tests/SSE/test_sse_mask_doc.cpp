@@ -1,8 +1,8 @@
 // -*- C++ -*-
 #define DOCTEST_CONFIG_IMPLEMENT_WITH_MAIN
-#include "doctest.h"
+#include "../doctest.h"
 
-#include "../simd.h"
+#include "../../simd.h"
 #include <iostream>
 
 using KFP::SIMD::simd_mask;
