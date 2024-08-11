@@ -25,7 +25,8 @@ namespace Detail {
 enum class MASK { ABS, MINUS, TRUE, INF };
 
 template <MASK mask>
-constexpr __KFP_SIMD__INLINE SimdDataI getMask() {
+constexpr __KFP_SIMD__INLINE SimdDataI getMask()
+{
   switch (mask) {
   case MASK::ABS:
 //     {
@@ -240,7 +241,7 @@ __KFP_SIMD__INLINE ValueDataI extract<ValueDataI, SimdDataI>(int index,
 }
 template <>
 __KFP_SIMD__INLINE void insert<SimdDataI, ValueDataI>(SimdDataI &val_simd, int index,
-                                          const ValueDataI &val) {
+                                          ValueDataI val) {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
     indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
     indices[index] = -1;
@@ -435,7 +436,7 @@ __KFP_SIMD__INLINE bool notEqual<bool, SimdDataI, SimdDataI>(const SimdDataI& a,
 }
 
 template <>
-inline void print<SimdDataI>(std::ostream &stream, const SimdDataI &val_simd) {
+__KFP_SIMD__INLINE void print<SimdDataI>(std::ostream &stream, const SimdDataI &val_simd) {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
     data[__KFP_SIMD__Len_Int]{}; // Helper data array
     store<SimdDataI, ValueDataI>(val_simd, data);

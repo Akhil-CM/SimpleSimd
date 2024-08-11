@@ -195,7 +195,7 @@ __KFP_SIMD__INLINE ValueDataF extract<ValueDataF, SimdDataF>(int index, const Si
 }
 template <>
 __KFP_SIMD__INLINE void insert<SimdDataF, ValueDataF>(SimdDataF &val_simd, int index,
-                                          const ValueDataF &val) {
+                                          ValueDataF val) {
 #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
     switch (index) {
     case 0:
