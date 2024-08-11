@@ -1,6 +1,6 @@
 -xc++
 -std=c++17
--mavx
+-mavx2
 -Wall
 -Wextra
 -pedantic

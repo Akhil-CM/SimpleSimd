@@ -23,7 +23,31 @@ namespace SIMD {
 // ------------------------------------------------------
 // Constructors
 // ------------------------------------------------------
+template <> inline simd_int::SimdClassBase()
+{
+    data_.simd_ = _mm256_setzero_si256();
+}
 // Constructor to broadcast the same value into all elements:
+template <> inline simd_int::SimdClassBase(value_type val)
+{
+    data_.simd_ = Detail::constant<simd_type, value_type>(val);
+}
+template<>
+template<typename T, typename std::enable_if<true, T>::type*>
+inline simd_int::SimdClassBase(const simd_type& val_simd)
+{
+    data_.simd_ = val_simd;
+}
+template <> inline simd_int::SimdClassBase(const value_type* val)
+{
+    data_.simd_ = Detail::load<simd_type, value_type>(val);
+}
+template <> inline simd_int::SimdClassBase(const simd_int& class_simd)
+{
+    data_.simd_ = class_simd.data_.simd_;
+}
+
+// Assignment constructors:
 template <> inline simd_int& simd_int::operator=(value_type val)
 {
     data_.simd_ = Detail::constant<simd_type, value_type>(val);
@@ -51,13 +75,6 @@ inline simd_int& simd_int::operator=(value_type val)
     data_.simd_ = _mm256_set1_epi32(val);
     return *this;
 }*/
-template<>
-template<typename T, typename std::enable_if<true, T>::type*>
-inline simd_int& simd_int::operator=(const __m256i& val_avx)
-{
-    data_.simd_ = val_avx;
-    return *this;
-}
 /*template <> inline simd_int& simd_int::operator=(const simd_int& class_avx)
 {
     data_.simd_ = class_avx.data_.simd_;

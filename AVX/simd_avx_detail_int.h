@@ -110,7 +110,7 @@ inline SimdDataI equal<SimdDataI>(const SimdDataI &a, const SimdDataI &b) {
 }
 template <>
 inline SimdDataI notEqual<SimdDataI>(const SimdDataI &a, const SimdDataI &b) {
-  return XORBits<SimdDataI>(equal<SimdDataI>(a, b), getMask<MASK::TRUE>());
+  return NOTBits<SimdDataI>(equal<SimdDataI>(a, b));
 }
 template <>
 inline SimdDataI lessThan<SimdDataI>(const SimdDataI &a, const SimdDataI &b) {
@@ -122,11 +122,11 @@ inline SimdDataI greaterThan<SimdDataI>(const SimdDataI &a, const SimdDataI &b) 
 }
 template <>
 inline SimdDataI lessThanEqual<SimdDataI>(const SimdDataI &a, const SimdDataI &b) {
-  return XORBits<SimdDataI>(greaterThan<SimdDataI>(a, b), getMask<MASK::TRUE>());
+  return NOTBits<SimdDataI>(greaterThan<SimdDataI>(a, b));
 }
 template <>
 inline SimdDataI greaterThanEqual<SimdDataI>(const SimdDataI &a, const SimdDataI &b) {
-  return XORBits<SimdDataI>(lessThan<SimdDataI>(a, b), getMask<MASK::TRUE>());
+  return lessThanEqual<SimdDataI>(b, a);
 }
 
 // ------------------------------------------------------
@@ -151,6 +151,17 @@ template <>
 inline SimdDataI ORLanes<SimdDataI>(const SimdDataI& a, const SimdDataI& b) {
     return ORBits<SimdDataI>(a, b);
 }
+template <>
+inline SimdDataI XORLanes<SimdDataI>(const SimdDataI& a,
+                                                 const SimdDataI& b)
+{
+    return XORBits<SimdDataI>(a,b);
+}
+template <>
+inline SimdDataI NOTLanes<SimdDataI>(const SimdDataI& a)
+{
+    return NOTBits<SimdDataI>(a);
+}
 
 // ------------------------------------------------------
 // Manipulate lanes
@@ -164,17 +175,10 @@ inline SimdDataI select<SimdDataI>(const SimdDataI &mask, const SimdDataI &a, co
 #endif
 }
 template <int N> inline ValueDataI get(const SimdDataI &a) {
-  const SimdDataI result = _mm256_permutevar8x32_epi32(a, _mm256_set1_epi32(N));
-  return _mm256_extract_epi32(result, 0);
+  return _mm256_extract_epi32(a, N);
 }
 template <>
 inline ValueDataI extract<ValueDataI, SimdDataI>(int index, const SimdDataI &val_simd) {
-#if 0
-    ValueDataI __KFP_SIMD__ALIGN_V1(__KFP_SIMD__Size_Int)
-    data[__KFP_SIMD__Len_Int]{}; // Helper array
-    store_a<SimdDataI, ValueDataI>(val_simd, data);
-    return data[index];
-#elif defined(__KFP_SIMD__AVX)
   switch (index) {
   case 0:
     return _mm256_extract_epi32(val_simd, 0);
@@ -194,25 +198,45 @@ inline ValueDataI extract<ValueDataI, SimdDataI>(int index, const SimdDataI &val
   default:
     return _mm256_extract_epi32(val_simd, 7);
   }
-#else
-  switch (index) {
-  case 0:
-    return get<0>(val_simd);
-  case 1:
-    return get<1>(val_simd);
-  case 2:
-    return get<2>(val_simd);
-  case 3:
-    return get<3>(val_simd);
-  }
-#endif
 }
 template <>
 inline void insert<SimdDataI, ValueDataI>(SimdDataI &val_simd, int index, const ValueDataI &val) {
-  __m256i indices = _mm256_setzero_si256();
-  indices = _mm256_insert_epi32(indices, -1, index);
-  const SimdDataI mask = _mm256_cmpeq_epi32(indices, _mm256_set1_epi32(-1));
-  val_simd = select<SimdDataI>(mask, _mm256_set1_epi32(val), val_simd);
+#if 1
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
+    indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
+    indices[index] = -1;
+    const SimdDataI mask = load<SimdDataI, ValueDataI>(indices);
+    val_simd = select<SimdDataI>(
+        mask, constant<SimdDataI, ValueDataI>(val), val_simd);
+#else
+    switch (index) {
+        case 0:
+            val_simd = _mm256_insert_epi32(val_simd, val, 0);
+            break;
+        case 1:
+            val_simd = _mm256_insert_epi32(val_simd, val, 1);
+            break;
+        case 2:
+            val_simd = _mm256_insert_epi32(val_simd, val, 2);
+            break;
+        case 3:
+            val_simd = _mm256_insert_epi32(val_simd, val, 3);
+            break;
+        case 4:
+            val_simd = _mm256_insert_epi32(val_simd, val, 4);
+            break;
+        case 5:
+            val_simd = _mm256_insert_epi32(val_simd, val, 5);
+            break;
+        case 6:
+            val_simd = _mm256_insert_epi32(val_simd, val, 6);
+            break;
+        case 7:
+        default:
+            val_simd = _mm256_insert_epi32(val_simd, val, 7);
+            break;
+    }
+#endif
 }
 
 // Robin: I'm not sure about these two functions. Additionally, SSE only has one function for shiftLLanes. I put another one below.

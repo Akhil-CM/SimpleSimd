@@ -20,6 +20,13 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
+// ------------------------------------------------------
+// Constructors
+// ------------------------------------------------------
+template <> inline simd_float::SimdClassBase()
+{
+    data_.simd_ = _mm256_setzero_ps();
+}
 // Constructor to broadcast the same value into all elements:
 template <> inline simd_float::SimdClassBase(value_type val)
 {
