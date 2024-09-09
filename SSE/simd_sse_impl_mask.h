@@ -19,15 +19,15 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-template <> inline simd_mask::SimdMaskBase()
+template <> __KFP_SIMD__INLINE simd_mask::SimdMaskBase()
 {
     mask_ = Detail::constant<simd_typei, value_typei>(0) ;
 }
-template <> inline simd_mask::SimdMaskBase(bool val)
+template <> __KFP_SIMD__INLINE simd_mask::SimdMaskBase(bool val)
 {
     mask_ = Detail::constant<simd_typei, value_typei>(-int(val)) ;
 }
-template <> inline simd_mask::SimdMaskBase(const bool* val_ptr)
+template <> __KFP_SIMD__INLINE simd_mask::SimdMaskBase(const bool* val_ptr)
 {
 
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_typei
@@ -38,44 +38,44 @@ template <> inline simd_mask::SimdMaskBase(const bool* val_ptr)
     data[3] = -int(val_ptr[3]);
     mask_ = Detail::load<simd_typei, value_typei>(data) ;
 }
-template <> inline simd_mask::SimdMaskBase(const simd_typei& mask)
+template <> __KFP_SIMD__INLINE simd_mask::SimdMaskBase(const simd_typei& mask)
 {
     mask_ = mask;
 }
-template <> inline simd_mask::SimdMaskBase(const simd_typef& mask)
+template <> __KFP_SIMD__INLINE simd_mask::SimdMaskBase(const simd_typef& mask)
 {
     mask_ = Detail::type_cast<simd_typei, simd_typef>(mask);
 }
-template <> inline simd_mask::SimdMaskBase(const simd_mask& class_mask)
+template <> __KFP_SIMD__INLINE simd_mask::SimdMaskBase(const simd_mask& class_mask)
 {
     mask_ = class_mask.mask_ ;
 }
-// template <> inline simd_mask::SimdMaskBase(const simd_int& mask)
+// template <> __KFP_SIMD__INLINE simd_mask::SimdMaskBase(const simd_int& mask)
 // {
 //     mask_ = Detail::NOTBits<simd_typei>( Detail::equal<simd_typei>(mask.simd(), _mm_setzero_si128()) );
 // }
-// template <> inline simd_mask::SimdMaskBase(const simd_float& mask)
+// template <> __KFP_SIMD__INLINE simd_mask::SimdMaskBase(const simd_float& mask)
 // {
 //     mask_ = Detail::NOTBits<simd_typei>( Detail::type_cast<simd_typei, simd_typef>(Detail::equal<simd_typef>(mask.simd(), _mm_setzero_ps())) );
 // }
 
 // Assignment operators
-template <> inline simd_mask& simd_mask::operator=(bool val)
+template <> __KFP_SIMD__INLINE simd_mask& simd_mask::operator=(bool val)
 {
     mask_ = Detail::constant<simd_typei, value_typei>(-int(val)) ;
     return *this ;
 }
-template <> inline simd_mask& simd_mask::operator=(const simd_typei& mask)
+template <> __KFP_SIMD__INLINE simd_mask& simd_mask::operator=(const simd_typei& mask)
 {
     mask_ = mask;
     return *this ;
 }
-template <> inline simd_mask& simd_mask::operator=(const simd_typef& mask)
+template <> __KFP_SIMD__INLINE simd_mask& simd_mask::operator=(const simd_typef& mask)
 {
     mask_ = Detail::type_cast<simd_typei, simd_typef>(mask);
     return *this ;
 }
-template <> inline simd_mask& simd_mask::operator=(const simd_mask& class_mask)
+template <> __KFP_SIMD__INLINE simd_mask& simd_mask::operator=(const simd_mask& class_mask)
 {
     mask_ = class_mask.mask_ ;
     return *this ;
@@ -84,7 +84,7 @@ template <> inline simd_mask& simd_mask::operator=(const simd_mask& class_mask)
 // ------------------------------------------------------
 // Load and Store
 // ------------------------------------------------------
-template <> inline simd_mask& simd_mask::load(const bool* val_ptr)
+template <> __KFP_SIMD__INLINE simd_mask& simd_mask::load(const bool* val_ptr)
 {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_typei
     data[__KFP_SIMD__Len_Int]{}; // Helper data array
@@ -95,7 +95,7 @@ template <> inline simd_mask& simd_mask::load(const bool* val_ptr)
     mask_ = Detail::load<simd_typei, value_typei>(data) ;
     return *this;
 }
-template <> inline void simd_mask::store(bool* val_ptr) const
+template <> __KFP_SIMD__INLINE void simd_mask::store(bool* val_ptr) const
 {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_typei
     data[__KFP_SIMD__Len_Int]{}; // Helper data array
@@ -109,7 +109,7 @@ template <> inline void simd_mask::store(bool* val_ptr) const
 // ------------------------------------------------------
 // Status accessors
 // ------------------------------------------------------
-template <> inline int simd_mask::count() const
+template <> __KFP_SIMD__INLINE int simd_mask::count() const
 {
 #if 1
     const int tmp{ Detail::sign<value_typei, simd_typei>(mask_) };
@@ -121,7 +121,7 @@ template <> inline int simd_mask::count() const
     return -(data[0] + data[1] + data[2] + data[3]) ;
 #endif
 }
-template <> inline bool simd_mask::AND() const
+template <> __KFP_SIMD__INLINE bool simd_mask::AND() const
 {
 #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
     return _mm_testc_si128(mask_, Detail::getMask<Detail::MASK::TRUE>());
@@ -129,7 +129,7 @@ template <> inline bool simd_mask::AND() const
     return Detail::sign<value_typei, simd_typei>(mask_) == 0x0000000F;
 #endif
 }
-template <> inline bool simd_mask::OR() const
+template <> __KFP_SIMD__INLINE bool simd_mask::OR() const
 {
 #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
     return not _mm_testz_si128(mask_, mask_);
@@ -141,11 +141,11 @@ template <> inline bool simd_mask::OR() const
 // ------------------------------------------------------
 // Data member accessors
 // ------------------------------------------------------
-template <> inline bool simd_mask::operator[](int index) const
+template <> __KFP_SIMD__INLINE bool simd_mask::operator[](int index) const
 {
     return static_cast<bool>(Detail::extract<value_typei, simd_typei>(index, mask_));
 }
-template <> inline simd_float::simd_type simd_mask::maskf() const
+template <> __KFP_SIMD__INLINE simd_float::simd_type simd_mask::maskf() const
 {
     return Detail::type_cast<simd_typef, simd_typei>(mask_);
 }
@@ -153,7 +153,7 @@ template <> inline simd_float::simd_type simd_mask::maskf() const
 // ------------------------------------------------------
 // Data elements manipulation
 // ------------------------------------------------------
-template <> inline simd_mask& simd_mask::insert(int index, bool val)
+template <> __KFP_SIMD__INLINE simd_mask& simd_mask::insert(int index, bool val)
 {
     assert((index > -1) && ("[Error] (insert): invalid index (" +
                             std::to_string(index) + ") given. Negative")
@@ -165,7 +165,7 @@ template <> inline simd_mask& simd_mask::insert(int index, bool val)
     Detail::insert<simd_typei, value_typei>(mask_, index & 0x03, -int(val));
     return *this;
 }
-template <> inline simd_mask simd_mask::insertCopy(int index, bool val) const
+template <> __KFP_SIMD__INLINE simd_mask simd_mask::insertCopy(int index, bool val) const
 {
     assert((index > -1) && ("[Error] (insertCopy): invalid index (" +
                             std::to_string(index) + ") given. Negative")
@@ -178,7 +178,7 @@ template <> inline simd_mask simd_mask::insertCopy(int index, bool val) const
     Detail::insert<simd_typei, value_typei>(result.mask_, index & 0x03, -int(val));
     return result;
 }
-template <> inline simd_mask& simd_mask::cutoff(int n)
+template <> __KFP_SIMD__INLINE simd_mask& simd_mask::cutoff(int n)
 {
     if(n >= SimdLen) return *this;
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_typei
@@ -212,7 +212,7 @@ template <> inline simd_mask& simd_mask::cutoff(int n)
     mask_ = Detail::load<simd_typei, value_typei>(mask);
     return *this;
 }
-template <> inline simd_mask simd_mask::cutoffCopy(int n) const
+template <> __KFP_SIMD__INLINE simd_mask simd_mask::cutoffCopy(int n) const
 {
     if(n >= SimdLen) return *this;
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_typei
@@ -249,7 +249,7 @@ template <> inline simd_mask simd_mask::cutoffCopy(int n) const
 }
 
 template <>
-inline void Detail::print<simd_mask>(std::ostream &stream, const simd_mask &a) {
+__KFP_SIMD__INLINE void Detail::print<simd_mask>(std::ostream &stream, const simd_mask &a) {
     bool mask[__KFP_SIMD__Len_Int]{}; // Helper mask array
     a.store(mask);
     stream << "[" << std::boolalpha;
