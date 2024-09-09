@@ -9,12 +9,12 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_TAG_H
 #define SIMD_TAG_H
 
-#include "simd_macros.h"
+#include "macros.h"
 
 namespace KFP {
 namespace SIMD {
 
-enum class ABI
+enum class Tag
 {
     /// uses only fundamental types
     Scalar,
@@ -35,8 +35,6 @@ enum class ABI
     /// x86 AVX + AVX2
     AVX2,
 };
-
-typedef ABI Tag ;
 
 // constexpr inline bool validateTag(Tag tag)
 // {
@@ -116,4 +114,3 @@ constexpr inline const char* getTagStr()
 } // namespace KFP
 
 #endif // !SIMD_TAG_H
-

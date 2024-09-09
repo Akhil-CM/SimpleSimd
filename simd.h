@@ -10,17 +10,17 @@ Emails: mithran@fias.uni-frankfurt.de
 #define KFP_SIMD_H
 
 // Determine instruction set, and define platform-dependent functions
-#include "Base/simd_macros.h"
-#include "Base/simd_allocate.h"
+#include "Utils/macros.h"
+#include "Utils/memory.h"
 
 // Select appropriate header files depending on instruction set
 #if defined(__KFP_SIMD__AVX)
-#include "AVX/simd_avx.h"
+#include "AVX/types.h"
 #elif defined(__KFP_SIMD__SSE)
-#include "SSE/simd_sse.h"
+#include "SSE/types.h"
 #else
 #error "[Error] (simd.h): KFParticle SIMD Scalar not implemented."
-#include "Scalar/simd_scalar.h"
+#include "Scalar/types.h"
 #endif
 
 static_assert(
