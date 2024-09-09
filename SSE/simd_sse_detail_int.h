@@ -209,7 +209,7 @@ template <>
 __KFP_SIMD__INLINE ValueDataI extract<ValueDataI, SimdDataI>(int index,
                                                  const SimdDataI &val_simd) {
 #if 0
-    ValueDataI __KFP_SIMD__ALIGN_V1(__KFP_SIMD__Size_Int)
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
     data[__KFP_SIMD__Len_Int]{}; // Helper array
     store<SimdDataI, ValueDataI>(val_simd, data);
     return data[index];
