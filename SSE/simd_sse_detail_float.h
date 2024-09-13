@@ -158,7 +158,7 @@ __KFP_SIMD__INLINE ValueDataF extract<ValueDataF, SimdDataF>(int index, const Si
 #if 1
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) ValueDataF
     data[__KFP_SIMD__Len_Float]{}; // Helper data array
-    store<SimdDataF, ValueDataF>(a, data);
+    store_a<SimdDataF, ValueDataF>(a, data);
     return data[index];
 // #elif defined(__KFP_SIMD__SSE4_1)
 #elif 0
@@ -292,7 +292,7 @@ template <> __KFP_SIMD__INLINE SimdDataF log<SimdDataF>(const SimdDataF& a)
 {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) ValueDataF
     data[__KFP_SIMD__Len_Float]{}; // Helper data array
-    store<SimdDataF, ValueDataF>(a, data);
+    store_a<SimdDataF, ValueDataF>(a, data);
     return _mm_setr_ps(std::log(data[0]), std::log(data[1]), std::log(data[2]),
                        std::log(data[3]));
 }
@@ -304,7 +304,7 @@ template <> __KFP_SIMD__INLINE SimdDataF pow<SimdDataF>(const SimdDataF& a, int 
 #else
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) ValueDataF
     data[__KFP_SIMD__Len_Float]{}; // Helper data array
-    store<SimdDataF, ValueDataF>(a, data);
+    store_a<SimdDataF, ValueDataF>(a, data);
     return _mm_setr_ps(std::pow(data[0], exp), std::pow(data[1], exp),
                        std::pow(data[2], exp), std::pow(data[3], exp));
 #endif
@@ -320,7 +320,7 @@ __KFP_SIMD__INLINE void print<SimdDataF>(std::ostream& stream, const SimdDataF& 
 {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) ValueDataF
     data[__KFP_SIMD__Len_Float]{}; // Helper data array
-    store<SimdDataF, ValueDataF>(val_simd, data);
+    store_a<SimdDataF, ValueDataF>(val_simd, data);
     stream << "[" << data[0] << ", " << data[1] << ", " << data[2] << ", "
            << data[3] << "]";
 }

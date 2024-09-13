@@ -211,7 +211,7 @@ __KFP_SIMD__INLINE ValueDataI extract<ValueDataI, SimdDataI>(int index,
 #if 1
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
     data[__KFP_SIMD__Len_Int]{}; // Helper array
-    store<SimdDataI, ValueDataI>(val_simd, data);
+    store_a<SimdDataI, ValueDataI>(val_simd, data);
     return data[index];
 #elif defined(__KFP_SIMD__SSE4_1)
   switch (index) {
@@ -332,30 +332,30 @@ __KFP_SIMD__INLINE SimdDataI multiply<SimdDataI>(const SimdDataI &a, const SimdD
 
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
     data1[__KFP_SIMD__Len_Int]{}; // Helper data array
-    store<SimdDataI, ValueDataI>(a, data1);
+    store_a<SimdDataI, ValueDataI>(a, data1);
 
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
     data2[__KFP_SIMD__Len_Int]{}; // Helper data array
-    store<SimdDataI, ValueDataI>(b, data2);
+    store_a<SimdDataI, ValueDataI>(b, data2);
 
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) const ValueDataI
     data[__KFP_SIMD__Len_Int]{data1[0] * data2[0], data1[1] * data2[1],
                                 data1[2] * data2[2], data1[3] * data2[3]};
-  return load<SimdDataI, ValueDataI>(data);
+  return load_a<SimdDataI, ValueDataI>(data);
 #endif
 }
 template <>
 __KFP_SIMD__INLINE SimdDataI divide<SimdDataI>(const SimdDataI &a, const SimdDataI &b) {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
     data1[__KFP_SIMD__Len_Int]{}; // Helper data array
-    store<SimdDataI, ValueDataI>(a, data1);
+    store_a<SimdDataI, ValueDataI>(a, data1);
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
     data2[__KFP_SIMD__Len_Int]{}; // Helper data array
-    store<SimdDataI, ValueDataI>(b, data2);
+    store_a<SimdDataI, ValueDataI>(b, data2);
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) const ValueDataI
     data[__KFP_SIMD__Len_Int]{data1[0] / data2[0], data1[1] / data2[1],
                             data1[2] / data2[2], data1[3] / data2[3]};
-    return load<SimdDataI, ValueDataI>(data);
+    return load_a<SimdDataI, ValueDataI>(data);
 }
 template <> __KFP_SIMD__INLINE SimdDataI minus<SimdDataI>(const SimdDataI &a) {
   return substract<SimdDataI>(_mm_setzero_si128(), a);
@@ -384,7 +384,7 @@ template <> __KFP_SIMD__INLINE SimdDataI sqrt<SimdDataI>(const SimdDataI &a) {
 #if 0
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
     data[__KFP_SIMD__Len_Int]{}; // Helper data array
-    store<SimdDataI, ValueDataI>(a, data);
+    store_a<SimdDataI, ValueDataI>(a, data);
     return _mm_setr_epi32(std::sqrt(data[0]), std::sqrt(data[1]),
                           std::sqrt(data[2]), std::sqrt(data[3]));
 #endif
@@ -403,14 +403,14 @@ template <> __KFP_SIMD__INLINE SimdDataI abs<SimdDataI>(const SimdDataI &a) {
 template <> __KFP_SIMD__INLINE SimdDataI log<SimdDataI>(const SimdDataI &a) {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
     data[__KFP_SIMD__Len_Int]{}; // Helper data array
-    store<SimdDataI, ValueDataI>(a, data);
+    store_a<SimdDataI, ValueDataI>(a, data);
     return _mm_setr_epi32(std::log(data[0]), std::log(data[1]), std::log(data[2]),
                         std::log(data[3]));
 }
 template <> __KFP_SIMD__INLINE SimdDataI pow<SimdDataI>(const SimdDataI &a, int exp) {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
     data[__KFP_SIMD__Len_Int]{}; // Helper data array
-    store<SimdDataI, ValueDataI>(a, data);
+    store_a<SimdDataI, ValueDataI>(a, data);
     return _mm_setr_epi32(std::pow(data[0], exp), std::pow(data[1], exp),
                         std::pow(data[2], exp), std::pow(data[3], exp));
 }
@@ -438,7 +438,7 @@ template <>
 __KFP_SIMD__INLINE void print<SimdDataI>(std::ostream &stream, const SimdDataI &val_simd) {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
     data[__KFP_SIMD__Len_Int]{}; // Helper data array
-    store<SimdDataI, ValueDataI>(val_simd, data);
+    store_a<SimdDataI, ValueDataI>(val_simd, data);
     stream << "[" << data[0] << ", " << data[1] << ", " << data[2] << ", "
          << data[3] << "]";
 }
