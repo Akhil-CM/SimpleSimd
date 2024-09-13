@@ -15,6 +15,7 @@ Emails: mithran@fias.uni-frankfurt.de
 #include <limits>
 #include <new>
 #include <vector>
+#include <mm_malloc.h>
 
 namespace KFP
 {
@@ -35,6 +36,7 @@ template<std::size_t alignment=alignof(std::max_align_t)>
 inline void* alignedAllocate(std::size_t size)
 {
     static_assert(alignment && isAlignment(alignment), "[Error] (KFP::SIMD::alignedAllocate): Invalid value given for aligment");
+    return _mm_malloc(size, alignment);
     if(!size) return nullptr;
 
     constexpr std::size_t voidptr_Alignment = alignof(void*);
@@ -66,7 +68,8 @@ inline void* alignedAllocate(std::size_t size)
 inline void alignedDeallocate(void* ptr)
 {
     if (ptr) {
-        ::operator delete(*(static_cast<void**>(ptr) - 1));
+        _mm_free(ptr);
+        // ::operator delete(*(static_cast<void**>(ptr) - 1));
     }
 }
 
