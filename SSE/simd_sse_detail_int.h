@@ -208,7 +208,7 @@ template <int N> __KFP_SIMD__INLINE ValueDataI get(const SimdDataI &a) {
 template <>
 __KFP_SIMD__INLINE ValueDataI extract<ValueDataI, SimdDataI>(int index,
                                                  const SimdDataI &val_simd) {
-#if 0
+#if 1
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
     data[__KFP_SIMD__Len_Int]{}; // Helper array
     store<SimdDataI, ValueDataI>(val_simd, data);
@@ -240,14 +240,13 @@ __KFP_SIMD__INLINE ValueDataI extract<ValueDataI, SimdDataI>(int index,
 #endif
 }
 template <>
-__KFP_SIMD__INLINE void insert<SimdDataI, ValueDataI>(SimdDataI &val_simd, int index,
+__KFP_SIMD__INLINE void insert<SimdDataI, ValueDataI>(SimdDataI& val_simd, int index,
                                           ValueDataI val) {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) ValueDataI
-    indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
-    indices[index] = -1;
-    const SimdDataI mask = load<SimdDataI, ValueDataI>(indices);
-    val_simd = select<SimdDataI>(
-    mask, constant<SimdDataI, ValueDataI>(val), val_simd);
+    data[__KFP_SIMD__Len_Int]{}; // Helper data array
+    store_a<SimdDataI, ValueDataI>(val_simd, data);
+    data[index] = val;
+    val_simd = load_a<SimdDataI, ValueDataI>(data);
 }
 template <>
 __KFP_SIMD__INLINE SimdDataI shiftLLanes<SimdDataI>(int n, const SimdDataI &val_simd) {

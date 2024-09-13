@@ -155,7 +155,7 @@ template <int N> __KFP_SIMD__INLINE ValueDataF get(const SimdDataF& a)
 template <>
 __KFP_SIMD__INLINE ValueDataF extract<ValueDataF, SimdDataF>(int index, const SimdDataF& a)
 {
-#if 0
+#if 1
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) ValueDataF
     data[__KFP_SIMD__Len_Float]{}; // Helper data array
     store<SimdDataF, ValueDataF>(a, data);
@@ -194,9 +194,10 @@ __KFP_SIMD__INLINE ValueDataF extract<ValueDataF, SimdDataF>(int index, const Si
 #endif
 }
 template <>
-__KFP_SIMD__INLINE void insert<SimdDataF, ValueDataF>(SimdDataF &val_simd, int index,
+__KFP_SIMD__INLINE void insert<SimdDataF, ValueDataF>(SimdDataF& val_simd, int index,
                                           ValueDataF val) {
-#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
+// #if defined(__KFP_SIMD__SSE4_1) // SSE4.1
+#if 0 // Disable for testing
     switch (index) {
     case 0:
         val_simd = _mm_insert_ps(val_simd, _mm_set_ss(val), 0 << 4);
@@ -213,12 +214,11 @@ __KFP_SIMD__INLINE void insert<SimdDataF, ValueDataF>(SimdDataF &val_simd, int i
         break;
     }
 #else
-
-    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) int
-    indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
-    indices[index] = -1;
-    const SimdDataF mask = type_cast<SimdDataF, SimdDataI>(load<SimdDataI, ValueDataI>(indices));
-    val_simd = select<SimdDataF>(mask, constant<SimdDataF, ValueDataF>(val), val_simd);
+    __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Float) ValueDataF
+    data[__KFP_SIMD__Len_Float]{}; // Helper data array
+    store_a<SimdDataF, ValueDataF>(val_simd, data);
+    data[index] = val;
+    val_simd = load_a<SimdDataF, ValueDataF>(data);
 #endif
 }
 template <>
