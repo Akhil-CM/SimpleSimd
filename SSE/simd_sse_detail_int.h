@@ -25,7 +25,7 @@ namespace Detail {
 enum class MASK { ABS, MINUS, TRUE, INF };
 
 template <MASK mask>
-constexpr __KFP_SIMD__INLINE SimdDataI getMask()
+const __KFP_SIMD__INLINE SimdDataI getMask()
 {
   switch (mask) {
   case MASK::ABS:
