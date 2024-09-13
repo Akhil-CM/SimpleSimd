@@ -32,7 +32,7 @@ constexpr bool isAligned(std::size_t N, std::size_t alignment)
     return (N % alignment) == 0;
 }
 
-template<std::size_t alignment=alignof(std::max_align_t)>
+template<std::size_t alignment>
 inline void* alignedAllocate(std::size_t size)
 {
     static_assert(alignment && isAlignment(alignment), "[Error] (KFP::SIMD::alignedAllocate): Invalid value given for aligment");
