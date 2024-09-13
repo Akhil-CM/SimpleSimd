@@ -13,7 +13,6 @@ Emails: mithran@fias.uni-frankfurt.de
 #include "simd_sse_type.h"
 #include "simd_sse_detail.h"
 
-#include <x86intrin.h>
 #include <algorithm>
 #include <cassert>
 
@@ -136,14 +135,9 @@ template <> __KFP_SIMD__INLINE void simd_int::store_stream(value_type* val_ptr) 
 template <>
 __KFP_SIMD__INLINE void simd_int::store_partial(int n, value_type* val_ptr) const
 {
-    if (n < 1)
-        return;
-    if (n > SimdLen) {
-        n = SimdLen;
-    }
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_type
     data[__KFP_SIMD__Len_Int]{}; // Helper data array
-    store(data);
+    store_a(data);
     std::copy_n(data, n, val_ptr);
 }
 
@@ -153,10 +147,9 @@ __KFP_SIMD__INLINE void simd_int::store_partial(int n, value_type* val_ptr) cons
 template <>
 __KFP_SIMD__INLINE simd_int& simd_int::gather(const value_type* val_ptr, const simd_int& index)
 {
-
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_type
     indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
-    Detail::store<simd_type, value_type>(index.data_.simd_, indices);
+    Detail::store_a<simd_type, value_type>(index.data_.simd_, indices);
     data_.simd_ = _mm_setr_epi32( val_ptr[indices[0]], val_ptr[indices[1]], val_ptr[indices[2]], val_ptr[indices[3]]) ;
     return *this;
 }
@@ -165,11 +158,11 @@ __KFP_SIMD__INLINE void simd_int::scatter(value_type* val_ptr, const simd_int& i
 {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_type
     data[__KFP_SIMD__Len_Int]{}; // Helper data array
-    store(data);
+    store_a(data);
 
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) int
     indices[__KFP_SIMD__Len_Int]{}; // Helper indices array
-    Detail::store<simd_type, value_type>(index.data_.simd_, indices);
+    Detail::store_a<simd_type, value_type>(index.data_.simd_, indices);
 
     val_ptr[indices[0]] = data[0];
     val_ptr[indices[1]] = data[1];
@@ -224,14 +217,14 @@ template <> __KFP_SIMD__INLINE simd_int& simd_int::cutoff(int n)
 {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_type
     data[__KFP_SIMD__Len_Int]{}; // Helper data array
-    store(data);
+    store_a(data);
     return load_partial(n, data);
 }
 template <> __KFP_SIMD__INLINE simd_int simd_int::cutoffCopy(int n) const
 {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_type
     data[__KFP_SIMD__Len_Int]{}; // Helper data array
-    store(data);
+    store_a(data);
     return simd_int{}.load_partial(n, data);
 }
 template <> __KFP_SIMD__INLINE simd_int& simd_int::shiftLeft(int n)

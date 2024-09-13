@@ -13,7 +13,6 @@ Emails: mithran@fias.uni-frankfurt.de
 #include "simd_sse_detail.h"
 #include "simd_sse_type.h"
 
-#include <x86intrin.h>
 #include <cassert>
 
 namespace KFP {
@@ -92,14 +91,14 @@ template <> __KFP_SIMD__INLINE simd_mask& simd_mask::load(const bool* val_ptr)
     data[1] = -int(val_ptr[1]);
     data[2] = -int(val_ptr[2]);
     data[3] = -int(val_ptr[3]);
-    mask_ = Detail::load<simd_typei, value_typei>(data) ;
+    mask_ = Detail::load_a<simd_typei, value_typei>(data) ;
     return *this;
 }
 template <> __KFP_SIMD__INLINE void simd_mask::store(bool* val_ptr) const
 {
     __KFP_SIMD__SPEC_ALIGN(__KFP_SIMD__Size_Int) value_typei
     data[__KFP_SIMD__Len_Int]{}; // Helper data array
-    Detail::store<simd_typei, value_typei>(mask_, data);
+    Detail::store_a<simd_typei, value_typei>(mask_, data);
     val_ptr[0] = data[0];
     val_ptr[1] = data[1];
     val_ptr[2] = data[2];

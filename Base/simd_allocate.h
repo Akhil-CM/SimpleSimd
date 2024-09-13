@@ -37,40 +37,40 @@ inline void* alignedAllocate(std::size_t size)
 {
     static_assert(alignment && isAlignment(alignment), "[Error] (KFP::SIMD::alignedAllocate): Invalid value given for aligment");
     return _mm_malloc(size, alignment);
-    if(!size) return nullptr;
+    // if(!size) return nullptr;
 
-    constexpr std::size_t voidptr_Alignment = alignof(void*);
-    constexpr std::size_t align_val = (alignment < voidptr_Alignment) ? voidptr_Alignment : alignment;
+    // constexpr std::size_t voidptr_Alignment = alignof(void*);
+    // constexpr std::size_t align_val = (alignment < voidptr_Alignment) ? voidptr_Alignment : alignment;
 
-    constexpr std::size_t voidptr_Size = sizeof(void*);
-    std::size_t buffer_size = size + align_val + voidptr_Size;
-    void* original = ::operator new(buffer_size);
-    if (not original) return nullptr;
+    // constexpr std::size_t voidptr_Size = sizeof(void*);
+    // std::size_t buffer_size = size + align_val + voidptr_Size;
+    // void* original = ::operator new(buffer_size);
+    // if (not original) return nullptr;
 
-    void* aligned = static_cast<void*>(static_cast<char*>(original) + voidptr_Size);
-    // void* aligned = static_cast<void*>(static_cast<uint8_t*>(original) + voidptr_Size);
-    const std::uintptr_t tmp = reinterpret_cast<std::uintptr_t>(aligned) + align_val - 1;
-    const std::uintptr_t reminder = (tmp & (align_val - 1));
-    const std::uintptr_t aligned_loc = (tmp - reminder);
-    aligned = reinterpret_cast<void*>(aligned_loc);
-    // aligned = reinterpret_cast<void*>(tmp & ~(align_val-1));
+    // void* aligned = static_cast<void*>(static_cast<char*>(original) + voidptr_Size);
+    // // void* aligned = static_cast<void*>(static_cast<uint8_t*>(original) + voidptr_Size);
+    // const std::uintptr_t tmp = reinterpret_cast<std::uintptr_t>(aligned) + align_val - 1;
+    // const std::uintptr_t reminder = (tmp & (align_val - 1));
+    // const std::uintptr_t aligned_loc = (tmp - reminder);
+    // aligned = reinterpret_cast<void*>(aligned_loc);
+    // // aligned = reinterpret_cast<void*>(tmp & ~(align_val-1));
 
-    if (not isAligned(aligned_loc, align_val)) {
-        std::cerr << ("[Error] (KFP::SIMD::alignedAllocate): The allocated buffer is not aligned.\n");
-        return nullptr;
-    }
+    // if (not isAligned(aligned_loc, align_val)) {
+    //     std::cerr << ("[Error] (KFP::SIMD::alignedAllocate): The allocated buffer is not aligned.\n");
+    //     return nullptr;
+    // }
 
-    *(static_cast<void**>(aligned) - 1) = original;
+    // *(static_cast<void**>(aligned) - 1) = original;
 
-    return aligned;
+    // return aligned;
 }
 
 inline void alignedDeallocate(void* ptr)
 {
-    if (ptr) {
-        _mm_free(ptr);
-        // ::operator delete(*(static_cast<void**>(ptr) - 1));
-    }
+    _mm_free(ptr);
+    // if (ptr) {
+    //     ::operator delete(*(static_cast<void**>(ptr) - 1));
+    // }
 }
 
 #define SETUP_ALIGNED_OPERATOR_NEW_DELETE(Alignment)                                                                    \

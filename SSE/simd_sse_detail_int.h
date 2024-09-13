@@ -13,7 +13,6 @@ Emails: mithran@fias.uni-frankfurt.de
 #include "../Base/simd_detail.h"
 #include "simd_sse_type.h"
 
-#include <x86intrin.h>
 #include <cmath>
 #include <iostream>
 
