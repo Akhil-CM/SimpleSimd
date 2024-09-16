@@ -11,23 +11,18 @@ Emails: mithran@fias.uni-frankfurt.de
 
 #include "../Utils/macros.h"
 #include "../Utils/tag.h"
+#include "mask32.h"
 
 #include <iostream>
-#include <x86intrin.h>
-#include <cmath>
 #include <string>
 #include <cassert>
 
 namespace KFP {
 namespace SIMD {
 
-__KFP_SIMD__INLINE __m128i select(const __m128i& mask, const __m128i& a,
+__KFP_SIMD__INLINE __m128i select_(const __m128i& mask, const __m128i& a,
                                     const __m128i& b) {
-#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
     return _mm_blendv_epi8(b, a, mask);
-#else
-    return _mm_or_si128(_mm_and_si128(mask, a), _mm_andnot_si128(mask, b));
-#endif
 }
 
 class Int32_128
@@ -43,10 +38,7 @@ public:
     // Constructors
     // ------------------------------------------------------
     // Default constructor:
-    Int32_128()
-    {
-        data_ = _mm_setzero_si128();
-    }
+    Int32_128() {}
     // Constructor to broadcast the same value into all elements:
     Int32_128(value_type val)
     {
@@ -87,9 +79,9 @@ public:
     // ------------------------------------------------------
     static Int32_128 iota(value_type start)
     {
-        return Int32_128{
-            _mm_setr_epi32(start, start + 1, start + 2, start + 3)
-        };
+        __KFP_SIMD__SPEC_ALIGN(SimdSize) constexpr value_type
+        data[SimdLen]{0, 1, 2, 3}; // Helper data array
+        return Int32_128{}.load_a(data) + start;
     }
     static Int32_128 seq(value_type start)
     {
@@ -164,67 +156,46 @@ public:
         return data_;
     }
     template <int N>
-    __KFP_SIMD__INLINE_FORCE value_type get(simd_type a) const {
+    value_type get(simd_type a) const {
+        static_assert(N < SimdLen,
+        "[Error] (Int32_128::get): Invalid value of index to access N given");
+#if 1
+        return _mm_extract_epi32(data_, N);
+#else
         const simd_type result = _mm_shuffle_epi32(a, N);
         return _mm_cvtsi128_si32(result);
+#endif
     }
     value_type operator[](int index) const
     {
-        value_type a = get<0>(data_);
-        assert((index > -1) && ("[Error] (Int32_128::operator[]): invalid index (" +
+        assert((index >= 0) && ("[Error] (Int32_128::operator[]): invalid index (" +
                std::to_string(index) + ") given. Negative")
                .data());
         assert((index < SimdLen) &&
                ("[Error] (Int32_128::operator[]): invalid index (" + std::to_string(index) +
                ") given. Exceeds maximum")
                .data());
-#if 0
         __KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
         data[SimdLen]{}; // Helper array
         store_a(data);
         return data[index];
-#elif defined(__KFP_SIMD__SSE4_1)
-        switch (index) {
-            case 0:
-                return _mm_extract_epi32(data_, 0x00);
-            case 1:
-                return _mm_extract_epi32(data_, 0x01);
-            case 2:
-                return _mm_extract_epi32(data_, 0x02);
-            case 3:
-            default:
-                return _mm_extract_epi32(data_, 0x03);
-        }
-#else
-        switch (index) {
-            case 0:
-                return get<0>(data_);
-            case 1:
-                return get<1>(data_);
-            case 2:
-                return get<2>(data_);
-            case 3:
-            default:
-                return get<3>(data_);
-        }
-#endif
     }
 
     // ------------------------------------------------------
-    // Data elements manipulation
+    // Data lanes manipulation
     // ------------------------------------------------------
-    friend __KFP_SIMD__INLINE Int32_128 select(const Int32_128& mask, const Int32_128& a,
+    friend Int32_128 select(const Int32_128& mask, const Int32_128& a,
                                        const Int32_128& b) {
-        return select(mask.data_, a.data_, b.data_);
+        return select_(mask.data_, a.data_, b.data_);
     }
 
     Int32_128& insert(int index, value_type val)
     {
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) int
-        indices[SimdLen]{}; // Helper indices array
-        indices[index] = -1;
-        data_ = select(_mm_load_si128(reinterpret_cast<const simd_type*>(indices)),
-                       _mm_set1_epi32(val), data_);
+        __KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
+        data[SimdLen]{}; // Helper data array
+        store_a(data);
+        data[index] = val;
+        load_a(data);
         return *this;
     }
     Int32_128 sign() const
@@ -232,6 +203,40 @@ public:
         return Int32_128{
             _mm_and_si128(_mm_set1_epi32(0x80000000), data_)
         };
+    }
+    Int32_128& shiftLeft(int n)
+    {
+        constexpr int value_size_bytes = sizeof(int);
+        switch (n) {
+            case 0:
+                return *this;
+            case 1:
+                data_ = _mm_bsrli_si128(data_, value_size_bytes);
+            case 2:
+                data_ = _mm_bsrli_si128(data_, 2 * value_size_bytes);
+            case 3:
+                data_ = _mm_bsrli_si128(data_, 3 * value_size_bytes);
+            default:
+                data_ = _mm_set1_epi32(0);
+        }
+        return *this;
+    }
+    Int32_128& shiftRight(int n)
+    {
+        constexpr int value_size_bytes = sizeof(int);
+        switch (n) {
+            case 0:
+                return *this;
+            case 1:
+                data_ = _mm_bslli_si128(data_, value_size_bytes);
+            case 2:
+                data_ = _mm_bslli_si128(data_, 2 * value_size_bytes);
+            case 3:
+                data_ = _mm_bslli_si128(data_, 3 * value_size_bytes);
+            default:
+                data_ = _mm_set1_epi32(0);
+        }
+        return *this;
     }
 
     // ------------------------------------------------------
@@ -280,23 +285,7 @@ public:
     friend Int32_128 operator*(const Int32_128& a,
                                    const Int32_128& b)
     {
-#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
         return _mm_mullo_epi32(a.data_, b.data_);
-#else
-
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
-        data1[SimdLen]{}; // Helper data array
-        a.store_a(data1);
-
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
-        data2[SimdLen]{}; // Helper data array
-        b.store_a(data2);
-
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) const value_type
-        data[SimdLen]{data1[0] * data2[0], data1[1] * data2[1],
-            data1[2] * data2[2], data1[3] * data2[3]};
-        return Int32_128{ _mm_load_si128(reinterpret_cast<const simd_type*>(data)) };
-#endif
     }
     friend Int32_128& operator*=(Int32_128& a,
                                    const Int32_128& b)
@@ -324,45 +313,90 @@ public:
         a = a / b;
         return a;
     }
+    friend Int32_128 operator<<(const Int32_128& a, int n)
+    {
+        return _mm_slli_epi32(a.data_, n);
+    }
+    friend Int32_128 operator>>(const Int32_128& a, int n)
+    {
+        return _mm_sra_epi32(a.data_, _mm_cvtsi32_si128(n));
+    }
+    friend Int32_128 operator&(const Int32_128& a,
+                                   const Int32_128& b)
+    {
+        return _mm_and_si128(a.data_, b.data_);
+    }
+    friend Int32_128 operator|(const Int32_128& a,
+                                   const Int32_128& b)
+    {
+        return _mm_or_si128(a.data_, b.data_);
+    }
+    friend Int32_128 operator^(const Int32_128& a,
+                                   const Int32_128& b)
+    {
+        return _mm_xor_si128(a.data_, b.data_);
+    }
+
+    // Comparison (mask returned)
+    friend Mask32_128 operator<(const Int32_128& a,
+                                   const Int32_128& b)
+    {
+        Mask32_128 result;
+        result.data_ = _mm_cmplt_epi32(a.data_, b.data_);
+        return result;
+    }
+    friend Mask32_128 operator<=(const Int32_128& a,
+                                    const Int32_128& b)
+    {
+        Mask32_128 result;
+        result.data_ = _mm_cmpeq_epi32(_mm_min_epi32(a.data_, b.data_), a.data_);
+        return result;
+    }
+    friend Mask32_128 operator>(const Int32_128& a,
+                                   const Int32_128& b)
+    {
+        Mask32_128 result;
+        result.data_ = _mm_cmpgt_epi32(a.data_, b.data_);
+        return result;
+    }
+    friend Mask32_128 operator>=(const Int32_128& a,
+                                    const Int32_128& b)
+    {
+        Mask32_128 result;
+        result.data_ = _mm_cmpeq_epi32(_mm_min_epi32(b.data_, a.data_), b.data_);
+        return result;
+    }
+    friend Mask32_128 operator==(const Int32_128& a,
+                                    const Int32_128& b)
+    {
+        Mask32_128 result;
+        result.data_ = _mm_cmpeq_epi32(a.data_, b.data_);
+        return result;
+    }
+    friend Mask32_128 operator!=(const Int32_128& a,
+                                    const Int32_128& b)
+    {
+        Mask32_128 result;
+        result.data_ = _mm_cmpeq_epi32(a.data_, b.data_);
+        return not result;
+    }
 
     friend Int32_128 min(const Int32_128& a, const Int32_128& b)
     {
-#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
         return _mm_min_epi32(a.data_, b.data_);
-#else
-        const simd_type mask = _mm_cmpgt_epi32(a.data_, b.data_);
-        return select(mask, b.data_, a.data_);
-#endif
     }
     friend Int32_128 max(const Int32_128& a, const Int32_128& b)
     {
-#if defined(__KFP_SIMD__SSE4_1) // SSE4.1
         return _mm_max_epi32(a.data_, b.data_);
-#else
-        const simd_type mask = _mm_cmpgt_epi32(a.data_, b.data_);
-        return select(mask, a.data_, b.data_);
-#endif
     }
 
     friend Int32_128 abs(const Int32_128& a)
     {
-#if defined(__KFP_SIMD__SSSE3) // SSSE3
         return _mm_abs_epi32(a.data_);
-#else
-        return _mm_and_si128(a.data_, _mm_set1_epi32(0x7FFFFFFF));
-#endif
-    }
-    friend Int32_128 pow(const Int32_128& a, int exp)
-    {
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
-        data[SimdLen]{}; // Helper data array
-        a.store_a(data);
-        return _mm_setr_epi32(std::pow(data[0], exp), std::pow(data[1], exp),
-                              std::pow(data[2], exp), std::pow(data[3], exp));
     }
 
 protected:
-    simd_type data_;
+    __KFP_SIMD__SPEC_ALIGN(SimdSize) simd_type data_;
 };
 
 } // namespace SIMD
