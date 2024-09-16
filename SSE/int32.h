@@ -20,7 +20,7 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-__KFP_SIMD__INLINE __m128i select_(const __m128i& mask, const __m128i& a,
+KFP_SIMD__INLINE __m128i select_(const __m128i& mask, const __m128i& a,
                                     const __m128i& b) {
     return _mm_blendv_epi8(b, a, mask);
 }
@@ -79,7 +79,7 @@ public:
     // ------------------------------------------------------
     static Int32_128 iota(value_type start)
     {
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) constexpr value_type
+        KFP_SIMD__SPEC_ALIGN(SimdSize) constexpr value_type
         data[SimdLen]{0, 1, 2, 3}; // Helper data array
         return Int32_128{}.load_a(data) + start;
     }
@@ -119,7 +119,7 @@ public:
     // ------------------------------------------------------
     Int32_128& gather(const value_type* val_ptr, const Int32_128& index)
     {
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
+        KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
         indices[SimdLen]{}; // Helper indices array
         index.store_a(indices);
         data_ = _mm_setr_epi32(
@@ -130,11 +130,11 @@ public:
     }
     void scatter(value_type* val_ptr, const Int32_128& index) const
     {
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
+        KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
         data[SimdLen]{}; // Helper data array
         store_a(data);
 
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) int
+        KFP_SIMD__SPEC_ALIGN(SimdSize) int
         indices[SimdLen]{}; // Helper indices array
         index.store_a(indices);
 
@@ -175,7 +175,7 @@ public:
                ("[Error] (Int32_128::operator[]): invalid index (" + std::to_string(index) +
                ") given. Exceeds maximum")
                .data());
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
+        KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
         data[SimdLen]{}; // Helper array
         store_a(data);
         return data[index];
@@ -191,7 +191,7 @@ public:
 
     Int32_128& insert(int index, value_type val)
     {
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
+        KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
         data[SimdLen]{}; // Helper data array
         store_a(data);
         data[index] = val;
@@ -245,7 +245,7 @@ public:
     friend std::ostream& operator<<(std::ostream& stream,
                                     const Int32_128& a)
     {
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
+        KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
         data[SimdLen]{}; // Helper data array
         a.store_a(data);
         stream << "[" << data[0] << ", " << data[1] << ", " << data[2] << ", "
@@ -296,13 +296,13 @@ public:
     friend Int32_128 operator/(const Int32_128& a,
                                    const Int32_128& b)
     {
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
+        KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
         data1[SimdLen]{}; // Helper data array
         a.store_a(data1);
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
+        KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
         data2[SimdLen]{}; // Helper data array
         b.store_a(data2);
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) const value_type
+        KFP_SIMD__SPEC_ALIGN(SimdSize) const value_type
         data[SimdLen]{data1[0] / data2[0], data1[1] / data2[1],
             data1[2] / data2[2], data1[3] / data2[3]};
         return Int32_128{ _mm_load_si128(reinterpret_cast<const simd_type*>(data)) };
@@ -396,7 +396,7 @@ public:
     }
 
 protected:
-    __KFP_SIMD__SPEC_ALIGN(SimdSize) simd_type data_;
+    KFP_SIMD__SPEC_ALIGN(SimdSize) simd_type data_;
 };
 
 } // namespace SIMD

@@ -14,9 +14,9 @@ Emails: mithran@fias.uni-frankfurt.de
 #include "Utils/memory.h"
 
 // Select appropriate header files depending on instruction set
-#if defined(__KFP_SIMD__AVX)
+#if defined(KFP_SIMD__AVX)
 #include "AVX/types.h"
-#elif defined(__KFP_SIMD__SSE)
+#elif defined(KFP_SIMD__SSE)
 #include "SSE/types.h"
 #else
 #error "[Error] (simd.h): KFParticle SIMD Scalar not implemented."
@@ -24,17 +24,17 @@ Emails: mithran@fias.uni-frankfurt.de
 #endif
 
 static_assert(
-    (KFP::SIMD::simd_float::SimdSize == __KFP_SIMD__Size_Float),
+    (KFP::SIMD::simd_float::SimdSize == KFP_SIMD__Size_Float),
     "[Error]: KFP::SIMD::simd_float given invalid size of simd type.");
 static_assert(
-    (KFP::SIMD::simd_float::SimdLen == __KFP_SIMD__Len_Float),
+    (KFP::SIMD::simd_float::SimdLen == KFP_SIMD__Len_Float),
     "[Error]: KFP::SIMD::simd_float given invalid length of simd type.");
 
 static_assert(
-    (KFP::SIMD::simd_int::SimdSize == __KFP_SIMD__Size_Int),
+    (KFP::SIMD::simd_int::SimdSize == KFP_SIMD__Size_Int),
     "[Error]: KFP::SIMD::simd_int given invalid size of simd type.");
 static_assert(
-    (KFP::SIMD::simd_int::SimdLen == __KFP_SIMD__Len_Int),
+    (KFP::SIMD::simd_int::SimdLen == KFP_SIMD__Len_Int),
     "[Error]: KFP::SIMD::simd_int given invalid length of simd type.");
 
 #endif // !KFP_SIMD_H

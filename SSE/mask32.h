@@ -42,7 +42,7 @@ public:
     }
     Mask32_128(const value_type* val_ptr)
     {
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) const int
+        KFP_SIMD__SPEC_ALIGN(SimdSize) const int
         data[SimdLen]{
             -int(val_ptr[0]), -int(val_ptr[1]), -int(val_ptr[2]), -int(val_ptr[3])
         }; // Helper data array
@@ -71,7 +71,7 @@ public:
     // Member function to load from array (unaligned)
     Mask32_128& load(const value_type* val_ptr)
     {
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) const int
+        KFP_SIMD__SPEC_ALIGN(SimdSize) const int
         data[SimdLen]{
             -int(val_ptr[0]), -int(val_ptr[1]), -int(val_ptr[2]), -int(val_ptr[3])
         }; // Helper data array
@@ -86,7 +86,7 @@ public:
     // Member function to store into array (unaligned)
     void store(value_type* val_ptr) const
     {
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) int
+        KFP_SIMD__SPEC_ALIGN(SimdSize) int
         data[SimdLen]{}; // Helper data array
         _mm_store_si128(reinterpret_cast<simd_type*>(data), data_);
         val_ptr[0] = data[0];
@@ -119,7 +119,7 @@ public:
                ("[Error] (Mask32_128::operator[]): invalid index (" + std::to_string(index) +
                ") given. Exceeds maximum")
                .data());
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) int
+        KFP_SIMD__SPEC_ALIGN(SimdSize) int
         data[SimdLen]{}; // Helper array
         _mm_store_si128(reinterpret_cast<simd_type*>(data), data_);
         return data[index];
@@ -127,7 +127,7 @@ public:
 
     Mask32_128& insert(int index, value_type val)
     {
-        __KFP_SIMD__SPEC_ALIGN(SimdSize) int
+        KFP_SIMD__SPEC_ALIGN(SimdSize) int
         data[SimdLen]{}; // Helper data array
         storeToInt(data);
         data[index] = -int(val);
@@ -188,7 +188,7 @@ public:
     }
 
 protected:
-    __KFP_SIMD__SPEC_ALIGN(SimdSize) simd_type data_;
+    KFP_SIMD__SPEC_ALIGN(SimdSize) simd_type data_;
 };
 
 } // namespace SIMD
