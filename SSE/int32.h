@@ -77,13 +77,13 @@ public:
     // ------------------------------------------------------
     // Factory methods
     // ------------------------------------------------------
-    static Int32_128 iota(value_type start)
+    KFP_SIMD__INLINE static Int32_128 iota(value_type start)
     {
         KFP_SIMD__SPEC_ALIGN(SimdSize) constexpr value_type
         data[SimdLen]{0, 1, 2, 3}; // Helper data array
         return Int32_128{}.load_a(data) + start;
     }
-    static Int32_128 seq(value_type start)
+    KFP_SIMD__INLINE static Int32_128 seq(value_type start)
     {
         return iota(start);
     }
@@ -92,24 +92,24 @@ public:
     // Load and Store
     // ------------------------------------------------------
     // Member function to load from array (unaligned)
-    Int32_128& load(const value_type* val_ptr)
+    KFP_SIMD__INLINE Int32_128& load(const value_type* val_ptr)
     {
         data_ = _mm_loadu_si128(reinterpret_cast<const simd_type*>(val_ptr));
         return *this;
     }
     // Member function to load from array (aligned)
-    Int32_128& load_a(const value_type* val_ptr)
+    KFP_SIMD__INLINE Int32_128& load_a(const value_type* val_ptr)
     {
         data_ = _mm_load_si128(reinterpret_cast<const simd_type*>(val_ptr));
         return *this;
     }
     // Member function to store into array (unaligned)
-    void store(value_type* val_ptr) const
+    KFP_SIMD__INLINE void store(value_type* val_ptr) const
     {
         _mm_storeu_si128(reinterpret_cast<simd_type*>(val_ptr), data_);
     }
     // Member function storing into array (aligned)
-    void store_a(value_type* val_ptr) const
+    KFP_SIMD__INLINE void store_a(value_type* val_ptr) const
     {
         _mm_store_si128(reinterpret_cast<simd_type*>(val_ptr), data_);
     }
@@ -117,7 +117,7 @@ public:
     // ------------------------------------------------------
     // Gather and Scatter
     // ------------------------------------------------------
-    Int32_128& gather(const value_type* val_ptr, const Int32_128& index)
+    KFP_SIMD__INLINE Int32_128& gather(const value_type* val_ptr, const Int32_128& index)
     {
         KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
         indices[SimdLen]{}; // Helper indices array
@@ -128,7 +128,7 @@ public:
         );
         return *this;
     }
-    void scatter(value_type* val_ptr, const Int32_128& index) const
+    KFP_SIMD__INLINE void scatter(value_type* val_ptr, const Int32_128& index) const
     {
         KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
         data[SimdLen]{}; // Helper data array
@@ -147,16 +147,16 @@ public:
     // ------------------------------------------------------
     // Data member accessors
     // ------------------------------------------------------
-    simd_type& simd()
+    KFP_SIMD__INLINE simd_type& simd()
     {
         return data_;
     }
-    const simd_type& simd() const
+    KFP_SIMD__INLINE const simd_type& simd() const
     {
         return data_;
     }
     template <int N>
-    value_type get(simd_type a) const {
+    KFP_SIMD__INLINE value_type get(simd_type a) const {
         static_assert(N < SimdLen,
         "[Error] (Int32_128::get): Invalid value of index to access N given");
 #if 1
@@ -166,7 +166,7 @@ public:
         return _mm_cvtsi128_si32(result);
 #endif
     }
-    value_type operator[](int index) const
+    KFP_SIMD__INLINE value_type operator[](int index) const
     {
         assert((index >= 0) && ("[Error] (Int32_128::operator[]): invalid index (" +
                std::to_string(index) + ") given. Negative")
@@ -184,12 +184,12 @@ public:
     // ------------------------------------------------------
     // Data lanes manipulation
     // ------------------------------------------------------
-    friend Int32_128 select(const Int32_128& mask, const Int32_128& a,
+    KFP_SIMD__INLINE friend Int32_128 select(const Int32_128& mask, const Int32_128& a,
                                        const Int32_128& b) {
         return select_(mask.data_, a.data_, b.data_);
     }
 
-    Int32_128& insert(int index, value_type val)
+    KFP_SIMD__INLINE Int32_128& insert(int index, value_type val)
     {
         KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
         data[SimdLen]{}; // Helper data array
@@ -198,13 +198,13 @@ public:
         load_a(data);
         return *this;
     }
-    Int32_128 sign() const
+    KFP_SIMD__INLINE Int32_128 sign() const
     {
         return Int32_128{
             _mm_and_si128(_mm_set1_epi32(0x80000000), data_)
         };
     }
-    Int32_128& shiftLeft(int n)
+    KFP_SIMD__INLINE Int32_128& shiftLeft(int n)
     {
         constexpr int value_size_bytes = sizeof(int);
         switch (n) {
@@ -221,7 +221,7 @@ public:
         }
         return *this;
     }
-    Int32_128& shiftRight(int n)
+    KFP_SIMD__INLINE Int32_128& shiftRight(int n)
     {
         constexpr int value_size_bytes = sizeof(int);
         switch (n) {
@@ -381,16 +381,15 @@ public:
         return not result;
     }
 
-    friend Int32_128 min(const Int32_128& a, const Int32_128& b)
+    KFP_SIMD__INLINE friend Int32_128 min(const Int32_128& a, const Int32_128& b)
     {
         return _mm_min_epi32(a.data_, b.data_);
     }
-    friend Int32_128 max(const Int32_128& a, const Int32_128& b)
+    KFP_SIMD__INLINE friend Int32_128 max(const Int32_128& a, const Int32_128& b)
     {
         return _mm_max_epi32(a.data_, b.data_);
     }
-
-    friend Int32_128 abs(const Int32_128& a)
+    KFP_SIMD__INLINE friend Int32_128 abs(const Int32_128& a)
     {
         return _mm_abs_epi32(a.data_);
     }

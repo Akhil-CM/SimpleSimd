@@ -69,7 +69,7 @@ public:
     // Load and Store
     // ------------------------------------------------------
     // Member function to load from array (unaligned)
-    Mask32_128& load(const value_type* val_ptr)
+    KFP_SIMD__INLINE Mask32_128& load(const value_type* val_ptr)
     {
         KFP_SIMD__SPEC_ALIGN(SimdSize) const int
         data[SimdLen]{
@@ -78,13 +78,13 @@ public:
         data_ = _mm_load_si128(reinterpret_cast<const simd_type*>(val_ptr));
         return *this;
     }
-    Mask32_128& loadFromInt(const int* val_ptr)
+    KFP_SIMD__INLINE Mask32_128& loadFromInt(const int* val_ptr)
     {
         data_ = _mm_loadu_si128(reinterpret_cast<const simd_type*>(val_ptr));
         return *this;
     }
     // Member function to store into array (unaligned)
-    void store(value_type* val_ptr) const
+    KFP_SIMD__INLINE void store(value_type* val_ptr) const
     {
         KFP_SIMD__SPEC_ALIGN(SimdSize) int
         data[SimdLen]{}; // Helper data array
@@ -94,7 +94,7 @@ public:
         val_ptr[2] = data[2];
         val_ptr[3] = data[3];
     }
-    void storeToInt(int* val_ptr) const
+    KFP_SIMD__INLINE void storeToInt(int* val_ptr) const
     {
         _mm_storeu_si128(reinterpret_cast<simd_type*>(val_ptr), data_);
     }
@@ -102,7 +102,7 @@ public:
     // ------------------------------------------------------
     // Data member accessors
     // ------------------------------------------------------
-    simd_type& simd()
+    KFP_SIMD__INLINE simd_type& simd()
     {
         return data_;
     }
@@ -110,7 +110,7 @@ public:
     {
         return data_;
     }
-    value_type operator[](int index) const
+    KFP_SIMD__INLINE value_type operator[](int index) const
     {
         assert((index >= 0) && ("[Error] (Mask32_128::operator[]): invalid index (" +
                std::to_string(index) + ") given. Negative")
@@ -125,7 +125,7 @@ public:
         return data[index];
     }
 
-    Mask32_128& insert(int index, value_type val)
+    KFP_SIMD__INLINE Mask32_128& insert(int index, value_type val)
     {
         KFP_SIMD__SPEC_ALIGN(SimdSize) int
         data[SimdLen]{}; // Helper data array
@@ -142,16 +142,16 @@ public:
     // ------------------------------------------------------
     // Basic Arithmetic
     // ------------------------------------------------------
-    int count() const
+    KFP_SIMD__INLINE int count() const
     {
         const int tmp{ _mm_movemask_ps(_mm_castsi128_ps(data_)) };
         return (tmp & 0x01) + ((tmp & 0x02) >> 1) + ((tmp & 0x04) >> 2) + ((tmp & 0x08) >> 3);
     }
-    bool AND() const
+    KFP_SIMD__INLINE bool AND() const
     {
         return _mm_testc_si128(data_, _mm_set1_epi32(-1));
     }
-    bool OR() const
+    KFP_SIMD__INLINE bool OR() const
     {
         return not _mm_testz_si128(data_, data_);
     }
