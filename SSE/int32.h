@@ -13,7 +13,6 @@ Emails: mithran@fias.uni-frankfurt.de
 #include "../Utils/tag.h"
 #include "mask32.h"
 
-#include <iostream>
 #include <string>
 #include <cassert>
 
@@ -77,15 +76,11 @@ public:
     // ------------------------------------------------------
     // Factory methods
     // ------------------------------------------------------
-    KFP_SIMD__INLINE static Int32_128 iota(value_type start)
+    KFP_SIMD__INLINE static Int32_128 indicesSequence(value_type start)
     {
         KFP_SIMD__SPEC_ALIGN(SimdSize) constexpr value_type
         data[SimdLen]{0, 1, 2, 3}; // Helper data array
         return Int32_128{}.load_a(data) + start;
-    }
-    KFP_SIMD__INLINE static Int32_128 seq(value_type start)
-    {
-        return iota(start);
     }
 
     // ------------------------------------------------------
@@ -182,22 +177,18 @@ public:
     }
 
     // ------------------------------------------------------
+    // Print I/O
+    // ------------------------------------------------------
+    // TODO
+
+    // ------------------------------------------------------
     // Data lanes manipulation
     // ------------------------------------------------------
-    KFP_SIMD__INLINE friend Int32_128 select(const Int32_128& mask, const Int32_128& a,
+    KFP_SIMD__INLINE friend Int32_128 select(const Mask32_128& mask, const Int32_128& a,
                                        const Int32_128& b) {
         return select_(mask.data_, a.data_, b.data_);
     }
 
-    KFP_SIMD__INLINE Int32_128& insert(int index, value_type val)
-    {
-        KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
-        data[SimdLen]{}; // Helper data array
-        store_a(data);
-        data[index] = val;
-        load_a(data);
-        return *this;
-    }
     KFP_SIMD__INLINE Int32_128 sign() const
     {
         return Int32_128{
@@ -242,16 +233,6 @@ public:
     // ------------------------------------------------------
     // Print I/O
     // ------------------------------------------------------
-    friend std::ostream& operator<<(std::ostream& stream,
-                                    const Int32_128& a)
-    {
-        KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
-        data[SimdLen]{}; // Helper data array
-        a.store_a(data);
-        stream << "[" << data[0] << ", " << data[1] << ", " << data[2] << ", "
-             << data[3] << "]";
-        return stream;
-    }
 
     // ------------------------------------------------------
     // Basic Arithmetic
@@ -291,26 +272,6 @@ public:
                                    const Int32_128& b)
     {
         a = a * b;
-        return a;
-    }
-    friend Int32_128 operator/(const Int32_128& a,
-                                   const Int32_128& b)
-    {
-        KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
-        data1[SimdLen]{}; // Helper data array
-        a.store_a(data1);
-        KFP_SIMD__SPEC_ALIGN(SimdSize) value_type
-        data2[SimdLen]{}; // Helper data array
-        b.store_a(data2);
-        KFP_SIMD__SPEC_ALIGN(SimdSize) const value_type
-        data[SimdLen]{data1[0] / data2[0], data1[1] / data2[1],
-            data1[2] / data2[2], data1[3] / data2[3]};
-        return Int32_128{ _mm_load_si128(reinterpret_cast<const simd_type*>(data)) };
-    }
-    friend Int32_128& operator/=(Int32_128& a,
-                                   const Int32_128& b)
-    {
-        a = a / b;
         return a;
     }
     friend Int32_128 operator<<(const Int32_128& a, int n)
@@ -394,7 +355,7 @@ public:
         return _mm_abs_epi32(a.data_);
     }
 
-protected:
+private:
     KFP_SIMD__SPEC_ALIGN(SimdSize) simd_type data_;
 };
 

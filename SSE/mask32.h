@@ -106,9 +106,13 @@ public:
     {
         return data_;
     }
-    const simd_type& simd() const
+    KFP_SIMD__INLINE const simd_type& simd() const
     {
         return data_;
+    }
+    KFP_SIMD__INLINE simd_type simdf() const
+    {
+        return _mm_castsi128_ps(data_);
     }
     KFP_SIMD__INLINE value_type operator[](int index) const
     {
@@ -125,15 +129,6 @@ public:
         return data[index];
     }
 
-    KFP_SIMD__INLINE Mask32_128& insert(int index, value_type val)
-    {
-        KFP_SIMD__SPEC_ALIGN(SimdSize) int
-        data[SimdLen]{}; // Helper data array
-        storeToInt(data);
-        data[index] = -int(val);
-        loadFromInt(data);
-        return *this;
-    }
     // ------------------------------------------------------
     // Print I/O
     // ------------------------------------------------------
@@ -147,13 +142,13 @@ public:
         const int tmp{ _mm_movemask_ps(_mm_castsi128_ps(data_)) };
         return (tmp & 0x01) + ((tmp & 0x02) >> 1) + ((tmp & 0x04) >> 2) + ((tmp & 0x08) >> 3);
     }
-    KFP_SIMD__INLINE bool AND() const
+    KFP_SIMD__INLINE bool isFull() const
     {
         return _mm_testc_si128(data_, _mm_set1_epi32(-1));
     }
-    KFP_SIMD__INLINE bool OR() const
+    KFP_SIMD__INLINE bool isEmpty() const
     {
-        return not _mm_testz_si128(data_, data_);
+        return _mm_testz_si128(data_, data_);
     }
 
     friend Mask32_128 operator!(const Mask32_128& a)
@@ -187,7 +182,7 @@ public:
         return result;
     }
 
-protected:
+private:
     KFP_SIMD__SPEC_ALIGN(SimdSize) simd_type data_;
 };
 
