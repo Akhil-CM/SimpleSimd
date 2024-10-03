@@ -9,9 +9,9 @@ Emails: mithran@fias.uni-frankfurt.de
 #ifndef SIMD_SSE_TYPE_H
 #define SIMD_SSE_TYPE_H
 
+#include "mask32.h"
 #include "int32.h"
 #include "float32.h"
-#include "mask32.h"
 #include <type_traits>
 
 namespace KFP {
@@ -29,7 +29,7 @@ static_assert(std::is_same<simd_int::value_type, int>::value,
 
 template<typename To, typename From,
 typename std::enable_if<!std::is_same<To, From>::value>::type* = nullptr>
-To type_cast(const From& a)
+To type_cast(const From&)
 {
     throw std::runtime_error("[Error] (KFP::SIMD::type_cast): Invalid types given");
 }
@@ -52,7 +52,7 @@ Int32_128 type_cast<Int32_128, Float32_128>(const Float32_128& a)
 
 template<typename To, typename From,
 typename std::enable_if<!std::is_same<To, From>::value>::type* = nullptr>
-To value_cast(const From& a)
+To value_cast(const From&)
 {
     throw std::runtime_error("[Error] (KFP::SIMD::value_cast): Invalid types given");
 }

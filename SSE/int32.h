@@ -147,12 +147,14 @@ public:
         return m_data;
     }
     template <int N>
-    KFP_SIMD_INLINE std::int32_t get(__m128i a) const {
+    KFP_SIMD_INLINE std::int32_t get() const {
+        static_assert(N < 0,
+        "[Error] (Int32_128::get): Negative value of index to access N given");
         static_assert(N < SimdLen,
         "[Error] (Int32_128::get): Invalid value of index to access N given");
         return _mm_extract_epi32(m_data, N);
     }
-    KFP_SIMD_INLINE std::int32_t operator[](int index) const
+    KFP_SIMD_INLINE std::int32_t operator[](std::size_t index) const
     {
         assert((index >= 0) && ("[Error] (Int32_128::operator[]): invalid index (" +
                std::to_string(index) + ") given. Negative")
@@ -186,39 +188,17 @@ public:
             _mm_and_si128(_mm_set1_epi32(0x80000000), m_data)
         };
     }
-    KFP_SIMD_INLINE Int32_128& shiftLeft(int n)
+    template<int N>
+    KFP_SIMD_INLINE Int32_128 shiftLeft()
     {
-        constexpr int value_size_bytes = sizeof(int);
-        switch (n) {
-            case 0:
-                return *this;
-            case 1:
-                m_data = _mm_bsrli_si128(m_data, value_size_bytes);
-            case 2:
-                m_data = _mm_bsrli_si128(m_data, 2 * value_size_bytes);
-            case 3:
-                m_data = _mm_bsrli_si128(m_data, 3 * value_size_bytes);
-            default:
-                m_data = _mm_set1_epi32(0);
-        }
-        return *this;
+        constexpr int num_shift_bytes = N < 0 ? (-N)*4 : N*4;
+        return _mm_bsrli_si128(m_data, num_shift_bytes);
     }
-    KFP_SIMD_INLINE Int32_128& shiftRight(int n)
+    template<int N>
+    KFP_SIMD_INLINE Int32_128 shiftRight()
     {
-        constexpr int value_size_bytes = sizeof(int);
-        switch (n) {
-            case 0:
-                return *this;
-            case 1:
-                m_data = _mm_bslli_si128(m_data, value_size_bytes);
-            case 2:
-                m_data = _mm_bslli_si128(m_data, 2 * value_size_bytes);
-            case 3:
-                m_data = _mm_bslli_si128(m_data, 3 * value_size_bytes);
-            default:
-                m_data = _mm_set1_epi32(0);
-        }
-        return *this;
+        constexpr int num_shift_bytes = N < 0 ? (-N)*4 : N*4;
+        return _mm_bslli_si128(m_data, num_shift_bytes);
     }
 
     // ------------------------------------------------------
@@ -264,7 +244,7 @@ public:
     }
     Int32_128 operator>>(int n)
     {
-        return _mm_sra_epi32(m_data, _mm_cvtsi32_si128(n));
+        return _mm_srai_epi32(m_data, n);
     }
     friend Int32_128 operator&(const Int32_128& a,
                                    const Int32_128& b)

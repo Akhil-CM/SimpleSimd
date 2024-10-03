@@ -13,9 +13,8 @@ Emails: mithran@fias.uni-frankfurt.de
 #include "../Utils/tag.h"
 #include "constants.h"
 
-#include <cstdint>
-#include <iostream>
 #include <cassert>
+#include <string>
 
 namespace KFP {
 namespace SIMD {
@@ -58,7 +57,7 @@ public:
     {
         return _mm_castsi128_ps(m_data);
     }
-    KFP_SIMD_INLINE bool operator[](int index) const
+    KFP_SIMD_INLINE bool operator[](std::size_t index) const
     {
         assert((index >= 0) && ("[Error] (Mask32_128::operator[]): invalid index (" +
                std::to_string(index) + ") given. Negative")
