@@ -266,42 +266,42 @@ public:
     friend Mask32_128 operator<(const Int32_128& a,
                                    const Int32_128& b)
     {
-        Mask32_128 result;
+        Mask32_128 result{UninitializeTag{}};
         result.m_data = _mm_cmplt_epi32(a.m_data, b.m_data);
         return result;
     }
     friend Mask32_128 operator<=(const Int32_128& a,
                                     const Int32_128& b)
     {
-        Mask32_128 result;
+        Mask32_128 result{UninitializeTag{}};
         result.m_data = _mm_cmpeq_epi32(_mm_min_epi32(a.m_data, b.m_data), a.m_data);
         return result;
     }
     friend Mask32_128 operator>(const Int32_128& a,
                                    const Int32_128& b)
     {
-        Mask32_128 result;
+        Mask32_128 result{UninitializeTag{}};
         result.m_data = _mm_cmpgt_epi32(a.m_data, b.m_data);
         return result;
     }
     friend Mask32_128 operator>=(const Int32_128& a,
                                     const Int32_128& b)
     {
-        Mask32_128 result;
+        Mask32_128 result{UninitializeTag{}};
         result.m_data = _mm_cmpeq_epi32(_mm_min_epi32(b.m_data, a.m_data), b.m_data);
         return result;
     }
     friend Mask32_128 operator==(const Int32_128& a,
                                     const Int32_128& b)
     {
-        Mask32_128 result;
+        Mask32_128 result{UninitializeTag{}};
         result.m_data = _mm_cmpeq_epi32(a.m_data, b.m_data);
         return result;
     }
     friend Mask32_128 operator!=(const Int32_128& a,
                                     const Int32_128& b)
     {
-        Mask32_128 result;
+        Mask32_128 result{UninitializeTag{}};
         result.m_data = _mm_cmpeq_epi32(a.m_data, b.m_data);
         return not result;
     }
