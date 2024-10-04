@@ -1,10 +1,8 @@
 -xc++
--std=c++17
--mavx2
+-std=c++11
+-march=native
 -Wall
 -Wextra
 -pedantic
 -Weffc++
 -Wsign-conversion
--I
-include/

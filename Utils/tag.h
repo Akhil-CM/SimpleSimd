@@ -14,6 +14,8 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
+struct UninitializeTag {};
+
 enum class Tag
 {
     /// uses only fundamental types
