@@ -21,11 +21,6 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-KFP_SIMD_INLINE __m128i select_(const __m128i& mask, const __m128i& a,
-                                    const __m128i& b) {
-    return _mm_blendv_epi8(b, a, mask);
-}
-
 class Int32_128
 {
 public:
@@ -46,7 +41,7 @@ public:
     {
         m_data = _mm_set1_epi32(val);
     }
-    Int32_128(__m128i val_simd)
+    Int32_128(const __m128i& val_simd)
     {
         m_data = val_simd;
     }
@@ -148,21 +143,21 @@ public:
     }
     template <int N>
     KFP_SIMD_INLINE std::int32_t get() const {
-        static_assert(N < 0,
-        "[Error] (Int32_128::get): Negative value of index to access N given");
+        static_assert(N >= 0,
+        "[Error] (Int32_128::get): Invalid value of index N. Negative");
         static_assert(N < SimdLen,
-        "[Error] (Int32_128::get): Invalid value of index to access N given");
+        "[Error] (Int32_128::get): Invalid value of index N. Out of range.");
         return _mm_extract_epi32(m_data, N);
     }
     KFP_SIMD_INLINE std::int32_t operator[](std::size_t index) const
     {
-        assert((index >= 0) && ("[Error] (Int32_128::operator[]): invalid index (" +
-               std::to_string(index) + ") given. Negative")
-               .data());
+        assert((index >= 0) && ("[Error] (Int32_128::operator[]): Invalid index (" +
+               std::to_string(index) + ") given. Negative.")
+               .c_str());
         assert((index < SimdLen) &&
-               ("[Error] (Int32_128::operator[]): invalid index (" + std::to_string(index) +
-               ") given. Exceeds maximum")
-               .data());
+               ("[Error] (Int32_128::operator[]): Invalid index (" + std::to_string(index) +
+               ") given. Out of range.")
+               .c_str());
         alignas(SimdSize) std::int32_t
         data[SimdLen]{}; // Helper array
         store(data);
@@ -170,16 +165,11 @@ public:
     }
 
     // ------------------------------------------------------
-    // Print I/O
-    // ------------------------------------------------------
-    // TODO
-
-    // ------------------------------------------------------
     // Data lanes manipulation
     // ------------------------------------------------------
     KFP_SIMD_INLINE friend Int32_128 select(const Mask32_128& mask, const Int32_128& a,
                                        const Int32_128& b) {
-        return select_(mask.m_data, a.m_data, b.m_data);
+        return _mm_blendv_epi8(b.m_data, a.m_data, mask.m_data);
     }
 
     KFP_SIMD_INLINE Int32_128 sign() const
@@ -189,13 +179,13 @@ public:
         };
     }
     template<int N>
-    KFP_SIMD_INLINE Int32_128 shiftLeft()
+    KFP_SIMD_INLINE Int32_128 shiftLeft() const
     {
         constexpr int num_shift_bytes = N < 0 ? (-N)*4 : N*4;
         return _mm_bsrli_si128(m_data, num_shift_bytes);
     }
     template<int N>
-    KFP_SIMD_INLINE Int32_128 shiftRight()
+    KFP_SIMD_INLINE Int32_128 shiftRight() const
     {
         constexpr int num_shift_bytes = N < 0 ? (-N)*4 : N*4;
         return _mm_bslli_si128(m_data, num_shift_bytes);
