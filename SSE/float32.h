@@ -11,9 +11,9 @@ Emails: mithran@fias.uni-frankfurt.de
 
 #include "../Utils/macros.h"
 #include "../Utils/tag.h"
-#include "mask32.h"
 
 #include <iostream>
+#include <x86intrin.h>
 #include <cmath>
 #include <string>
 #include <cassert>
@@ -21,7 +21,7 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
-KFP_SIMD__INLINE __m128 select(const __m128& mask, const __m128& a,
+__KFP_SIMD__INLINE __m128 select(const __m128& mask, const __m128& a,
                                     const __m128& b);
 
 class Float32_128
