@@ -179,16 +179,37 @@ public:
         };
     }
     template<int N>
-    KFP_SIMD_INLINE Int32_128 shiftLeft() const
+    KFP_SIMD_INLINE Int32_128 shiftPerLaneLeft() const
     {
-        constexpr int num_shift_bytes = N < 0 ? (-N)*4 : N*4;
-        return _mm_bsrli_si128(m_data, num_shift_bytes);
+        static_assert(N >= 0,
+        "[Error] (Int32_128::shiftPerLaneLeft): Invalid value of index N. Negative");
+        return Int32_128{_mm_slli_epi32(m_data, N)};
     }
     template<int N>
-    KFP_SIMD_INLINE Int32_128 shiftRight() const
+    KFP_SIMD_INLINE Int32_128 shiftPerLaneRight() const
     {
-        constexpr int num_shift_bytes = N < 0 ? (-N)*4 : N*4;
-        return _mm_bslli_si128(m_data, num_shift_bytes);
+        static_assert(N >= 0,
+        "[Error] (Int32_128::shiftPerLaneRight): Invalid value of index N. Negative");
+        return Int32_128{_mm_srai_epi32(m_data, N)};
+    }
+    template<int N>
+    KFP_SIMD_INLINE Int32_128 rotate() const
+    {
+        if (N < 0) {
+            constexpr int num_shift = (-N) % SimdLen;
+            constexpr int left_shift_bytes = num_shift*4;
+            constexpr int right_shift_bytes = (SimdLen - num_shift)*4;
+            const __m128i left = _mm_bsrli_si128(m_data, left_shift_bytes);
+            const __m128i right = _mm_bslli_si128(m_data, right_shift_bytes);
+            return Int32_128{_mm_or_si128(left, right)};
+        } else {
+            constexpr int num_shift = N % SimdLen;
+            constexpr int left_shift_bytes = (SimdLen - num_shift)*4;
+            constexpr int right_shift_bytes = num_shift*4;
+            const __m128i left = _mm_bsrli_si128(m_data, left_shift_bytes);
+            const __m128i right = _mm_bslli_si128(m_data, right_shift_bytes);
+            return Int32_128{_mm_or_si128(left, right)};
+        }
     }
 
     // ------------------------------------------------------
@@ -228,11 +249,11 @@ public:
         *this = *this * a;
         return *this;
     }
-    Int32_128 operator<<(int n)
+    Int32_128 operator<<(int n) const
     {
         return _mm_slli_epi32(m_data, n);
     }
-    Int32_128 operator>>(int n)
+    Int32_128 operator>>(int n) const
     {
         return _mm_srai_epi32(m_data, n);
     }

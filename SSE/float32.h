@@ -163,27 +163,39 @@ public:
         return _mm_blendv_ps(b.m_data, a.m_data, mask.simdf());
     }
 
-    KFP_SIMD_INLINE Float32_128 sign() const
+    KFP_SIMD_INLINE Float32_128 multiplySign(const Float32_128& a) const
     {
-        return Float32_128{
-            _mm_and_ps(_mm_castsi128_ps(_mm_set1_epi32(0x80000000)), m_data)
+        const __m128 sign{
+            _mm_and_ps(_mm_castsi128_ps(_mm_set1_epi32(0x80000000)), a.m_data)
         };
+        return Float32_128{ _mm_xor_ps(m_data, sign) };
     }
     template<int N>
-    KFP_SIMD_INLINE Float32_128 shiftLeft() const
+    KFP_SIMD_INLINE Float32_128 rotate() const
     {
-        constexpr int num_shift_bytes = N < 0 ? (-N)*4 : N*4;
-        return _mm_castsi128_ps(
-            _mm_bsrli_si128(_mm_castps_si128(m_data), num_shift_bytes)
-        );
-    }
-    template<int N>
-    KFP_SIMD_INLINE Float32_128 shiftRight() const
-    {
-        constexpr int num_shift_bytes = N < 0 ? (-N)*4 : N*4;
-        return _mm_castsi128_ps(
-            _mm_bslli_si128(_mm_castps_si128(m_data), num_shift_bytes)
-        );
+        if (N < 0) {
+            constexpr int num_shift = (-N) % SimdLen;
+            constexpr int left_shift_bytes = num_shift*4;
+            constexpr int right_shift_bytes = (SimdLen - num_shift)*4;
+            const __m128 left = _mm_castsi128_ps(
+                _mm_bsrli_si128(_mm_castps_si128(m_data), left_shift_bytes)
+            );
+            const __m128 right = _mm_castsi128_ps(
+                _mm_bslli_si128(_mm_castps_si128(m_data), right_shift_bytes)
+            );
+            return Float32_128{_mm_or_ps(left, right)};
+        } else {
+            constexpr int num_shift = N % SimdLen;
+            constexpr int left_shift_bytes = (SimdLen - num_shift)*4;
+            constexpr int right_shift_bytes = num_shift*4;
+            const __m128 left = _mm_castsi128_ps(
+                _mm_bsrli_si128(_mm_castps_si128(m_data), left_shift_bytes)
+            );
+            const __m128 right = _mm_castsi128_ps(
+                _mm_bslli_si128(_mm_castps_si128(m_data), right_shift_bytes)
+            );
+            return Float32_128{_mm_or_ps(left, right)};
+        }
     }
 
     // ------------------------------------------------------
@@ -228,21 +240,6 @@ public:
     {
         *this = *this * a;
         return *this;
-    }
-    friend Float32_128 operator&(const Float32_128& a,
-                                   const Float32_128& b)
-    {
-        return _mm_and_ps(a.m_data, b.m_data);
-    }
-    friend Float32_128 operator|(const Float32_128& a,
-                                   const Float32_128& b)
-    {
-        return _mm_or_ps(a.m_data, b.m_data);
-    }
-    friend Float32_128 operator^(const Float32_128& a,
-                                   const Float32_128& b)
-    {
-        return _mm_xor_ps(a.m_data, b.m_data);
     }
 
     // Comparison (mask returned)
