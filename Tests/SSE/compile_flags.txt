@@ -1,0 +1,8 @@
+-xc++
+-std=c++11
+-msse4
+-Wall
+-Wextra
+-pedantic
+-Weffc++
+-Wsign-conversion
