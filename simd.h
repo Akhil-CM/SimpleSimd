@@ -15,11 +15,13 @@ Emails: mithran@fias.uni-frankfurt.de
 
 // Select appropriate header files depending on instruction set
 #if defined(KFP_SIMD_AVX)
-#include "AVX/types.h"
+#error "[Error] (simd.h): KFParticle SIMD AVX not implemented."
+// #include "AVX/types.h"
 #elif defined(KFP_SIMD_SSE)
 #include "SSE/types.h"
 #else
 #error "[Error] (simd.h): KFParticle SIMD Scalar not implemented."
+// #include "Scalar/types.h"
 #include "Scalar/types.h"
 #endif
 

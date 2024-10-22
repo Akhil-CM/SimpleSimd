@@ -149,12 +149,12 @@ public:
         "[Error] (Int32_128::get): Invalid value of index N. Out of range.");
         return _mm_extract_epi32(m_data, N);
     }
-    KFP_SIMD_INLINE std::int32_t operator[](std::size_t index) const
+    KFP_SIMD_INLINE std::int32_t operator[](int index) const
     {
         assert((index >= 0) && ("[Error] (Int32_128::operator[]): Invalid index (" +
                std::to_string(index) + ") given. Negative.")
                .c_str());
-        assert((index < SimdLen) &&
+        assert((index < int(SimdLen)) &&
                ("[Error] (Int32_128::operator[]): Invalid index (" + std::to_string(index) +
                ") given. Out of range.")
                .c_str());
