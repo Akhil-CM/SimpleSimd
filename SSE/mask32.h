@@ -33,9 +33,7 @@ public:
     // Constructors
     // ------------------------------------------------------
     // Default constructor:
-    Mask32_128() {
-        m_data = _mm_setzero_si128();
-    }
+    Mask32_128() : m_data{_mm_setzero_si128()} {}
     Mask32_128(UninitializeTag) {}
     // Constructor to broadcast the same value into all elements:
     Mask32_128(const Mask32_128& class_simd) = default;
@@ -57,12 +55,12 @@ public:
     {
         return _mm_castsi128_ps(m_data);
     }
-    KFP_SIMD_INLINE bool operator[](std::size_t index) const
+    KFP_SIMD_INLINE bool operator[](int index) const
     {
         assert((index >= 0) && ("[Error] (Mask32_128::operator[]): invalid index (" +
                std::to_string(index) + ") given. Negative")
                .data());
-        assert((index < SimdLen) &&
+        assert((index < int(SimdLen)) &&
                ("[Error] (Mask32_128::operator[]): invalid index (" + std::to_string(index) +
                ") given. Exceeds maximum")
                .data());

@@ -12,6 +12,7 @@ Emails: mithran@fias.uni-frankfurt.de
 #include "mask32.h"
 #include "int32.h"
 #include "float32.h"
+#include <stdexcept>
 #include <type_traits>
 
 namespace KFP {

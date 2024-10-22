@@ -140,12 +140,12 @@ public:
         "[Error] (Float32_128::get): Invalid value of index N. Out of range.");
         return _mm_extract_ps(m_data, N);
     }
-    KFP_SIMD_INLINE float operator[](std::size_t index) const
+    KFP_SIMD_INLINE float operator[](int index) const
     {
         assert((index >= 0) && ("[Error] (Float32_128::operator[]): Invalid index (" +
                std::to_string(index) + ") given. Negative")
                .c_str());
-        assert((index < SimdLen) &&
+        assert((index < int(SimdLen)) &&
                ("[Error] (Float32_128::operator[]): Invalid index (" + std::to_string(index) +
                ") given. Out of range.")
                .c_str());
@@ -239,6 +239,18 @@ public:
     Float32_128& operator*=(const Float32_128& a)
     {
         *this = *this * a;
+        return *this;
+    }
+    friend Float32_128 operator/(const Float32_128& a,
+                                   const Float32_128& b)
+    {
+        return Float32_128{
+            _mm_div_ps(a.m_data, b.m_data)
+        };
+    }
+    Float32_128& operator/=(const Float32_128& a)
+    {
+        *this = *this / a;
         return *this;
     }
 
