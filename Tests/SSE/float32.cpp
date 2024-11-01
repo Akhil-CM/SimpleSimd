@@ -150,71 +150,100 @@ TEST_CASE("Float32_128 NegativeZero") {
 
 TEST_CASE("Float32_128 combining various Corner Cases") {
 
+    float min = std::numeric_limits<float>::min();
+    float max = std::numeric_limits<float>::max();
+    float min_denorm = std::numeric_limits<float>::denorm_min();
+    float max_denorm = (1.f - std::pow(2.f, -23)) * std::pow(2.f, -126);
     float inf = std::numeric_limits<float>::infinity();
     float qnan = std::numeric_limits<float>::quiet_NaN();
 
-    float corner_cases[][2] = {
-        {inf, inf}, {-inf, -inf}, {inf, -inf},
-        {inf, qnan}, {-inf, qnan},
-        {inf, -qnan}, {-inf, -qnan},
-        {qnan, qnan}, {-qnan, -qnan}, {qnan, -qnan},
-        {0.0f, inf}, {0.0f, -inf},
-        {1.0f, inf}, {-1.0f, inf},
-        {1.0f, -inf}, {-1.0f, -inf},
-        {0.0f, qnan}, {0.0f, -qnan},
-        {1.0f, qnan}, {-1.0f, qnan},
-        {1.0f, -qnan}, {-1.0f, -qnan}
+    float special_cases_base[] = {
+        0.f, 1.f, 12345678.f, max, min, max_denorm, min_denorm, max/2, inf, qnan,
     };
+    const std::size_t num_special_cases_base = sizeof(special_cases_base)/sizeof(float);
+    std::vector<float> special_cases;
+    special_cases.reserve(num_special_cases_base);
+    for (std::size_t idx{0}; idx != num_special_cases_base; ++idx) {
+        addTestCase(special_cases_base[idx], special_cases);
+    }
 
     SUBCASE("Float32_128 Addition Corner Cases") {
-        for (const auto& pair : corner_cases) {
-            Float32_128 a(pair[0]), b(pair[1]);
-            Float32_128 result = a + b;
+        for(uint32_t i = 0; i != special_cases.size(); ++i)
+        {
+            const float value1 = special_cases[i];
 
-            float expected[4] = {pair[0] + pair[1], pair[0] + pair[1], pair[0] + pair[1], pair[0] + pair[1]};
-            alignas(SimdSize) float actual[SimdLen];
-            result.store(actual);
+            for(uint32_t j = 0; j != special_cases.size(); ++j)
+            {
+                const float value2 = special_cases[j];
 
-            CHECK(testFloatAll(expected, actual, SimdLen));
+                Float32_128 a{value1}, b{value2};
+                Float32_128 result = a + b;
+                float expected = value1 + value2;
+                alignas(SimdSize) float actual[SimdLen];
+                result.store(actual);
+
+                CHECK(testFloatAll(expected, actual, SimdLen));
+            }
         }
     }
 
     SUBCASE("Float32_128 Subtraction Corner Cases") {
-        for (const auto& pair : corner_cases) {
-            Float32_128 a(pair[0]), b(pair[1]);
-            Float32_128 result = a - b;
+        for(uint32_t i = 0; i != special_cases.size(); ++i)
+        {
+            const float value1 = special_cases[i];
 
-            float expected[4] = {pair[0] - pair[1], pair[0] - pair[1], pair[0] - pair[1], pair[0] - pair[1]};
-            alignas(SimdSize) float actual[SimdLen];
-            result.store(actual);
+            for(uint32_t j = 0; j != special_cases.size(); ++j)
+            {
+                const float value2 = special_cases[j];
 
-            CHECK(testFloatAll(expected, actual, SimdLen));
+                Float32_128 a{value1}, b{value2};
+                Float32_128 result = a - b;
+                float expected = value1 - value2;
+                alignas(SimdSize) float actual[SimdLen];
+                result.store(actual);
+
+                CHECK(testFloatAll(expected, actual, SimdLen));
+            }
         }
     }
 
     SUBCASE("Float32_128 Multiplication Corner Cases") {
-        for (const auto& pair : corner_cases) {
-            Float32_128 a(pair[0]), b(pair[1]);
-            Float32_128 result = a * b;
+        for(uint32_t i = 0; i != special_cases.size(); ++i)
+        {
+            const float value1 = special_cases[i];
 
-            float expected[4] = {pair[0] * pair[1], pair[0] * pair[1], pair[0] * pair[1], pair[0] * pair[1]};
-            alignas(SimdSize) float actual[SimdLen];
-            result.store(actual);
+            for(uint32_t j = 0; j != special_cases.size(); ++j)
+            {
+                const float value2 = special_cases[j];
 
-            CHECK(testFloatAll(expected, actual, SimdLen));
+                Float32_128 a{value1}, b{value2};
+                Float32_128 result = a * b;
+                float expected = value1 * value2;
+                alignas(SimdSize) float actual[SimdLen];
+                result.store(actual);
+
+                CHECK(testFloatAll(expected, actual, SimdLen));
+            }
         }
     }
 
     SUBCASE("Float32_128 Division Corner Cases") {
-        for (const auto& pair : corner_cases) {
-            Float32_128 a(pair[0]), b(pair[1]);
-            Float32_128 result = a / b;
+        for(uint32_t i = 0; i != special_cases.size(); ++i)
+        {
+            const float value1 = special_cases[i];
 
-            float expected[4] = {pair[0] / pair[1], pair[0] / pair[1], pair[0] / pair[1], pair[0] / pair[1]};
-            alignas(SimdSize) float actual[SimdLen];
-            result.store(actual);
+            for(uint32_t j = 0; j != special_cases.size(); ++j)
+            {
+                const float value2 = special_cases[j];
 
-            CHECK(testFloatAll(expected, actual, SimdLen));
+                Float32_128 a{value1}, b{value2};
+                Float32_128 result = a / b;
+                float expected = value1 / value2;
+                alignas(SimdSize) float actual[SimdLen];
+                result.store(actual);
+
+                CHECK(testFloatAll(expected, actual, SimdLen));
+            }
         }
     }
 }
