@@ -74,6 +74,11 @@ public:
         };
     }
 
+    KFP_SIMD_INLINE static Int32_128 indicesSequence()
+    {
+        return Int32_128{_mm_setr_epi32(0, 1, 2, 3)};
+    }
+
     // ------------------------------------------------------
     // Load and Store
     // ------------------------------------------------------
@@ -151,13 +156,7 @@ public:
     }
     KFP_SIMD_INLINE std::int32_t operator[](int index) const
     {
-        assert((index >= 0) && ("[Error] (Int32_128::operator[]): Invalid index (" +
-               std::to_string(index) + ") given. Negative.")
-               .c_str());
-        assert((index < int(SimdLen)) &&
-               ("[Error] (Int32_128::operator[]): Invalid index (" + std::to_string(index) +
-               ") given. Out of range.")
-               .c_str());
+        assert((index >= 0) && (index < int(SimdLen)));
         alignas(SimdSize) std::int32_t
         data[SimdLen]{}; // Helper array
         store(data);
