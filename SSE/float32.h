@@ -142,13 +142,7 @@ public:
     }
     KFP_SIMD_INLINE float operator[](int index) const
     {
-        assert((index >= 0) && ("[Error] (Float32_128::operator[]): Invalid index (" +
-               std::to_string(index) + ") given. Negative")
-               .c_str());
-        assert((index < int(SimdLen)) &&
-               ("[Error] (Float32_128::operator[]): Invalid index (" + std::to_string(index) +
-               ") given. Out of range.")
-               .c_str());
+        assert((index >= 0) && (index < int(SimdLen)));
         alignas(SimdSize) float
         data[SimdLen]{}; // Helper array
         store(data);
@@ -165,9 +159,9 @@ public:
 
     KFP_SIMD_INLINE Float32_128 multiplySign(const Float32_128& a) const
     {
-        const __m128 sign{
+        const __m128 sign(
             _mm_and_ps(_mm_castsi128_ps(_mm_set1_epi32(0x80000000)), a.m_data)
-        };
+        );
         return Float32_128{ _mm_xor_ps(m_data, sign) };
     }
     template<int N>
@@ -197,6 +191,21 @@ public:
             return Float32_128{_mm_or_ps(left, right)};
         }
     }
+
+    // ------------------------------------------------------
+    // Rounding
+    // ------------------------------------------------------
+
+    KFP_SIMD_INLINE friend Float32_128 round(const Float32_128& a)
+    { 
+        return _mm_round_ps(a.m_data, (_MM_FROUND_TO_NEAREST_INT | _MM_FROUND_NO_EXC));
+    }
+    
+    KFP_SIMD_INLINE friend Float32_128 trunc(const Float32_128& a)
+    {
+        return _mm_round_ps(a.m_data, (_MM_FROUND_TO_ZERO | _MM_FROUND_NO_EXC));
+    }
+
 
     // ------------------------------------------------------
     // Basic Arithmetic
@@ -314,14 +323,40 @@ public:
     {
         return _mm_min_ps(a.m_data, b.m_data);
     }
+
     KFP_SIMD_INLINE friend Float32_128 max(const Float32_128& a, const Float32_128& b)
     {
         return _mm_max_ps(a.m_data, b.m_data);
     }
+
     KFP_SIMD_INLINE friend Float32_128 abs(const Float32_128& a)
     {
         return _mm_and_ps(a.m_data, _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF)));
     }
+
+    KFP_SIMD_INLINE friend Float32_128 sqrt(const Float32_128& a)
+    {
+        return _mm_sqrt_ps(a.m_data);
+    }
+
+    // ------------------------------------------------------
+    // Float checks
+    // ------------------------------------------------------
+
+    KFP_SIMD_INLINE friend Mask32_128 isNan(const Float32_128& a)
+    {
+        Mask32_128 result(UninitializeTag{});
+        result.m_data = _mm_castps_si128(_mm_cmpunord_ps(a.m_data, a.m_data));
+        return result;
+    }
+
+    KFP_SIMD_INLINE friend Mask32_128 isFinite(const Float32_128& a)
+    {
+        Mask32_128 result(UninitializeTag{});
+        result.m_data = _mm_castps_si128(_mm_cmpord_ps(a.m_data, _mm_mul_ps(_mm_setzero_ps(), a.m_data)));
+        return result;
+    }
+
 
 private:
     alignas(SimdSize) __m128 m_data;

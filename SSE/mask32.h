@@ -19,6 +19,9 @@ Emails: mithran@fias.uni-frankfurt.de
 namespace KFP {
 namespace SIMD {
 
+class Int32_128;
+class Float32_128;
+
 class Mask32_128
 {
 public:
@@ -29,16 +32,43 @@ public:
     friend class Int32_128;
     friend class Float32_128;
 
+    friend Int32_128 select(const Mask32_128& mask, const Int32_128& a, const Int32_128& b);
+    friend Mask32_128 operator<(const Int32_128& a, const Int32_128& b);
+    friend Mask32_128 operator<=(const Int32_128& a, const Int32_128& b);
+    friend Mask32_128 operator>(const Int32_128& a, const Int32_128& b);
+    friend Mask32_128 operator>=(const Int32_128& a, const Int32_128& b);
+    friend Mask32_128 operator==(const Int32_128& a, const Int32_128& b);
+    friend Mask32_128 operator!=(const Int32_128& a, const Int32_128& b);
+
+    friend Mask32_128 operator<(const Float32_128& a, const Float32_128& b);
+    friend Mask32_128 operator<=(const Float32_128& a, const Float32_128& b);
+    friend Mask32_128 operator>(const Float32_128& a, const Float32_128& b);
+    friend Mask32_128 operator>=(const Float32_128& a, const Float32_128& b);
+    friend Mask32_128 operator==(const Float32_128& a, const Float32_128& b);
+    friend Mask32_128 operator!=(const Float32_128& a, const Float32_128& b);
+
+    friend Mask32_128 isNan(const Float32_128& a);
+    friend Mask32_128 isFinite(const Float32_128& a);
+
     // ------------------------------------------------------
     // Constructors
     // ------------------------------------------------------
     // Default constructor:
-    Mask32_128() : m_data{_mm_setzero_si128()} {}
+    Mask32_128() : m_data(_mm_setzero_si128()) {}
     Mask32_128(UninitializeTag) {}
     // Constructor to broadcast the same value into all elements:
     Mask32_128(const Mask32_128& class_simd) = default;
 
     Mask32_128& operator=(const Mask32_128& class_simd) = default;
+
+    // ------------------------------------------------------
+    // Setter
+    // ------------------------------------------------------
+
+    void setTrue()
+    {
+        m_data = _mm_set1_epi32(-1);
+    }
 
     // ------------------------------------------------------
     // Data member accessors
@@ -57,13 +87,7 @@ public:
     }
     KFP_SIMD_INLINE bool operator[](int index) const
     {
-        assert((index >= 0) && ("[Error] (Mask32_128::operator[]): invalid index (" +
-               std::to_string(index) + ") given. Negative")
-               .data());
-        assert((index < int(SimdLen)) &&
-               ("[Error] (Mask32_128::operator[]): invalid index (" + std::to_string(index) +
-               ") given. Exceeds maximum")
-               .data());
+        assert((index >= 0) && (index < int(SimdLen)));
         alignas(SimdSize) int
         data[SimdLen]{}; // Helper array
         _mm_store_si128(reinterpret_cast<__m128i*>(data), m_data);
@@ -110,6 +134,24 @@ public:
         Mask32_128 result{UninitializeTag{}};
         result.m_data = _mm_or_si128(a.m_data, b.m_data);
         return result;
+    }
+
+    Mask32_128& operator&=(const Mask32_128& a)
+    {
+        *this = *this && a;
+        return *this;
+    }
+
+    Mask32_128& operator|=(const Mask32_128& a)
+    {
+        *this = *this || a;
+        return *this;
+    }
+
+    Mask32_128& operator^=(const Mask32_128& a)
+    {
+        *this = *this ^ a;
+        return *this;
     }
 
 private:

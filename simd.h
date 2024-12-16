@@ -11,7 +11,7 @@ Emails: mithran@fias.uni-frankfurt.de
 
 // Determine instruction set, and define platform-dependent functions
 #include "Utils/macros.h"
-#include "Utils/memory.h"
+// #include "Utils/memory.h"
 
 // Select appropriate header files depending on instruction set
 #if defined(KFP_SIMD_AVX)
